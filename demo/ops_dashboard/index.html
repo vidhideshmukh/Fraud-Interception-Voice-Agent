@@ -1,0 +1,599 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Barclays Fraud Operations Console</title>
+<style>
+  :root {
+    --bg: #0a0e1a; --panel: #121829; --panel2: #0e1424; --line: #223052;
+    --ink: #e7ecf6; --muted: #8a97b4; --dim: #5c6a8c;
+    --accent: #00aeef; --cyan: #22d3ee;
+    --ok: #22c55e; --bad: #ef4444; --warn: #f59e0b; --purple: #a78bfa; --blue: #60a5fa;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans);
+         font-size: 13px; line-height: 1.4; }
+  a { color: var(--cyan); }
+
+  /* --- top bar --- */
+  header { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1.2rem;
+           background: linear-gradient(180deg, #101830, #0b1020); border-bottom: 1px solid var(--line);
+           position: sticky; top: 0; z-index: 10; }
+  .brand { display: flex; align-items: center; gap: 0.6rem; }
+  .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent);
+                box-shadow: 0 0 12px var(--accent); }
+  .brand h1 { font-size: 1rem; margin: 0; font-weight: 700; letter-spacing: 0.01em; }
+  .brand .sub { color: var(--muted); font-size: 0.72rem; }
+  .chain { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem;
+           padding: 0.35rem 0.7rem; border: 1px solid var(--line); border-radius: 999px; background: var(--panel2); }
+  .chain .light { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .chain .light.broken { background: var(--bad); box-shadow: 0 0 8px var(--bad); }
+  .live { display: flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.72rem; }
+  .live .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  /* --- kpi row --- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.7rem; padding: 1rem 1.2rem 0.4rem; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 0.8rem 0.9rem; }
+  .kpi .n { font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .kpi .l { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+  .kpi.ok .n { color: var(--ok); } .kpi.bad .n { color: var(--bad); }
+  .kpi.warn .n { color: var(--warn); } .kpi.accent .n { color: var(--cyan); }
+
+  /* --- layout --- */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; padding: 0.7rem 1.2rem 2rem; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .panel.wide { grid-column: 1 / -1; }
+  .panel > h2 { font-size: 0.82rem; margin: 0; padding: 0.7rem 0.95rem; border-bottom: 1px solid var(--line);
+                display: flex; align-items: center; gap: 0.5rem; letter-spacing: 0.02em; }
+  .panel > h2 .tag { margin-left: auto; font-size: 0.66rem; color: var(--muted); font-weight: 400; }
+  .scroll { max-height: 340px; overflow: auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+  th { position: sticky; top: 0; background: var(--panel2); color: var(--dim); text-align: left;
+       font-weight: 600; text-transform: uppercase; font-size: 0.63rem; letter-spacing: 0.05em;
+       padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--line); }
+  td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #1a2338; vertical-align: middle; }
+  tr:hover td { background: #161d31; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; }
+  .mono { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+
+  .badge { display: inline-block; padding: 0.12rem 0.5rem; border-radius: 999px; font-size: 0.66rem;
+           font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .b-ok   { color: var(--ok);   background: rgba(34,197,94,0.12);  border-color: rgba(34,197,94,0.3); }
+  .b-bad  { color: var(--bad);  background: rgba(239,68,68,0.12);  border-color: rgba(239,68,68,0.3); }
+  .b-warn { color: var(--warn); background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); }
+  .b-blue { color: var(--blue); background: rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.3); }
+  .b-purple{color: var(--purple);background: rgba(167,139,250,0.14);border-color: rgba(167,139,250,0.3); }
+  .b-dim  { color: var(--dim);  background: #16203a; border-color: #223052; }
+
+  .filters { display: flex; gap: 0.35rem; padding: 0.55rem 0.7rem; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+  .filters button { background: var(--panel2); color: var(--muted); border: 1px solid var(--line);
+                    border-radius: 999px; padding: 0.2rem 0.7rem; font-size: 0.68rem; cursor: pointer; }
+  .filters button.active { background: rgba(0,174,239,0.15); color: var(--cyan); border-color: var(--accent); }
+  .empty { color: var(--dim); padding: 1.2rem; text-align: center; font-size: 0.78rem; }
+  tr.clickable { cursor: pointer; }
+  tr.clickable:hover td { background: #1c2540 !important; }
+
+  /* log-file browser rows */
+  .filelist .frow { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.6rem;
+                    border-bottom: 1px solid #1a2338; cursor: pointer; font-size: 0.75rem; }
+  .filelist .frow:hover { background: #161d31; }
+  .filelist .fname { font-family: var(--mono); color: var(--cyan); }
+  .filelist .fsize { margin-left: auto; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+  /* modal viewer (click a call / log file to open its JSON here) */
+  .viewer-overlay { position: fixed; inset: 0; background: rgba(2,6,14,0.78); z-index: 100;
+                    display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .viewer-box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+                width: min(940px, 95vw); max-height: 88vh; display: flex; flex-direction: column;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .viewer-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.8rem 1rem;
+                 border-bottom: 1px solid var(--line); }
+  .viewer-head .t { font-weight: 700; font-size: 0.9rem; }
+  .viewer-head .sub { color: var(--muted); font-size: 0.72rem; }
+  .viewer-head button { margin-left: auto; background: var(--panel2); color: var(--muted);
+                        border: 1px solid var(--line); border-radius: 6px; padding: 0.3rem 0.7rem; cursor: pointer; }
+  .viewer-body { overflow: auto; padding: 0.8rem 1rem; }
+  .rec { border: 1px solid var(--line); border-radius: 8px; margin-bottom: 0.5rem; overflow: hidden; }
+  .rec .rh { display: flex; gap: 0.5rem; align-items: center; padding: 0.35rem 0.6rem; background: var(--panel2); }
+  .rec pre, .viewer-body > pre { margin: 0; padding: 0.55rem 0.7rem; font-family: var(--mono);
+                 font-size: 0.72rem; white-space: pre-wrap; word-break: break-word; color: var(--ink); }
+  @media (max-width: 900px) { .kpis { grid-template-columns: repeat(3,1fr);} .grid { grid-template-columns: 1fr; } }
+</style>
+
+<header>
+  <div class="brand">
+    <span class="dot"></span>
+    <div>
+      <h1>Barclays · Fraud Operations Console</h1>
+      <div class="sub">Real-time interception monitoring · NeMo Guardrails · tamper-evident audit</div>
+    </div>
+  </div>
+  <div class="chain"><span class="light" id="chainLight"></span><span id="chainLabel">hash chain: —</span></div>
+  <div class="live"><span class="pulse"></span><span id="liveClock">live</span></div>
+</header>
+
+<div class="kpis">
+  <div class="kpi accent"><div class="n" id="kCalls">0</div><div class="l">Calls handled</div></div>
+  <div class="kpi warn"><div class="n" id="kQueue">0</div><div class="l">In queue (ringing)</div></div>
+  <div class="kpi bad"><div class="n" id="kFraud">0</div><div class="l">Frauds caught</div></div>
+  <div class="kpi ok"><div class="n" id="kLegit">0</div><div class="l">False positives cleared</div></div>
+  <div class="kpi warn"><div class="n" id="kEsc">0</div><div class="l">Escalated to human</div></div>
+  <div class="kpi bad"><div class="n" id="kIncidents">0</div><div class="l">Open incidents</div></div>
+  <div class="kpi bad"><div class="n" id="kRail">0</div><div class="l">Guardrail blocks</div></div>
+  <div class="kpi accent"><div class="n" id="kLat">—</div><div class="l">Avg LLM turn (ms)</div></div>
+  <div class="kpi ok"><div class="n" id="kTTI">—</div><div class="l">Avg intercept (s)</div></div>
+</div>
+
+<div class="grid">
+  <!-- Human review queue (escalated incidents an analyst actions) -->
+  <div class="panel wide">
+    <h2>🧑‍⚖️ Human review queue <span class="tag" id="incTag">analyst blocks or approves each escalated case</span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Incident</th><th>Customer</th><th class="num">Amount</th><th>Flagged for</th>
+          <th>Handoff reason</th><th>Analyst</th><th>Decision</th></tr></thead>
+        <tbody id="incBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Calls -->
+  <div class="panel wide">
+    <h2>📞 Call log <span class="tag" id="callsTag"></span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Session</th><th>Customer</th><th class="num">Amount</th><th>Flagged for</th>
+          <th class="num">Risk</th><th>State</th><th>Outcome</th></tr></thead>
+        <tbody id="callsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Persisted call history (from the durable audit index — survives restarts) -->
+  <div class="panel wide">
+    <h2>🗂️ Call history <span class="tag" id="histTag">persisted — survives restarts</span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Session</th><th>Started</th><th>Customer</th><th class="num">Amount</th>
+          <th>Flagged for</th><th>Outcome</th><th class="num">Intercept</th></tr></thead>
+        <tbody id="histBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Guardrail monitor -->
+  <div class="panel">
+    <h2>🛡️ NeMo Guardrails monitor <span class="tag">input &amp; output rail per turn</span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>#</th><th>Session</th><th>Input rail</th><th>Output rail</th><th>Intent</th><th>Model</th></tr></thead>
+        <tbody id="railBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Latency time-series (CloudWatch-style graph) -->
+  <div class="panel wide">
+    <h2>📈 LLM turn latency (ms) <span class="tag" id="latChartTag">every turn · hover for detail · avg line</span></h2>
+    <div style="padding: 0.7rem 0.9rem 0.5rem;">
+      <canvas id="latChart" style="width:100%; height:150px; display:block;"></canvas>
+      <div id="latTip" style="font-size:0.72rem; color:var(--muted); margin-top:0.35rem; min-height:1.1em;"></div>
+    </div>
+  </div>
+
+  <!-- Per-model / per-stage latency percentiles — the model-evaluation view -->
+  <div class="panel wide">
+    <h2>⏱️ Latency by model &amp; stage <span class="tag">p50 / p95 / p99 · per LLM call · model evaluation</span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Stage</th><th>Model</th><th class="num">Calls</th><th class="num">p50 (ms)</th>
+          <th class="num">p95 (ms)</th><th class="num">p99 (ms)</th><th class="num">avg</th><th class="num">max</th></tr></thead>
+        <tbody id="perfBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Latency -->
+  <div class="panel">
+    <h2>⚡ Latency &amp; model <span class="tag">fast-path vs Nemotron</span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>#</th><th>Session</th><th>Intent</th><th class="num">Latency</th><th>Model</th></tr></thead>
+        <tbody id="latBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Fraud screening -->
+  <div class="panel">
+    <h2>🔎 Fraud screening <span class="tag">every transaction scored</span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Decision</th><th>Customer</th><th class="num">Amount</th><th class="num">Risk</th><th>Why</th></tr></thead>
+        <tbody id="scrBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Audit chain -->
+  <div class="panel">
+    <h2>🔗 Audit chain <span class="tag" id="auditTag"></span></h2>
+    <div class="filters" id="auditFilters"></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>#</th><th>Kind</th><th>Detail</th><th>Session</th><th>Hash</th></tr></thead>
+        <tbody id="auditBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Log-file browser — open the cluster's log files here, no SSH needed -->
+  <div class="panel">
+    <h2>📁 Log files <span class="tag" id="logsTag">browse the cluster's logs — click to open</span></h2>
+    <div class="scroll filelist" id="logsBody"></div>
+  </div>
+</div>
+
+<!-- Modal viewer: click a call row or a log file to open its content here -->
+<div id="viewer" class="viewer-overlay" style="display:none;">
+  <div class="viewer-box">
+    <div class="viewer-head">
+      <span class="t" id="viewerTitle"></span><span class="sub" id="viewerSub"></span>
+      <button id="viewerClose">✕ close</button>
+    </div>
+    <div class="viewer-body" id="viewerBody"></div>
+  </div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const gbp = n => "£" + Number(n || 0).toLocaleString("en-GB", { maximumFractionDigits: 0 });
+  const sid = s => (s || "").replace(/^call_/, "").slice(0, 8);
+  async function getJSON(p) { const r = await fetch(p); if (!r.ok) throw new Error(p); return r.json(); }
+
+  // ---- modal viewer: open a call's trail or a log file's content in-dashboard
+  function openViewer(title, sub, bodyHtml) {
+    $("viewerTitle").textContent = title;
+    $("viewerSub").textContent = sub ? " · " + sub : "";
+    $("viewerBody").innerHTML = bodyHtml;
+    $("viewer").style.display = "flex";
+  }
+  function closeViewer() { $("viewer").style.display = "none"; }
+
+  function recordsHtml(records) {
+    if (!records || !records.length) return `<div class="empty">No records.</div>`;
+    return records.map(r => {
+      const kind = r.kind || "record";
+      const when = r.ts ? new Date(r.ts).toLocaleTimeString() : "";
+      const body = JSON.stringify(r.payload !== undefined ? r.payload : r, null, 2);
+      return `<div class="rec"><div class="rh">${kindBadge(kind)}
+        <span class="mono">${esc(when)}</span>
+        ${r.seq != null ? `<span class="mono">#${r.seq}</span>` : ""}
+        ${r.hash ? `<span class="mono" style="margin-left:auto;color:var(--dim)">${esc(r.hash)}</span>` : ""}</div>
+        <pre>${esc(body)}</pre></div>`;
+    }).join("");
+  }
+
+  async function viewCall(sessionId) {
+    openViewer(`Call ${sid(sessionId)}`, "loading…", `<div class="empty">Loading…</div>`);
+    try {
+      const d = await getJSON(`/history/${sessionId}`);
+      openViewer(`Call ${sid(sessionId)}`, `${d.records.length} records · ${esc(sessionId)}`, recordsHtml(d.records));
+    } catch (e) { $("viewerBody").innerHTML = `<div class="empty">Could not load this call.</div>`; }
+  }
+  window.viewCall = viewCall;
+
+  async function viewFile(path) {
+    openViewer(path, "loading…", `<div class="empty">Loading…</div>`);
+    try {
+      const d = await getJSON(`/logs/view?path=${encodeURIComponent(path)}&limit=1000`);
+      const body = d.format === "jsonl" ? recordsHtml(d.records) : `<pre>${esc(d.text)}</pre>`;
+      openViewer(path, `${d.total_lines} lines · ${d.format}`, body);
+    } catch (e) { $("viewerBody").innerHTML = `<div class="empty">Could not load this file.</div>`; }
+  }
+  window.viewFile = viewFile;
+
+  function fmtBytes(n) {
+    return n < 1024 ? n + " B" : (n < 1048576 ? (n / 1024).toFixed(1) + " KB" : (n / 1048576).toFixed(1) + " MB");
+  }
+  function renderLogFiles(data) {
+    const files = (data && data.files) || [];
+    $("logsTag").textContent = `${files.length} files · click to open`;
+    $("logsBody").innerHTML = files.map(f =>
+      `<div class="frow" onclick="viewFile('${esc(f.path)}')">
+         <span class="fname">${esc(f.path)}</span><span class="fsize">${fmtBytes(f.size)}</span></div>`
+    ).join("") || `<div class="empty">No log files yet.</div>`;
+  }
+
+  // outcome / state -> badge
+  function outcomeBadge(state, outcome) {
+    const map = {
+      fraud_confirmed:            ["b-bad",  "Fraud · card blocked"],
+      false_positive_recovered:   ["b-ok",   "Legit · hold released"],
+      escalated_to_human:         ["b-warn", "Escalated to human"],
+      auth_failed_frozen:         ["b-bad",  "Channel frozen"],
+      no_answer_hold_kept:        ["b-dim",  "No answer · hold kept"],
+    };
+    if (outcome && map[outcome]) return `<span class="badge ${map[outcome][0]}">${map[outcome][1]}</span>`;
+    const s = { verified:["b-blue","In call"], awaiting_verification:["b-warn","Verifying"],
+                push_sent:["b-dim","Ringing"], dialing:["b-dim","Ringing"] };
+    const [c,t] = s[state] || ["b-dim", state || "—"];
+    return `<span class="badge ${c}">${esc(t)}</span>`;
+  }
+
+  // rail verdict value -> badge
+  function railBadge(v) {
+    if (v == null || v === "n/a" || v === "not_configured") return `<span class="badge b-dim">—</span>`;
+    if (v === "pass") return `<span class="badge b-ok">pass</span>`;
+    if (v === "skipped_fastpath") return `<span class="badge b-purple">fast-path skip</span>`;
+    if (v === "keyword_only") return `<span class="badge b-dim">keyword only</span>`;
+    if (String(v).startsWith("blocked")) return `<span class="badge b-bad">BLOCKED · ${esc(String(v).replace(/^blocked_?/,""))}</span>`;
+    return `<span class="badge b-dim">${esc(v)}</span>`;
+  }
+  function modelBadge(m) {
+    if (m === "fastpath") return `<span class="badge b-purple">fast-path</span>`;
+    if (m === "guardrails") return `<span class="badge b-bad">guardrail</span>`;
+    if (m === "mock") return `<span class="badge b-dim">mock</span>`;
+    if (m && m.includes("nemotron")) return `<span class="badge b-blue">Nemotron</span>`;
+    return `<span class="badge b-dim">${esc(m || "—")}</span>`;
+  }
+
+  let auditFilter = "all";
+  const KINDS = ["all", "agent", "tool", "screening", "handoff", "incident", "state", "push", "asr"];
+  function renderFilters() {
+    if ($("auditFilters").children.length) return;  // build once
+    $("auditFilters").innerHTML = KINDS.map(k =>
+      `<button data-k="${k}" class="${k===auditFilter?'active':''}">${k}</button>`).join("");
+    $("auditFilters").querySelectorAll("button").forEach(b => b.onclick = () => {
+      auditFilter = b.dataset.k;
+      $("auditFilters").querySelectorAll("button").forEach(x => x.classList.toggle("active", x.dataset.k===auditFilter));
+      renderAudit(window._audit || []);
+    });
+  }
+
+  function auditDetail(r) {
+    const p = r.payload || {};
+    if (r.kind === "agent")     return `intent=<b>${esc(p.predicted_intent)}</b> conf=${p.confidence} · in:${esc(p.rail_verdicts?.input)} out:${esc(p.rail_verdicts?.output)}`;
+    if (r.kind === "tool")      return `<b>${esc(p.action)}</b>${p.txn_id?` · ${esc(p.txn_id)}`:""}`;
+    if (r.kind === "screening") return `${p.flagged?"⚠ FLAGGED":"✓ cleared"} · ${esc(p.customer_name)} · ${gbp(p.amount_gbp)} · risk ${p.risk_score}`;
+    if (r.kind === "handoff")   return `→ ${esc(p.specialist?.name)} · reason=${esc(p.reason)}${p.card_blocked?" · card blocked first":""}`;
+    if (r.kind === "incident")  return `human review requested — ${esc(p.incident_id)} · ${esc(p.reason)} · to ${esc(p.assigned_to)}`;
+    if (r.kind === "state")     return esc(JSON.stringify(p).slice(0, 80));
+    if (r.kind === "push")      return `code pushed via ${(p.channels||["app"]).join(", ")} (${p.code_length} digits)`;
+    if (r.kind === "asr")       return esc(p.text);
+    return esc(JSON.stringify(p).slice(0, 80));
+  }
+  function kindBadge(k) {
+    const c = { agent:"b-blue", tool:"b-bad", screening:"b-warn", handoff:"b-warn",
+                incident:"b-warn", state:"b-dim", push:"b-purple", asr:"b-dim" }[k] || "b-dim";
+    return `<span class="badge ${c}">${esc(k)}</span>`;
+  }
+
+  function renderAudit(records) {
+    const rows = records.filter(r => auditFilter === "all" || r.kind === auditFilter);
+    $("auditTag").textContent = `${records.length} records`;
+    $("auditBody").innerHTML = rows.slice().reverse().map(r => `
+      <tr><td class="mono">#${r.seq}</td><td>${kindBadge(r.kind)}</td>
+        <td>${auditDetail(r)}</td><td class="mono">${sid(r.session_id) || "—"}</td>
+        <td class="mono">${esc(r.hash)}</td></tr>`).join("")
+      || `<tr><td colspan="5" class="empty">No records for this filter.</td></tr>`;
+  }
+
+  // Analyst resolves an open incident (block or approve) — the human-in-the-loop step.
+  async function resolveIncident(id, decision) {
+    try { await postJSON(`/incidents/${id}/resolve`, { decision }); await tick(); }
+    catch (e) { /* transient — next poll will reflect state */ }
+  }
+  window.resolveIncident = resolveIncident;
+
+  function fmtTime(iso) {
+    if (!iso) return "—";
+    try { return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+    catch (e) { return "—"; }
+  }
+
+  function renderHistory(history) {
+    $("histTag").textContent = `${history.length} calls · persisted`;
+    $("histBody").innerHTML = history.map(h => {
+      const tti = h.time_to_intercept_seconds != null ? `${h.time_to_intercept_seconds}s`
+                : (h.status === "open" ? "in progress" : "—");
+      return `<tr class="clickable" onclick="viewCall('${esc(h.session_id)}')" title="Open full call trail">
+        <td class="mono">${sid(h.session_id)}</td>
+        <td class="mono">${fmtTime(h.started_at)}</td>
+        <td>${esc(h.customer_name || "—")}</td>
+        <td class="num">${gbp(h.amount_gbp || 0)}</td>
+        <td>${esc((h.rca_reason || "").replace(/^Risk engine flags:\s*/, "").slice(0, 48))}</td>
+        <td>${h.outcome ? outcomeBadge(null, h.outcome) : '<span class="badge b-dim">open</span>'}</td>
+        <td class="num">${tti}</td></tr>`;
+    }).join("") || `<tr><td colspan="7" class="empty">No past calls recorded yet.</td></tr>`;
+  }
+
+  function renderIncidents(incidents) {
+    $("incTag").textContent = `${incidents.filter(i => i.status === "open").length} open`;
+    $("incBody").innerHTML = incidents.map(i => {
+      const decision = i.status === "open"
+        ? `<button onclick="resolveIncident('${i.incident_id}','block')"
+             style="background:rgba(239,68,68,0.15);color:var(--bad);border:1px solid rgba(239,68,68,0.4);border-radius:6px;padding:0.2rem 0.6rem;cursor:pointer;font-size:0.7rem;font-weight:600;">Block card</button>
+           <button onclick="resolveIncident('${i.incident_id}','approve')"
+             style="background:rgba(34,197,94,0.12);color:var(--ok);border:1px solid rgba(34,197,94,0.35);border-radius:6px;padding:0.2rem 0.6rem;cursor:pointer;font-size:0.7rem;font-weight:600;margin-left:0.3rem;">Approve</button>`
+        : (i.resolution?.decision === "block"
+            ? `<span class="badge b-bad">blocked by analyst</span>`
+            : `<span class="badge b-ok">approved by analyst</span>`);
+      return `<tr style="${i.status==='open'?'background:rgba(245,158,11,0.06)':''}">
+        <td class="mono">${esc(i.incident_id)}</td>
+        <td>${esc(i.customer_name)} <span class="mono">••${esc(i.txn_id).slice(-4)}</span></td>
+        <td class="num">${gbp(i.amount_gbp)}${i.card_already_blocked?' <span class="badge b-dim">card frozen</span>':''}</td>
+        <td>${esc(i.merchant)} · ${esc(i.city)}</td>
+        <td><span class="badge b-warn">${esc(i.handoff_reason)}</span></td>
+        <td>${esc(i.assigned_to)}</td>
+        <td>${decision}</td></tr>`;
+    }).join("") || `<tr><td colspan="7" class="empty">No escalations yet — nothing awaiting human review.</td></tr>`;
+  }
+
+  // ---- CloudWatch-style latency time-series: one point PER LLM CALL, colored
+  //      by stage (dialog / input-rail / output-rail) --------------------------
+  const STAGE_COLOR = { dialog: "#22d3ee", input_rail: "#f59e0b", output_rail: "#a78bfa", mock: "#5c6a8c" };
+  function drawLatencyChart(samples) {
+    const c = $("latChart"); if (!c) return;
+    const data = (samples || []).map(s => ({ lat: s.latency_ms || 0, stage: s.stage, model: s.model, session: s.session_id }));
+    $("latChartTag").textContent = `${data.length} LLM calls · colored by stage · avg line · hover`;
+    const dpr = window.devicePixelRatio || 1, W = c.clientWidth || 600, H = 150;
+    c.width = W * dpr; c.height = H * dpr;
+    const ctx = c.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    if (!data.length) { ctx.fillStyle = "#5c6a8c"; ctx.font = "12px sans-serif";
+      ctx.fillText("No LLM calls yet — run a live call.", 12, H / 2); c._pts = []; return; }
+    const pad = { l: 46, r: 12, t: 22, b: 20 }, pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    const maxLat = Math.max(...data.map(d => d.lat), 100);
+    const avg = data.reduce((a, d) => a + d.lat, 0) / data.length;
+    const X = i => pad.l + (data.length === 1 ? pw / 2 : (i / (data.length - 1)) * pw);
+    const Y = v => pad.t + ph - (v / maxLat) * ph;
+    ctx.font = "10px ui-monospace,monospace"; ctx.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) { const v = maxLat * g / 4, yy = Y(v);
+      ctx.strokeStyle = "#1a2338"; ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(W - pad.r, yy); ctx.stroke();
+      ctx.fillStyle = "#5c6a8c"; ctx.fillText(Math.round(v), 6, yy + 3); }
+    // faint connecting line (chronological), then points colored by stage
+    ctx.beginPath(); data.forEach((d, i) => { const x = X(i), y = Y(d.lat); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+    ctx.strokeStyle = "rgba(90,106,140,0.35)"; ctx.lineWidth = 1; ctx.stroke();
+    // avg line
+    ctx.strokeStyle = "#22c55e"; ctx.setLineDash([4, 3]); ctx.beginPath();
+    ctx.moveTo(pad.l, Y(avg)); ctx.lineTo(W - pad.r, Y(avg)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = "#22c55e"; ctx.font = "10px ui-monospace,monospace"; ctx.fillText("avg " + Math.round(avg) + "ms", W - pad.r - 66, Y(avg) - 4);
+    data.forEach((d, i) => { ctx.beginPath(); ctx.arc(X(i), Y(d.lat), 2.8, 0, 7);
+      ctx.fillStyle = STAGE_COLOR[d.stage] || "#22d3ee"; ctx.fill(); });
+    // legend (top)
+    let lx = pad.l;
+    ["dialog", "input_rail", "output_rail", "mock"].forEach(st => {
+      if (!data.some(d => d.stage === st)) return;
+      ctx.fillStyle = STAGE_COLOR[st]; ctx.beginPath(); ctx.arc(lx + 4, 8, 3.5, 0, 7); ctx.fill();
+      ctx.fillStyle = "#8a97b4"; ctx.font = "10px sans-serif"; ctx.fillText(st, lx + 11, 11);
+      lx += ctx.measureText(st).width + 30;
+    });
+    c._pts = data.map((d, i) => ({ x: X(i), y: Y(d.lat), d }));
+  }
+
+  function renderPerf(summary) {
+    $("perfBody").innerHTML = (summary || []).map(r => {
+      const stageBadge = { dialog: "b-blue", input_rail: "b-warn", output_rail: "b-purple" }[r.stage] || "b-dim";
+      return `<tr>
+        <td><span class="badge ${stageBadge}">${esc(r.stage)}</span></td>
+        <td>${modelBadge(r.model)}</td>
+        <td class="num">${r.count}</td>
+        <td class="num">${r.p50 ?? "—"}</td>
+        <td class="num" style="color:var(--warn)">${r.p95 ?? "—"}</td>
+        <td class="num" style="color:var(--bad)">${r.p99 ?? "—"}</td>
+        <td class="num">${r.avg ?? "—"}</td>
+        <td class="num">${r.max ?? "—"}</td></tr>`;
+    }).join("") || `<tr><td colspan="8" class="empty">No LLM calls measured yet — run a live call.</td></tr>`;
+  }
+
+  async function tick() {
+    let audit, auditAll, sessions, incidents, history, logs, latency;
+    try { [audit, auditAll, sessions, incidents, history, logs, latency] = await Promise.all(
+      [getJSON("/audit"), getJSON("/audit/all"), getJSON("/sessions"), getJSON("/incidents"),
+       getJSON("/history"), getJSON("/logs"), getJSON("/metrics/latency")]); }
+    catch (e) { return; }
+    // DURABLE records (all runs) drive every panel + metric; the live in-memory
+    // /audit only supplies the current-run tamper-evidence light.
+    const records = auditAll.records || [];
+    window._audit = records;
+
+    // chain
+    $("chainLight").className = "light" + (audit.chain_valid ? "" : " broken");
+    $("chainLabel").textContent = "hash chain: " + (audit.chain_valid ? "valid · tamper-evident" : "BROKEN");
+    $("liveClock").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+    // agent turns (rail + latency come from here)
+    const agentTurns = records.filter(r => r.kind === "agent");
+    const railBlocks = agentTurns.filter(r => {
+      const v = r.payload.rail_verdicts || {};
+      return String(v.input || "").startsWith("blocked") || String(v.output || "").startsWith("blocked");
+    }).length;
+    const llmLatencies = agentTurns
+      .filter(r => r.payload.model_id && r.payload.model_id.includes("nemotron"))
+      .map(r => r.payload.latency_ms).filter(x => x > 0);
+    const avgLat = llmLatencies.length ? Math.round(llmLatencies.reduce((a,b)=>a+b,0)/llmLatencies.length) : null;
+
+    // KPIs — all-time from durable history; live queues from the current run
+    $("kCalls").textContent = history.length;
+    $("kQueue").textContent = sessions.filter(s => s.state === "push_sent" || s.state === "dialing").length;
+    $("kFraud").textContent = history.filter(h => h.outcome === "fraud_confirmed").length;
+    $("kLegit").textContent = history.filter(h => h.outcome === "false_positive_recovered").length;
+    $("kEsc").textContent   = history.filter(h => h.outcome === "escalated_to_human").length;
+    $("kIncidents").textContent = incidents.filter(i => i.status === "open").length;
+    $("kRail").textContent  = railBlocks;
+    $("kLat").textContent   = avgLat ?? "—";
+    const ttis = history.filter(h => h.time_to_intercept_seconds != null).map(h => h.time_to_intercept_seconds);
+    $("kTTI").textContent = ttis.length ? (ttis.reduce((a, b) => a + b, 0) / ttis.length).toFixed(1) : "—";
+    renderIncidents(incidents);
+    renderHistory(history);
+    renderLogFiles(logs);
+    drawLatencyChart(latency.samples);
+    renderPerf(latency.summary);
+
+    // live call log (current run, real-time state)
+    $("callsTag").textContent = `${sessions.length} live`;
+    $("callsBody").innerHTML = sessions.map(s => `
+      <tr><td class="mono">${sid(s.session_id)}</td>
+        <td>${esc(s.customer_name)} <span class="mono">••${esc(s.card_last4)}</span></td>
+        <td class="num">${gbp(s.amount_gbp)}</td>
+        <td>${esc((s.rca_reason||"").replace(/^Risk engine flags:\s*/,"").slice(0,60))}</td>
+        <td class="num">${s.risk_score}</td>
+        <td><span class="badge b-dim">${esc(s.state)}</span></td>
+        <td>${outcomeBadge(s.state, s.outcome)}</td></tr>`).join("")
+      || `<tr><td colspan="7" class="empty">No calls yet — trigger a fraud from the customer app.</td></tr>`;
+
+    // guardrail monitor
+    $("railBody").innerHTML = agentTurns.slice().reverse().slice(0, 250).map(r => {
+      const p = r.payload, v = p.rail_verdicts || {};
+      const blocked = String(v.input||"").startsWith("blocked") || String(v.output||"").startsWith("blocked");
+      return `<tr style="${blocked?'background:rgba(239,68,68,0.06)':''}">
+        <td class="mono">#${r.seq}</td><td class="mono">${sid(r.session_id)}</td>
+        <td>${railBadge(v.input)}</td><td>${railBadge(v.output)}</td>
+        <td>${esc(p.predicted_intent) || "—"}</td><td>${modelBadge(p.model_id)}</td></tr>`;
+    }).join("") || `<tr><td colspan="6" class="empty">No turns yet.</td></tr>`;
+
+    // latency
+    $("latBody").innerHTML = agentTurns.slice().reverse().slice(0, 250).map(r => {
+      const p = r.payload;
+      const lat = p.model_id === "fastpath" ? "~0" : (p.latency_ms != null ? Math.round(p.latency_ms) : "—");
+      return `<tr><td class="mono">#${r.seq}</td><td class="mono">${sid(r.session_id)}</td>
+        <td>${esc(p.predicted_intent)||"—"}</td><td class="num">${lat} ms</td>
+        <td>${modelBadge(p.model_id)}</td></tr>`;
+    }).join("") || `<tr><td colspan="5" class="empty">No turns yet.</td></tr>`;
+
+    // fraud screening
+    const scr = records.filter(r => r.kind === "screening");
+    $("scrBody").innerHTML = scr.slice().reverse().slice(0, 250).map(r => {
+      const p = r.payload;
+      return `<tr><td>${p.flagged?'<span class="badge b-bad">⚠ FLAGGED</span>':'<span class="badge b-ok">✓ cleared</span>'}</td>
+        <td>${esc(p.customer_name)}</td><td class="num">${gbp(p.amount_gbp)}</td>
+        <td class="num">${p.risk_score}</td>
+        <td style="max-width:260px;">${esc((p.reason||"").replace(/^Risk engine flags:\s*/,"").slice(0,70))}</td></tr>`;
+    }).join("") || `<tr><td colspan="5" class="empty">No transactions screened yet.</td></tr>`;
+
+    // audit
+    renderFilters();
+    renderAudit(records);
+  }
+
+  $("viewerClose").addEventListener("click", closeViewer);
+  $("viewer").addEventListener("click", (e) => { if (e.target.id === "viewer") closeViewer(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeViewer(); });
+
+  // Latency chart hover — the CloudWatch "hover a point, see the value" behaviour
+  $("latChart").addEventListener("mousemove", (e) => {
+    const c = $("latChart"); if (!c._pts || !c._pts.length) return;
+    const mx = e.clientX - c.getBoundingClientRect().left;
+    const n = c._pts.reduce((a, p) => Math.abs(p.x - mx) < Math.abs(a.x - mx) ? p : a, c._pts[0]);
+    const d = n.d;
+    $("latTip").textContent = `${Math.round(d.lat)} ms · ${d.stage} · ${d.model}`
+      + (d.session ? ` · call ${sid(d.session)}` : "");
+  });
+  $("latChart").addEventListener("mouseleave", () => { $("latTip").textContent = ""; });
+
+  tick();
+  setInterval(tick, 1500);
+</script>

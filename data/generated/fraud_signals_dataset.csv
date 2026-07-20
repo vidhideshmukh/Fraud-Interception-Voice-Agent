@@ -1,0 +1,151 @@
+customer_name,customer_id,phone_number,merchant,merchant_category,amount,known_devices,current_device,known_locations,current_location,previous_transaction_time,current_transaction_time,velocity_minutes,isFraud
+James Whitmore,C771002884,+44 7700 900112,National Express,Transport,16.25,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-17T07:13:11Z,2026-07-18T03:19:11Z,1206,False
+Emily Clarke,C481900231,+44 7700 900341,EasyJet,Travel,85.4,iPhone 14 | MacBook Air,MacBook Air,London | Manchester,London,2026-07-18T15:50:11Z,2026-07-19T17:46:11Z,1556,False
+Oliver Grant,C665401938,+44 7700 900558,Nandos,Dining,131.15,Google Pixel 7 | iPad Air,iPad Air,Birmingham | London,Manila,2026-07-18T06:11:11Z,2026-07-18T17:10:11Z,659,True
+Grace Turner,C158823406,+44 7700 900651,Amazon.co.uk,Online,95.17,iPhone 13,iPhone 13,Glasgow | Edinburgh,Edinburgh,2026-07-17T22:03:11Z,2026-07-18T17:51:11Z,1188,False
+Grace Turner,C158823406,+44 7700 900651,Esso,Fuel,125.84,iPhone 13,iPhone 13,Glasgow | Edinburgh,Edinburgh,2026-07-18T04:43:11Z,2026-07-19T01:55:11Z,1272,False
+Amelia Hughes,C902144870,+44 7700 900517,Tesco,Grocery,88.3,iPhone 14 Pro,Huawei P60,Cardiff | Bristol,Cardiff,2026-07-18T23:58:11Z,2026-07-19T09:24:11Z,566,True
+Charlotte Reid,C904377612,+44 7700 900920,National Express,Transport,92.54,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,London,2026-07-17T06:45:11Z,2026-07-18T06:22:11Z,1417,False
+Liam Foster,C210567433,+44 7700 900274,Lastminute.com,Travel,23.86,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-17T09:43:11Z,2026-07-18T10:42:11Z,1499,False
+Charlotte Reid,C904377612,+44 7700 900920,LastMinute.com,Travel,118.72,iPhone 15 Pro | MacBook Pro,iPhone 15 Pro,Bristol | London,Bristol,2026-07-17T14:41:11Z,2026-07-18T16:41:11Z,1560,False
+Amelia Hughes,C902144870,+44 7700 900517,Byron,Dining,120.92,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Manila,2026-07-18T19:39:11Z,2026-07-19T06:11:11Z,632,True
+Jack Wilson,C556201947,+44 7700 900806,National Express,Transport,52.47,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Manchester,2026-07-19T02:12:11Z,2026-07-19T07:26:11Z,314,False
+Sophie Bennett,C339045170,+44 7700 900733,Budget Rent a Car,Transport,17.23,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-17T21:27:11Z,2026-07-18T17:00:11Z,1173,False
+Sophie Bennett,C339045170,+44 7700 900733,Argos,Retail,31.19,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-18T09:22:11Z,2026-07-19T01:42:11Z,980,False
+Oliver Grant,C665401938,+44 7700 900558,Tesco,Retail,55.41,Google Pixel 7 | iPad Air,Google Pixel 7,Birmingham | London,Bangkok,2026-07-17T10:43:11Z,2026-07-17T22:24:11Z,701,True
+Amelia Hughes,C902144870,+44 7700 900517,Currys PC World,Electronics,47.47,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Bristol,2026-07-18T04:38:11Z,2026-07-18T16:37:11Z,719,False
+James Whitmore,C771002884,+44 7700 900112,Tesco,Retail,20.03,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-19T00:41:11Z,2026-07-19T20:21:11Z,1180,False
+Charlotte Reid,C904377612,+44 7700 900920,Wagamama,Dining,119.57,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,Bristol,2026-07-17T16:36:11Z,2026-07-18T17:38:11Z,1502,False
+James Whitmore,C771002884,+44 7700 900112,Tesco,Grocery,35.83,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Leeds,2026-07-18T21:09:11Z,2026-07-19T07:06:11Z,597,False
+James Whitmore,C771002884,+44 7700 900112,Tesco,Grocery,44.14,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-18T14:22:11Z,2026-07-18T16:06:11Z,104,False
+Charlotte Reid,C904377612,+44 7700 900920,Tesco,Retail,80.19,iPhone 15 Pro | MacBook Pro,iPhone 15 Pro,Bristol | London,Bristol,2026-07-17T07:44:11Z,2026-07-18T01:48:11Z,1084,False
+James Whitmore,C771002884,+44 7700 900112,YOTAM OTTOLONGHI,Dining,142.18,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-18T16:25:11Z,2026-07-18T21:08:11Z,283,False
+Amelia Hughes,C902144870,+44 7700 900517,Topshop,Retail,42.45,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Bristol,2026-07-19T01:43:11Z,2026-07-20T02:12:11Z,1469,False
+Liam Foster,C210567433,+44 7700 900274,Shell,Fuel,101.42,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-18T21:57:11Z,2026-07-19T07:56:11Z,599,False
+Amelia Hughes,C902144870,+44 7700 900517,Amazon,Online,43.74,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Cardiff,2026-07-18T12:21:11Z,2026-07-18T16:25:11Z,244,False
+Jack Wilson,C556201947,+44 7700 900806,Hertz,Transport,69.08,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Bangkok,2026-07-19T04:24:11Z,2026-07-19T09:05:11Z,281,True
+Noah Patel,C337719205,+44 7700 900388,Tesco,Grocery,3889.77,Samsung Galaxy S23 | iPad Pro,iPad Pro,London,London,2026-07-17T22:21:11Z,2026-07-18T09:35:11Z,674,True
+Jack Wilson,C556201947,+44 7700 900806,Tesco,Retail,60.03,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Liverpool,2026-07-19T01:30:11Z,2026-07-19T04:42:11Z,192,False
+Emily Clarke,C481900231,+44 7700 900341,Amazon UK,Online,2339.63,iPhone 14 | MacBook Air,iPhone 14,London | Manchester,London,2026-07-17T07:19:11Z,2026-07-17T16:50:11Z,571,True
+Emily Clarke,C481900231,+44 7700 900341,Tesco,Grocery,115.95,iPhone 14 | MacBook Air,iPhone 14,London | Manchester,Manchester,2026-07-18T07:49:11Z,2026-07-18T18:13:11Z,624,False
+Liam Foster,C210567433,+44 7700 900274,National Express,Transport,1374.27,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-17T09:21:11Z,2026-07-17T21:05:11Z,704,True
+Emily Clarke,C481900231,+44 7700 900341,Shell,Fuel,90.74,iPhone 14 | MacBook Air,iPhone 14,London | Manchester,London,2026-07-18T20:22:11Z,2026-07-19T09:46:11Z,804,False
+Charlotte Reid,C904377612,+44 7700 900920,TUI,Travel,203.8,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,London,2026-07-17T08:46:11Z,2026-07-18T04:19:11Z,1173,False
+James Whitmore,C771002884,+44 7700 900112,Prezzo,Dining,42.59,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-17T12:07:11Z,2026-07-17T20:48:11Z,521,False
+James Whitmore,C771002884,+44 7700 900112,EasyJet,Travel,33.94,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Leeds,2026-07-18T11:32:11Z,2026-07-18T18:32:11Z,420,False
+Sophie Bennett,C339045170,+44 7700 900733,ASOS,Online,26.67,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-19T02:57:11Z,2026-07-19T17:03:11Z,846,False
+Emily Clarke,C481900231,+44 7700 900341,Sainsbury's,Grocery,131.08,iPhone 14 | MacBook Air,iPhone 14,London | Manchester,London,2026-07-18T12:22:11Z,2026-07-19T12:37:11Z,1455,False
+Emily Clarke,C481900231,+44 7700 900341,ASOS,Online,137.16,iPhone 14 | MacBook Air,MacBook Air,London | Manchester,London,2026-07-18T18:19:11Z,2026-07-19T01:51:11Z,452,False
+Charlotte Reid,C904377612,+44 7700 900920,Thetrainline.com,Transport,196.23,iPhone 15 Pro | MacBook Pro,iPhone 15 Pro,Bristol | London,London,2026-07-17T07:41:11Z,2026-07-17T17:39:11Z,598,False
+Oliver Grant,C665401938,+44 7700 900558,ASOS,Retail,15.02,Google Pixel 7 | iPad Air,Google Pixel 7,Birmingham | London,London,2026-07-17T21:59:11Z,2026-07-18T11:25:11Z,806,False
+Oliver Grant,C665401938,+44 7700 900558,easyjet,Travel,69.1,Google Pixel 7 | iPad Air,Google Pixel 7,Birmingham | London,Birmingham,2026-07-18T10:23:11Z,2026-07-18T14:15:11Z,232,False
+James Whitmore,C771002884,+44 7700 900112,EasyJet,Travel,68.65,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Leeds,2026-07-18T22:00:11Z,2026-07-19T19:51:11Z,1311,False
+Emily Clarke,C481900231,+44 7700 900341,Currys PC World,Electronics,102.42,iPhone 14 | MacBook Air,MacBook Air,London | Manchester,Manchester,2026-07-18T03:07:11Z,2026-07-19T00:17:11Z,1270,False
+Noah Patel,C337719205,+44 7700 900388,ASOS,Online,84.36,Samsung Galaxy S23 | iPad Pro,iPad Pro,London,Manila,2026-07-17T07:38:11Z,2026-07-17T07:43:11Z,5,True
+Emily Clarke,C481900231,+44 7700 900341,Argos,Online,75.47,iPhone 14 | MacBook Air,MacBook Air,London | Manchester,Manchester,2026-07-18T20:43:11Z,2026-07-19T04:45:11Z,482,False
+James Whitmore,C771002884,+44 7700 900112,Esso,Fuel,24.64,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Leeds,2026-07-18T08:40:11Z,2026-07-18T19:57:11Z,677,False
+Liam Foster,C210567433,+44 7700 900274,Currys,Electronics,32.58,OnePlus 11,OnePlus 11,Leeds,Swansea,2026-07-17T18:31:11Z,2026-07-18T12:10:11Z,1059,True
+Jack Wilson,C556201947,+44 7700 900806,Esso,Fuel,155.83,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Belfast,2026-07-17T07:29:11Z,2026-07-17T19:34:11Z,725,True
+Jack Wilson,C556201947,+44 7700 900806,Marks & Spencer,Retail,34.27,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Liverpool,2026-07-19T00:26:11Z,2026-07-19T17:28:11Z,1022,False
+Sophie Bennett,C339045170,+44 7700 900733,Expedia,Travel,19.89,iPhone 12,Windows PC (new),Edinburgh,Edinburgh,2026-07-17T06:28:11Z,2026-07-17T08:09:11Z,101,True
+Noah Patel,C337719205,+44 7700 900388,Tesco,Grocery,136.2,Samsung Galaxy S23 | iPad Pro,iPad Pro,London,London,2026-07-18T21:07:11Z,2026-07-19T14:11:11Z,1024,False
+Liam Foster,C210567433,+44 7700 900274,Esso,Fuel,53.61,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-17T18:57:11Z,2026-07-18T11:00:11Z,963,False
+Grace Turner,C158823406,+44 7700 900651,EasyJet,Travel,50.49,iPhone 13,iPhone 13,Glasgow | Edinburgh,Edinburgh,2026-07-17T09:53:11Z,2026-07-17T20:50:11Z,657,False
+Sophie Bennett,C339045170,+44 7700 900733,Waitrose,Grocery,18.38,iPhone 12,iPhone 12,Edinburgh,Bangkok,2026-07-18T13:24:11Z,2026-07-18T13:44:11Z,20,True
+James Whitmore,C771002884,+44 7700 900112,National Express,Transport,927.17,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-17T16:22:11Z,2026-07-18T09:46:11Z,1044,True
+Charlotte Reid,C904377612,+44 7700 900920,National Express,Transport,223.41,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,Bristol,2026-07-18T02:47:11Z,2026-07-18T18:35:11Z,948,False
+Noah Patel,C337719205,+44 7700 900388,Tesco,Retail,3972.54,Samsung Galaxy S23 | iPad Pro,Samsung Galaxy S23,London,London,2026-07-18T06:28:11Z,2026-07-19T06:47:11Z,1459,True
+Amelia Hughes,C902144870,+44 7700 900517,Tesco,Retail,60.65,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Bristol,2026-07-18T23:41:11Z,2026-07-19T23:07:11Z,1406,False
+Charlotte Reid,C904377612,+44 7700 900920,Premier Inn,Dining,69.84,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,Bangkok,2026-07-18T14:58:11Z,2026-07-18T15:13:11Z,15,True
+James Whitmore,C771002884,+44 7700 900112,Waitrose,Grocery,72.07,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-17T08:55:11Z,2026-07-17T11:47:11Z,172,False
+Oliver Grant,C665401938,+44 7700 900558,Argos,Retail,63.06,Google Pixel 7 | iPad Air,Nokia G60,Birmingham | London,Birmingham,2026-07-17T21:05:11Z,2026-07-18T21:26:11Z,1461,True
+Oliver Grant,C665401938,+44 7700 900558,Nando's,Dining,73.13,Google Pixel 7 | iPad Air,Google Pixel 7,Birmingham | London,Birmingham,2026-07-18T08:10:11Z,2026-07-18T13:21:11Z,311,False
+James Whitmore,C771002884,+44 7700 900112,Premier Inn,Dining,63.76,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Leeds,2026-07-18T12:50:11Z,2026-07-18T17:48:11Z,298,False
+Oliver Grant,C665401938,+44 7700 900558,Currys PC World,Electronics,43.73,Google Pixel 7 | iPad Air,Google Pixel 7,Birmingham | London,Birmingham,2026-07-18T04:07:11Z,2026-07-18T07:58:11Z,231,False
+Charlotte Reid,C904377612,+44 7700 900920,Esso,Fuel,256.34,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,London,2026-07-18T18:58:11Z,2026-07-19T11:19:11Z,981,False
+Oliver Grant,C665401938,+44 7700 900558,Currys PC World,Electronics,44.79,Google Pixel 7 | iPad Air,iPad Air,Birmingham | London,London,2026-07-18T11:05:11Z,2026-07-18T23:35:11Z,750,False
+Noah Patel,C337719205,+44 7700 900388,John Lewis & Partners,Retail,49.75,Samsung Galaxy S23 | iPad Pro,iPad Pro,London,London,2026-07-17T11:45:11Z,2026-07-18T12:03:11Z,1458,False
+Sophie Bennett,C339045170,+44 7700 900733,Esso,Fuel,31.78,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-18T14:56:11Z,2026-07-19T04:32:11Z,816,False
+Sophie Bennett,C339045170,+44 7700 900733,Prezzo,Dining,24.29,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-18T16:22:11Z,2026-07-18T20:47:11Z,265,False
+Jack Wilson,C556201947,+44 7700 900806,Tesco,Grocery,2148.76,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Manchester,2026-07-17T20:54:11Z,2026-07-18T20:26:11Z,1412,True
+James Whitmore,C771002884,+44 7700 900112,BP,Fuel,26.89,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-17T21:06:11Z,2026-07-18T17:29:11Z,1223,False
+Amelia Hughes,C902144870,+44 7700 900517,Expedia,Travel,38.03,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Bristol,2026-07-18T08:29:11Z,2026-07-18T18:33:11Z,604,False
+Amelia Hughes,C902144870,+44 7700 900517,ASOS,Online,23.76,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Bristol,2026-07-17T06:18:11Z,2026-07-17T14:07:11Z,469,False
+Noah Patel,C337719205,+44 7700 900388,Tesco,Grocery,77.24,Samsung Galaxy S23 | iPad Pro,Samsung Galaxy S23,London,Dubai,2026-07-18T22:33:11Z,2026-07-18T22:47:11Z,14,True
+Noah Patel,C337719205,+44 7700 900388,Shell,Fuel,87.25,Samsung Galaxy S23 | iPad Pro,Samsung Galaxy S23,London,London,2026-07-18T20:47:11Z,2026-07-19T20:03:11Z,1396,False
+Sophie Bennett,C339045170,+44 7700 900733,ASOS,Retail,20.99,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-18T16:49:11Z,2026-07-18T20:04:11Z,195,False
+Jack Wilson,C556201947,+44 7700 900806,Shell,Fuel,47.43,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Liverpool,2026-07-17T10:26:11Z,2026-07-18T11:21:11Z,1495,False
+Grace Turner,C158823406,+44 7700 900651,EasyJet,Travel,37.38,iPhone 13,iPhone 13,Glasgow | Edinburgh,Belfast,2026-07-17T15:19:11Z,2026-07-18T07:01:11Z,942,True
+Amelia Hughes,C902144870,+44 7700 900517,Lastminute.com,Travel,31.46,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Bristol,2026-07-18T00:08:11Z,2026-07-18T12:03:11Z,715,False
+Sophie Bennett,C339045170,+44 7700 900733,Tesco,Retail,25.47,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-18T23:52:11Z,2026-07-19T06:43:11Z,411,False
+Amelia Hughes,C902144870,+44 7700 900517,Tesco,Retail,53.77,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Istanbul,2026-07-18T13:36:11Z,2026-07-18T13:53:11Z,17,True
+Jack Wilson,C556201947,+44 7700 900806,Waitrose,Retail,207.25,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Liverpool,2026-07-18T19:42:11Z,2026-07-18T23:38:11Z,236,False
+Jack Wilson,C556201947,+44 7700 900806,Wetherspoons,Dining,47.13,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Manchester,2026-07-18T08:39:11Z,2026-07-19T10:02:11Z,1523,False
+Grace Turner,C158823406,+44 7700 900651,Amazon.uk,Online,55.05,iPhone 13,Xiaomi Redmi Note 12,Glasgow | Edinburgh,Edinburgh,2026-07-18T12:19:11Z,2026-07-18T14:41:11Z,142,True
+Jack Wilson,C556201947,+44 7700 900806,AO.com,Online,3216.56,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Manchester,2026-07-17T13:27:11Z,2026-07-18T05:49:11Z,982,True
+Emily Clarke,C481900231,+44 7700 900341,ASOS,Online,134.36,iPhone 14 | MacBook Air,MacBook Air,London | Manchester,London,2026-07-17T06:03:11Z,2026-07-18T00:27:11Z,1104,False
+Grace Turner,C158823406,+44 7700 900651,ASOS,Online,37.4,iPhone 13,iPhone 13,Glasgow | Edinburgh,Edinburgh,2026-07-18T21:30:11Z,2026-07-19T12:47:11Z,917,False
+Amelia Hughes,C902144870,+44 7700 900517,National Express,Transport,2447.98,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Bristol,2026-07-17T10:54:11Z,2026-07-18T05:24:11Z,1110,True
+Noah Patel,C337719205,+44 7700 900388,Wagamama,Dining,84.8,Samsung Galaxy S23 | iPad Pro,iPad Pro,London,London,2026-07-18T18:36:11Z,2026-07-19T06:42:11Z,726,False
+Charlotte Reid,C904377612,+44 7700 900920,Debenhams,Retail,125.22,iPhone 15 Pro | MacBook Pro,iPhone 15 Pro,Bristol | London,Bristol,2026-07-18T18:54:11Z,2026-07-19T13:24:11Z,1110,False
+Emily Clarke,C481900231,+44 7700 900341,BP,Fuel,91.29,iPhone 14 | MacBook Air,MacBook Air,London | Manchester,Dubai,2026-07-17T12:29:11Z,2026-07-18T07:19:11Z,1130,True
+Liam Foster,C210567433,+44 7700 900274,Lastminute.com,Travel,2197.89,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-18T09:02:11Z,2026-07-19T06:34:11Z,1292,True
+Liam Foster,C210567433,+44 7700 900274,Tesco,Grocery,35.91,OnePlus 11,OnePlus 11,Leeds,Norwich,2026-07-18T16:32:11Z,2026-07-19T17:50:11Z,1518,True
+Liam Foster,C210567433,+44 7700 900274,Go-Ahead Group,Transport,28.27,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-18T03:23:11Z,2026-07-18T18:03:11Z,880,False
+James Whitmore,C771002884,+44 7700 900112,Currys PC World,Electronics,40.19,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-18T22:33:11Z,2026-07-19T15:04:11Z,991,False
+Emily Clarke,C481900231,+44 7700 900341,Argos,Retail,117.45,iPhone 14 | MacBook Air,MacBook Air,London | Manchester,London,2026-07-17T08:43:11Z,2026-07-17T15:29:11Z,406,False
+Liam Foster,C210567433,+44 7700 900274,Tesco,Retail,45.29,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-18T23:56:11Z,2026-07-19T12:38:11Z,762,False
+Noah Patel,C337719205,+44 7700 900388,M&S Foodhall,Dining,85.55,Samsung Galaxy S23 | iPad Pro,iPad Pro,London,Inverness,2026-07-17T06:41:11Z,2026-07-17T17:59:11Z,678,True
+Noah Patel,C337719205,+44 7700 900388,Tesco,Grocery,64.05,Samsung Galaxy S23 | iPad Pro,iPad Pro,London,Accra,2026-07-19T03:26:11Z,2026-07-19T03:30:11Z,4,True
+Noah Patel,C337719205,+44 7700 900388,Shell,Fuel,98.5,Samsung Galaxy S23 | iPad Pro,Samsung Galaxy S23,London,London,2026-07-18T17:48:11Z,2026-07-19T01:16:11Z,448,False
+Emily Clarke,C481900231,+44 7700 900341,Tesco,Grocery,84.59,iPhone 14 | MacBook Air,iPhone 14,London | Manchester,Manila,2026-07-18T13:33:11Z,2026-07-18T13:44:11Z,11,True
+Liam Foster,C210567433,+44 7700 900274,Amazon,Online,35.21,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-17T13:18:11Z,2026-07-18T01:00:11Z,702,False
+Oliver Grant,C665401938,+44 7700 900558,Currys PC World,Electronics,79.62,Google Pixel 7 | iPad Air,iPad Air,Birmingham | London,London,2026-07-18T03:09:11Z,2026-07-18T21:08:11Z,1079,False
+Charlotte Reid,C904377612,+44 7700 900920,ASOS,Online,156.74,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,London,2026-07-17T14:46:11Z,2026-07-18T15:40:11Z,1494,False
+Grace Turner,C158823406,+44 7700 900651,EasyJet,Travel,81.58,iPhone 13,iPhone 13,Glasgow | Edinburgh,Norwich,2026-07-18T05:21:11Z,2026-07-18T14:19:11Z,538,True
+Oliver Grant,C665401938,+44 7700 900558,Amazon.co.uk,Online,41.03,Google Pixel 7 | iPad Air,Google Pixel 7,Birmingham | London,Dubai,2026-07-17T13:51:11Z,2026-07-18T03:48:11Z,837,True
+Charlotte Reid,C904377612,+44 7700 900920,Tesco,Grocery,39.07,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,Accra,2026-07-18T04:26:11Z,2026-07-18T04:34:11Z,8,True
+Oliver Grant,C665401938,+44 7700 900558,Tesco,Grocery,168.59,Google Pixel 7 | iPad Air,iPad Air,Birmingham | London,Birmingham,2026-07-18T02:17:11Z,2026-07-18T22:48:11Z,1231,False
+Sophie Bennett,C339045170,+44 7700 900733,ASOS,Online,17.47,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-18T04:15:11Z,2026-07-19T04:42:11Z,1467,False
+Charlotte Reid,C904377612,+44 7700 900920,Tesco,Grocery,83.85,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,London,2026-07-19T03:42:11Z,2026-07-20T02:20:11Z,1358,False
+Grace Turner,C158823406,+44 7700 900651,ASOS,Online,74.53,iPhone 13,iPhone 13,Glasgow | Edinburgh,Glasgow,2026-07-18T08:47:11Z,2026-07-19T08:26:11Z,1419,False
+Oliver Grant,C665401938,+44 7700 900558,EasyJet,Travel,95.35,Google Pixel 7 | iPad Air,Google Pixel 7,Birmingham | London,Birmingham,2026-07-17T19:47:11Z,2026-07-18T01:14:11Z,327,False
+James Whitmore,C771002884,+44 7700 900112,Argos,Retail,35.45,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Leeds,2026-07-17T16:32:11Z,2026-07-18T08:20:11Z,948,False
+Noah Patel,C337719205,+44 7700 900388,ASOS,Online,381.9,Samsung Galaxy S23 | iPad Pro,Samsung Galaxy S23,London,London,2026-07-18T10:19:11Z,2026-07-18T12:56:11Z,157,False
+Charlotte Reid,C904377612,+44 7700 900920,Tesco,Grocery,4817.35,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,London,2026-07-18T04:55:11Z,2026-07-18T08:29:11Z,214,True
+Oliver Grant,C665401938,+44 7700 900558,Tesco,Grocery,30.84,Google Pixel 7 | iPad Air,Google Pixel 7,Birmingham | London,Birmingham,2026-07-18T20:49:11Z,2026-07-19T17:35:11Z,1246,False
+Liam Foster,C210567433,+44 7700 900274,Prezzo,Dining,53.93,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-18T19:20:11Z,2026-07-19T17:10:11Z,1310,False
+Emily Clarke,C481900231,+44 7700 900341,Tesco,Grocery,100.87,iPhone 14 | MacBook Air,Xiaomi Redmi Note 12,London | Manchester,London,2026-07-18T21:54:11Z,2026-07-19T21:57:11Z,1443,True
+Noah Patel,C337719205,+44 7700 900388,Esso,Fuel,116.16,Samsung Galaxy S23 | iPad Pro,iPad Pro,London,London,2026-07-19T01:04:11Z,2026-07-19T18:49:11Z,1065,False
+James Whitmore,C771002884,+44 7700 900112,JohnLewis,Retail,42.49,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manila,2026-07-19T02:27:11Z,2026-07-19T02:50:11Z,23,True
+Oliver Grant,C665401938,+44 7700 900558,Waitrose,Grocery,76.31,Google Pixel 7 | iPad Air,Google Pixel 7,Birmingham | London,Dubai,2026-07-18T23:54:11Z,2026-07-19T12:23:11Z,749,True
+James Whitmore,C771002884,+44 7700 900112,BP,Fuel,36.17,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Leeds,2026-07-18T22:38:11Z,2026-07-20T00:05:11Z,1527,False
+Sophie Bennett,C339045170,+44 7700 900733,Amazon.co.uk,Online,711.19,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-18T06:16:11Z,2026-07-18T23:14:11Z,1018,True
+Noah Patel,C337719205,+44 7700 900388,Marks & Spencer,Retail,2089.69,Samsung Galaxy S23 | iPad Pro,iPad Pro,London,London,2026-07-18T23:35:11Z,2026-07-19T04:15:11Z,280,True
+Charlotte Reid,C904377612,+44 7700 900920,Tesco,Grocery,166.51,iPhone 15 Pro | MacBook Pro,Motorola Edge 40,Bristol | London,London,2026-07-17T07:59:11Z,2026-07-17T23:55:11Z,956,True
+Charlotte Reid,C904377612,+44 7700 900920,Currys PC World,Electronics,99.71,iPhone 15 Pro | MacBook Pro,iPhone 15 Pro,Bristol | London,London,2026-07-17T15:26:11Z,2026-07-18T05:28:11Z,842,False
+Sophie Bennett,C339045170,+44 7700 900733,AO.com,Electronics,44.61,iPhone 12,Nokia G60,Edinburgh,Edinburgh,2026-07-17T09:32:11Z,2026-07-18T06:02:11Z,1230,True
+Sophie Bennett,C339045170,+44 7700 900733,Nandos,Dining,18.82,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-18T19:38:11Z,2026-07-19T16:27:11Z,1249,False
+Liam Foster,C210567433,+44 7700 900274,GoCompare,Transport,18.03,OnePlus 11,OnePlus 11,Leeds,Leeds,2026-07-18T03:44:11Z,2026-07-18T19:33:11Z,949,False
+Amelia Hughes,C902144870,+44 7700 900517,Expedia.co.uk,Travel,37.79,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Bristol,2026-07-17T14:40:11Z,2026-07-18T12:31:11Z,1311,False
+Charlotte Reid,C904377612,+44 7700 900920,Tesco,Grocery,5578.01,iPhone 15 Pro | MacBook Pro,iPhone 15 Pro,Bristol | London,Bristol,2026-07-18T00:28:11Z,2026-07-18T18:32:11Z,1084,True
+Charlotte Reid,C904377612,+44 7700 900920,ASOS,Online,189.29,iPhone 15 Pro | MacBook Pro,MacBook Pro,Bristol | London,Lagos,2026-07-17T17:26:11Z,2026-07-17T17:36:11Z,10,True
+Grace Turner,C158823406,+44 7700 900651,Currys PC World,Electronics,82.54,iPhone 13,iPhone 13,Glasgow | Edinburgh,Glasgow,2026-07-18T21:13:11Z,2026-07-18T22:58:11Z,105,False
+Liam Foster,C210567433,+44 7700 900274,National Express,Transport,26.87,OnePlus 11,OnePlus 11,Leeds,Lagos,2026-07-17T19:15:11Z,2026-07-17T19:30:11Z,15,True
+Jack Wilson,C556201947,+44 7700 900806,Tesco,Grocery,64.58,Google Pixel 8,Huawei P60,Liverpool | Manchester,Manchester,2026-07-18T00:54:11Z,2026-07-18T12:16:11Z,682,True
+Sophie Bennett,C339045170,+44 7700 900733,EasyJet,Travel,12.88,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-17T17:38:11Z,2026-07-17T21:49:11Z,251,False
+Sophie Bennett,C339045170,+44 7700 900733,Nando's,Dining,18.52,iPhone 12,Nokia G60,Edinburgh,Edinburgh,2026-07-17T18:34:11Z,2026-07-18T17:40:11Z,1386,True
+Noah Patel,C337719205,+44 7700 900388,Currys,Electronics,47.45,Samsung Galaxy S23 | iPad Pro,Samsung Galaxy S23,London,Belfast,2026-07-18T17:34:11Z,2026-07-19T15:37:11Z,1323,True
+Emily Clarke,C481900231,+44 7700 900341,Tesco,Grocery,210.94,iPhone 14 | MacBook Air,MacBook Air,London | Manchester,Accra,2026-07-17T22:46:11Z,2026-07-17T23:09:11Z,23,True
+Oliver Grant,C665401938,+44 7700 900558,Currys PC World,Online,102.46,Google Pixel 7 | iPad Air,Motorola Edge 40,Birmingham | London,London,2026-07-18T05:23:11Z,2026-07-19T00:12:11Z,1129,True
+Sophie Bennett,C339045170,+44 7700 900733,Trainline,Transport,48.55,iPhone 12,iPhone 12,Edinburgh,Edinburgh,2026-07-17T18:48:11Z,2026-07-18T09:25:11Z,877,False
+Amelia Hughes,C902144870,+44 7700 900517,Amazon.co.uk,Online,108.89,iPhone 14 Pro,iPhone 14 Pro,Cardiff | Bristol,Bristol,2026-07-18T16:33:11Z,2026-07-19T05:01:11Z,748,False
+Emily Clarke,C481900231,+44 7700 900341,La Redoute,Dining,67.91,iPhone 14 | MacBook Air,iPhone 14,London | Manchester,London,2026-07-18T05:58:11Z,2026-07-19T07:50:11Z,1552,False
+James Whitmore,C771002884,+44 7700 900112,John Lewis,Retail,27.22,Samsung Galaxy S22,Samsung Galaxy S22,Manchester | Leeds,Manchester,2026-07-17T23:25:11Z,2026-07-18T18:48:11Z,1163,False
+Jack Wilson,C556201947,+44 7700 900806,Tesco,Grocery,33.89,Google Pixel 8,Google Pixel 8,Liverpool | Manchester,Manchester,2026-07-17T07:04:11Z,2026-07-18T04:58:11Z,1314,False
+Emily Clarke,C481900231,+44 7700 900341,Marks & Spencer,Retail,43.49,iPhone 14 | MacBook Air,iPhone 14,London | Manchester,Manchester,2026-07-17T08:35:11Z,2026-07-18T06:39:11Z,1324,False
+Emily Clarke,C481900231,+44 7700 900341,Tesco,Grocery,142.72,iPhone 14 | MacBook Air,iPhone 14,London | Manchester,London,2026-07-17T08:37:11Z,2026-07-18T09:57:11Z,1520,False
+Oliver Grant,C665401938,+44 7700 900558,Argos,Online,63.38,Google Pixel 7 | iPad Air,unknown Android device,Birmingham | London,London,2026-07-18T06:59:11Z,2026-07-18T12:50:11Z,351,True
+Emily Clarke,C481900231,+44 7700 900341,Tesco,Retail,153.02,iPhone 14 | MacBook Air,MacBook Air,London | Manchester,Bangkok,2026-07-17T20:13:11Z,2026-07-18T04:16:11Z,483,True
+Grace Turner,C158823406,+44 7700 900651,Waitrose,Grocery,60.87,iPhone 13,iPhone 13,Glasgow | Edinburgh,Accra,2026-07-17T17:28:11Z,2026-07-17T17:50:11Z,22,True
+Charlotte Reid,C904377612,+44 7700 900920,BP,Fuel,70.23,iPhone 15 Pro | MacBook Pro,iPhone 15 Pro,Bristol | London,London,2026-07-18T13:12:11Z,2026-07-19T05:51:11Z,999,False
