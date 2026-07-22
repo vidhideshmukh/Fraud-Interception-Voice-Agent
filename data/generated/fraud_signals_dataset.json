@@ -1,0 +1,3176 @@
+[
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "National Express",
+    "merchant_category": "Transport",
+    "amount": 16.25,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T07:13:11Z",
+    "current_transaction_time": "2026-07-18T03:19:11Z",
+    "velocity_minutes": 1206,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "EasyJet",
+    "merchant_category": "Travel",
+    "amount": 85.4,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "MacBook Air",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T15:50:11Z",
+    "current_transaction_time": "2026-07-19T17:46:11Z",
+    "velocity_minutes": 1556,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Nandos",
+    "merchant_category": "Dining",
+    "amount": 131.15,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "iPad Air",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Manila",
+    "previous_transaction_time": "2026-07-18T06:11:11Z",
+    "current_transaction_time": "2026-07-18T17:10:11Z",
+    "velocity_minutes": 659,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "Amazon.co.uk",
+    "merchant_category": "Online",
+    "amount": 95.17,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "iPhone 13",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-17T22:03:11Z",
+    "current_transaction_time": "2026-07-18T17:51:11Z",
+    "velocity_minutes": 1188,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "Esso",
+    "merchant_category": "Fuel",
+    "amount": 125.84,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "iPhone 13",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T04:43:11Z",
+    "current_transaction_time": "2026-07-19T01:55:11Z",
+    "velocity_minutes": 1272,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 88.3,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "Huawei P60",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Cardiff",
+    "previous_transaction_time": "2026-07-18T23:58:11Z",
+    "current_transaction_time": "2026-07-19T09:24:11Z",
+    "velocity_minutes": 566,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "National Express",
+    "merchant_category": "Transport",
+    "amount": 92.54,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T06:45:11Z",
+    "current_transaction_time": "2026-07-18T06:22:11Z",
+    "velocity_minutes": 1417,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Lastminute.com",
+    "merchant_category": "Travel",
+    "amount": 23.86,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-17T09:43:11Z",
+    "current_transaction_time": "2026-07-18T10:42:11Z",
+    "velocity_minutes": 1499,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "LastMinute.com",
+    "merchant_category": "Travel",
+    "amount": 118.72,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "iPhone 15 Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-17T14:41:11Z",
+    "current_transaction_time": "2026-07-18T16:41:11Z",
+    "velocity_minutes": 1560,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Byron",
+    "merchant_category": "Dining",
+    "amount": 120.92,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Manila",
+    "previous_transaction_time": "2026-07-18T19:39:11Z",
+    "current_transaction_time": "2026-07-19T06:11:11Z",
+    "velocity_minutes": 632,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "National Express",
+    "merchant_category": "Transport",
+    "amount": 52.47,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-19T02:12:11Z",
+    "current_transaction_time": "2026-07-19T07:26:11Z",
+    "velocity_minutes": 314,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Budget Rent a Car",
+    "merchant_category": "Transport",
+    "amount": 17.23,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-17T21:27:11Z",
+    "current_transaction_time": "2026-07-18T17:00:11Z",
+    "velocity_minutes": 1173,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Argos",
+    "merchant_category": "Retail",
+    "amount": 31.19,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T09:22:11Z",
+    "current_transaction_time": "2026-07-19T01:42:11Z",
+    "velocity_minutes": 980,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 55.41,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Google Pixel 7",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Bangkok",
+    "previous_transaction_time": "2026-07-17T10:43:11Z",
+    "current_transaction_time": "2026-07-17T22:24:11Z",
+    "velocity_minutes": 701,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Currys PC World",
+    "merchant_category": "Electronics",
+    "amount": 47.47,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-18T04:38:11Z",
+    "current_transaction_time": "2026-07-18T16:37:11Z",
+    "velocity_minutes": 719,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 20.03,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-19T00:41:11Z",
+    "current_transaction_time": "2026-07-19T20:21:11Z",
+    "velocity_minutes": 1180,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Wagamama",
+    "merchant_category": "Dining",
+    "amount": 119.57,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-17T16:36:11Z",
+    "current_transaction_time": "2026-07-18T17:38:11Z",
+    "velocity_minutes": 1502,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 35.83,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T21:09:11Z",
+    "current_transaction_time": "2026-07-19T07:06:11Z",
+    "velocity_minutes": 597,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 44.14,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-18T14:22:11Z",
+    "current_transaction_time": "2026-07-18T16:06:11Z",
+    "velocity_minutes": 104,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 80.19,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "iPhone 15 Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-17T07:44:11Z",
+    "current_transaction_time": "2026-07-18T01:48:11Z",
+    "velocity_minutes": 1084,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "YOTAM OTTOLONGHI",
+    "merchant_category": "Dining",
+    "amount": 142.18,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-18T16:25:11Z",
+    "current_transaction_time": "2026-07-18T21:08:11Z",
+    "velocity_minutes": 283,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Topshop",
+    "merchant_category": "Retail",
+    "amount": 42.45,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-19T01:43:11Z",
+    "current_transaction_time": "2026-07-20T02:12:11Z",
+    "velocity_minutes": 1469,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Shell",
+    "merchant_category": "Fuel",
+    "amount": 101.42,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T21:57:11Z",
+    "current_transaction_time": "2026-07-19T07:56:11Z",
+    "velocity_minutes": 599,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Amazon",
+    "merchant_category": "Online",
+    "amount": 43.74,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Cardiff",
+    "previous_transaction_time": "2026-07-18T12:21:11Z",
+    "current_transaction_time": "2026-07-18T16:25:11Z",
+    "velocity_minutes": 244,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Hertz",
+    "merchant_category": "Transport",
+    "amount": 69.08,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Bangkok",
+    "previous_transaction_time": "2026-07-19T04:24:11Z",
+    "current_transaction_time": "2026-07-19T09:05:11Z",
+    "velocity_minutes": 281,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 3889.77,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "iPad Pro",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T22:21:11Z",
+    "current_transaction_time": "2026-07-18T09:35:11Z",
+    "velocity_minutes": 674,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 60.03,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Liverpool",
+    "previous_transaction_time": "2026-07-19T01:30:11Z",
+    "current_transaction_time": "2026-07-19T04:42:11Z",
+    "velocity_minutes": 192,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Amazon UK",
+    "merchant_category": "Online",
+    "amount": 2339.63,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "iPhone 14",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T07:19:11Z",
+    "current_transaction_time": "2026-07-17T16:50:11Z",
+    "velocity_minutes": 571,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 115.95,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "iPhone 14",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-18T07:49:11Z",
+    "current_transaction_time": "2026-07-18T18:13:11Z",
+    "velocity_minutes": 624,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "National Express",
+    "merchant_category": "Transport",
+    "amount": 1374.27,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-17T09:21:11Z",
+    "current_transaction_time": "2026-07-17T21:05:11Z",
+    "velocity_minutes": 704,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Shell",
+    "merchant_category": "Fuel",
+    "amount": 90.74,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "iPhone 14",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T20:22:11Z",
+    "current_transaction_time": "2026-07-19T09:46:11Z",
+    "velocity_minutes": 804,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "TUI",
+    "merchant_category": "Travel",
+    "amount": 203.8,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T08:46:11Z",
+    "current_transaction_time": "2026-07-18T04:19:11Z",
+    "velocity_minutes": 1173,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "Prezzo",
+    "merchant_category": "Dining",
+    "amount": 42.59,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T12:07:11Z",
+    "current_transaction_time": "2026-07-17T20:48:11Z",
+    "velocity_minutes": 521,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "EasyJet",
+    "merchant_category": "Travel",
+    "amount": 33.94,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T11:32:11Z",
+    "current_transaction_time": "2026-07-18T18:32:11Z",
+    "velocity_minutes": 420,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 26.67,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-19T02:57:11Z",
+    "current_transaction_time": "2026-07-19T17:03:11Z",
+    "velocity_minutes": 846,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Sainsbury's",
+    "merchant_category": "Grocery",
+    "amount": 131.08,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "iPhone 14",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T12:22:11Z",
+    "current_transaction_time": "2026-07-19T12:37:11Z",
+    "velocity_minutes": 1455,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 137.16,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "MacBook Air",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T18:19:11Z",
+    "current_transaction_time": "2026-07-19T01:51:11Z",
+    "velocity_minutes": 452,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Thetrainline.com",
+    "merchant_category": "Transport",
+    "amount": 196.23,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "iPhone 15 Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T07:41:11Z",
+    "current_transaction_time": "2026-07-17T17:39:11Z",
+    "velocity_minutes": 598,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "ASOS",
+    "merchant_category": "Retail",
+    "amount": 15.02,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Google Pixel 7",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T21:59:11Z",
+    "current_transaction_time": "2026-07-18T11:25:11Z",
+    "velocity_minutes": 806,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "easyjet",
+    "merchant_category": "Travel",
+    "amount": 69.1,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Google Pixel 7",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Birmingham",
+    "previous_transaction_time": "2026-07-18T10:23:11Z",
+    "current_transaction_time": "2026-07-18T14:15:11Z",
+    "velocity_minutes": 232,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "EasyJet",
+    "merchant_category": "Travel",
+    "amount": 68.65,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T22:00:11Z",
+    "current_transaction_time": "2026-07-19T19:51:11Z",
+    "velocity_minutes": 1311,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Currys PC World",
+    "merchant_category": "Electronics",
+    "amount": 102.42,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "MacBook Air",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-18T03:07:11Z",
+    "current_transaction_time": "2026-07-19T00:17:11Z",
+    "velocity_minutes": 1270,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 84.36,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "iPad Pro",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "Manila",
+    "previous_transaction_time": "2026-07-17T07:38:11Z",
+    "current_transaction_time": "2026-07-17T07:43:11Z",
+    "velocity_minutes": 5,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Argos",
+    "merchant_category": "Online",
+    "amount": 75.47,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "MacBook Air",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-18T20:43:11Z",
+    "current_transaction_time": "2026-07-19T04:45:11Z",
+    "velocity_minutes": 482,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "Esso",
+    "merchant_category": "Fuel",
+    "amount": 24.64,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T08:40:11Z",
+    "current_transaction_time": "2026-07-18T19:57:11Z",
+    "velocity_minutes": 677,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Currys",
+    "merchant_category": "Electronics",
+    "amount": 32.58,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Swansea",
+    "previous_transaction_time": "2026-07-17T18:31:11Z",
+    "current_transaction_time": "2026-07-18T12:10:11Z",
+    "velocity_minutes": 1059,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Esso",
+    "merchant_category": "Fuel",
+    "amount": 155.83,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Belfast",
+    "previous_transaction_time": "2026-07-17T07:29:11Z",
+    "current_transaction_time": "2026-07-17T19:34:11Z",
+    "velocity_minutes": 725,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Marks & Spencer",
+    "merchant_category": "Retail",
+    "amount": 34.27,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Liverpool",
+    "previous_transaction_time": "2026-07-19T00:26:11Z",
+    "current_transaction_time": "2026-07-19T17:28:11Z",
+    "velocity_minutes": 1022,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Expedia",
+    "merchant_category": "Travel",
+    "amount": 19.89,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "Windows PC (new)",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-17T06:28:11Z",
+    "current_transaction_time": "2026-07-17T08:09:11Z",
+    "velocity_minutes": 101,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 136.2,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "iPad Pro",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T21:07:11Z",
+    "current_transaction_time": "2026-07-19T14:11:11Z",
+    "velocity_minutes": 1024,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Esso",
+    "merchant_category": "Fuel",
+    "amount": 53.61,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-17T18:57:11Z",
+    "current_transaction_time": "2026-07-18T11:00:11Z",
+    "velocity_minutes": 963,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "EasyJet",
+    "merchant_category": "Travel",
+    "amount": 50.49,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "iPhone 13",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-17T09:53:11Z",
+    "current_transaction_time": "2026-07-17T20:50:11Z",
+    "velocity_minutes": 657,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Waitrose",
+    "merchant_category": "Grocery",
+    "amount": 18.38,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Bangkok",
+    "previous_transaction_time": "2026-07-18T13:24:11Z",
+    "current_transaction_time": "2026-07-18T13:44:11Z",
+    "velocity_minutes": 20,
+    "isFraud": true
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "National Express",
+    "merchant_category": "Transport",
+    "amount": 927.17,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T16:22:11Z",
+    "current_transaction_time": "2026-07-18T09:46:11Z",
+    "velocity_minutes": 1044,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "National Express",
+    "merchant_category": "Transport",
+    "amount": 223.41,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-18T02:47:11Z",
+    "current_transaction_time": "2026-07-18T18:35:11Z",
+    "velocity_minutes": 948,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 3972.54,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "Samsung Galaxy S23",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T06:28:11Z",
+    "current_transaction_time": "2026-07-19T06:47:11Z",
+    "velocity_minutes": 1459,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 60.65,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-18T23:41:11Z",
+    "current_transaction_time": "2026-07-19T23:07:11Z",
+    "velocity_minutes": 1406,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Premier Inn",
+    "merchant_category": "Dining",
+    "amount": 69.84,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "Bangkok",
+    "previous_transaction_time": "2026-07-18T14:58:11Z",
+    "current_transaction_time": "2026-07-18T15:13:11Z",
+    "velocity_minutes": 15,
+    "isFraud": true
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "Waitrose",
+    "merchant_category": "Grocery",
+    "amount": 72.07,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T08:55:11Z",
+    "current_transaction_time": "2026-07-17T11:47:11Z",
+    "velocity_minutes": 172,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Argos",
+    "merchant_category": "Retail",
+    "amount": 63.06,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Nokia G60",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Birmingham",
+    "previous_transaction_time": "2026-07-17T21:05:11Z",
+    "current_transaction_time": "2026-07-18T21:26:11Z",
+    "velocity_minutes": 1461,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Nando's",
+    "merchant_category": "Dining",
+    "amount": 73.13,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Google Pixel 7",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Birmingham",
+    "previous_transaction_time": "2026-07-18T08:10:11Z",
+    "current_transaction_time": "2026-07-18T13:21:11Z",
+    "velocity_minutes": 311,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "Premier Inn",
+    "merchant_category": "Dining",
+    "amount": 63.76,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T12:50:11Z",
+    "current_transaction_time": "2026-07-18T17:48:11Z",
+    "velocity_minutes": 298,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Currys PC World",
+    "merchant_category": "Electronics",
+    "amount": 43.73,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Google Pixel 7",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Birmingham",
+    "previous_transaction_time": "2026-07-18T04:07:11Z",
+    "current_transaction_time": "2026-07-18T07:58:11Z",
+    "velocity_minutes": 231,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Esso",
+    "merchant_category": "Fuel",
+    "amount": 256.34,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T18:58:11Z",
+    "current_transaction_time": "2026-07-19T11:19:11Z",
+    "velocity_minutes": 981,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Currys PC World",
+    "merchant_category": "Electronics",
+    "amount": 44.79,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "iPad Air",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T11:05:11Z",
+    "current_transaction_time": "2026-07-18T23:35:11Z",
+    "velocity_minutes": 750,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "John Lewis & Partners",
+    "merchant_category": "Retail",
+    "amount": 49.75,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "iPad Pro",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T11:45:11Z",
+    "current_transaction_time": "2026-07-18T12:03:11Z",
+    "velocity_minutes": 1458,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Esso",
+    "merchant_category": "Fuel",
+    "amount": 31.78,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T14:56:11Z",
+    "current_transaction_time": "2026-07-19T04:32:11Z",
+    "velocity_minutes": 816,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Prezzo",
+    "merchant_category": "Dining",
+    "amount": 24.29,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T16:22:11Z",
+    "current_transaction_time": "2026-07-18T20:47:11Z",
+    "velocity_minutes": 265,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 2148.76,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T20:54:11Z",
+    "current_transaction_time": "2026-07-18T20:26:11Z",
+    "velocity_minutes": 1412,
+    "isFraud": true
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "BP",
+    "merchant_category": "Fuel",
+    "amount": 26.89,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T21:06:11Z",
+    "current_transaction_time": "2026-07-18T17:29:11Z",
+    "velocity_minutes": 1223,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Expedia",
+    "merchant_category": "Travel",
+    "amount": 38.03,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-18T08:29:11Z",
+    "current_transaction_time": "2026-07-18T18:33:11Z",
+    "velocity_minutes": 604,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 23.76,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-17T06:18:11Z",
+    "current_transaction_time": "2026-07-17T14:07:11Z",
+    "velocity_minutes": 469,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 77.24,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "Samsung Galaxy S23",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "Dubai",
+    "previous_transaction_time": "2026-07-18T22:33:11Z",
+    "current_transaction_time": "2026-07-18T22:47:11Z",
+    "velocity_minutes": 14,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Shell",
+    "merchant_category": "Fuel",
+    "amount": 87.25,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "Samsung Galaxy S23",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T20:47:11Z",
+    "current_transaction_time": "2026-07-19T20:03:11Z",
+    "velocity_minutes": 1396,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "ASOS",
+    "merchant_category": "Retail",
+    "amount": 20.99,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T16:49:11Z",
+    "current_transaction_time": "2026-07-18T20:04:11Z",
+    "velocity_minutes": 195,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Shell",
+    "merchant_category": "Fuel",
+    "amount": 47.43,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Liverpool",
+    "previous_transaction_time": "2026-07-17T10:26:11Z",
+    "current_transaction_time": "2026-07-18T11:21:11Z",
+    "velocity_minutes": 1495,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "EasyJet",
+    "merchant_category": "Travel",
+    "amount": 37.38,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "iPhone 13",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Belfast",
+    "previous_transaction_time": "2026-07-17T15:19:11Z",
+    "current_transaction_time": "2026-07-18T07:01:11Z",
+    "velocity_minutes": 942,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Lastminute.com",
+    "merchant_category": "Travel",
+    "amount": 31.46,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-18T00:08:11Z",
+    "current_transaction_time": "2026-07-18T12:03:11Z",
+    "velocity_minutes": 715,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 25.47,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T23:52:11Z",
+    "current_transaction_time": "2026-07-19T06:43:11Z",
+    "velocity_minutes": 411,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 53.77,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Istanbul",
+    "previous_transaction_time": "2026-07-18T13:36:11Z",
+    "current_transaction_time": "2026-07-18T13:53:11Z",
+    "velocity_minutes": 17,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Waitrose",
+    "merchant_category": "Retail",
+    "amount": 207.25,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Liverpool",
+    "previous_transaction_time": "2026-07-18T19:42:11Z",
+    "current_transaction_time": "2026-07-18T23:38:11Z",
+    "velocity_minutes": 236,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Wetherspoons",
+    "merchant_category": "Dining",
+    "amount": 47.13,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-18T08:39:11Z",
+    "current_transaction_time": "2026-07-19T10:02:11Z",
+    "velocity_minutes": 1523,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "Amazon.uk",
+    "merchant_category": "Online",
+    "amount": 55.05,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "Xiaomi Redmi Note 12",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T12:19:11Z",
+    "current_transaction_time": "2026-07-18T14:41:11Z",
+    "velocity_minutes": 142,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "AO.com",
+    "merchant_category": "Online",
+    "amount": 3216.56,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T13:27:11Z",
+    "current_transaction_time": "2026-07-18T05:49:11Z",
+    "velocity_minutes": 982,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 134.36,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "MacBook Air",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T06:03:11Z",
+    "current_transaction_time": "2026-07-18T00:27:11Z",
+    "velocity_minutes": 1104,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 37.4,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "iPhone 13",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T21:30:11Z",
+    "current_transaction_time": "2026-07-19T12:47:11Z",
+    "velocity_minutes": 917,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "National Express",
+    "merchant_category": "Transport",
+    "amount": 2447.98,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-17T10:54:11Z",
+    "current_transaction_time": "2026-07-18T05:24:11Z",
+    "velocity_minutes": 1110,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Wagamama",
+    "merchant_category": "Dining",
+    "amount": 84.8,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "iPad Pro",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T18:36:11Z",
+    "current_transaction_time": "2026-07-19T06:42:11Z",
+    "velocity_minutes": 726,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Debenhams",
+    "merchant_category": "Retail",
+    "amount": 125.22,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "iPhone 15 Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-18T18:54:11Z",
+    "current_transaction_time": "2026-07-19T13:24:11Z",
+    "velocity_minutes": 1110,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "BP",
+    "merchant_category": "Fuel",
+    "amount": 91.29,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "MacBook Air",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "Dubai",
+    "previous_transaction_time": "2026-07-17T12:29:11Z",
+    "current_transaction_time": "2026-07-18T07:19:11Z",
+    "velocity_minutes": 1130,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Lastminute.com",
+    "merchant_category": "Travel",
+    "amount": 2197.89,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T09:02:11Z",
+    "current_transaction_time": "2026-07-19T06:34:11Z",
+    "velocity_minutes": 1292,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 35.91,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Norwich",
+    "previous_transaction_time": "2026-07-18T16:32:11Z",
+    "current_transaction_time": "2026-07-19T17:50:11Z",
+    "velocity_minutes": 1518,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Go-Ahead Group",
+    "merchant_category": "Transport",
+    "amount": 28.27,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T03:23:11Z",
+    "current_transaction_time": "2026-07-18T18:03:11Z",
+    "velocity_minutes": 880,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "Currys PC World",
+    "merchant_category": "Electronics",
+    "amount": 40.19,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-18T22:33:11Z",
+    "current_transaction_time": "2026-07-19T15:04:11Z",
+    "velocity_minutes": 991,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Argos",
+    "merchant_category": "Retail",
+    "amount": 117.45,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "MacBook Air",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T08:43:11Z",
+    "current_transaction_time": "2026-07-17T15:29:11Z",
+    "velocity_minutes": 406,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 45.29,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T23:56:11Z",
+    "current_transaction_time": "2026-07-19T12:38:11Z",
+    "velocity_minutes": 762,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "M&S Foodhall",
+    "merchant_category": "Dining",
+    "amount": 85.55,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "iPad Pro",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "Inverness",
+    "previous_transaction_time": "2026-07-17T06:41:11Z",
+    "current_transaction_time": "2026-07-17T17:59:11Z",
+    "velocity_minutes": 678,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 64.05,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "iPad Pro",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "Accra",
+    "previous_transaction_time": "2026-07-19T03:26:11Z",
+    "current_transaction_time": "2026-07-19T03:30:11Z",
+    "velocity_minutes": 4,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Shell",
+    "merchant_category": "Fuel",
+    "amount": 98.5,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "Samsung Galaxy S23",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T17:48:11Z",
+    "current_transaction_time": "2026-07-19T01:16:11Z",
+    "velocity_minutes": 448,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 84.59,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "iPhone 14",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "Manila",
+    "previous_transaction_time": "2026-07-18T13:33:11Z",
+    "current_transaction_time": "2026-07-18T13:44:11Z",
+    "velocity_minutes": 11,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Amazon",
+    "merchant_category": "Online",
+    "amount": 35.21,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-17T13:18:11Z",
+    "current_transaction_time": "2026-07-18T01:00:11Z",
+    "velocity_minutes": 702,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Currys PC World",
+    "merchant_category": "Electronics",
+    "amount": 79.62,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "iPad Air",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T03:09:11Z",
+    "current_transaction_time": "2026-07-18T21:08:11Z",
+    "velocity_minutes": 1079,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 156.74,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T14:46:11Z",
+    "current_transaction_time": "2026-07-18T15:40:11Z",
+    "velocity_minutes": 1494,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "EasyJet",
+    "merchant_category": "Travel",
+    "amount": 81.58,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "iPhone 13",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Norwich",
+    "previous_transaction_time": "2026-07-18T05:21:11Z",
+    "current_transaction_time": "2026-07-18T14:19:11Z",
+    "velocity_minutes": 538,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Amazon.co.uk",
+    "merchant_category": "Online",
+    "amount": 41.03,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Google Pixel 7",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Dubai",
+    "previous_transaction_time": "2026-07-17T13:51:11Z",
+    "current_transaction_time": "2026-07-18T03:48:11Z",
+    "velocity_minutes": 837,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 39.07,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "Accra",
+    "previous_transaction_time": "2026-07-18T04:26:11Z",
+    "current_transaction_time": "2026-07-18T04:34:11Z",
+    "velocity_minutes": 8,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 168.59,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "iPad Air",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Birmingham",
+    "previous_transaction_time": "2026-07-18T02:17:11Z",
+    "current_transaction_time": "2026-07-18T22:48:11Z",
+    "velocity_minutes": 1231,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 17.47,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T04:15:11Z",
+    "current_transaction_time": "2026-07-19T04:42:11Z",
+    "velocity_minutes": 1467,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 83.85,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-19T03:42:11Z",
+    "current_transaction_time": "2026-07-20T02:20:11Z",
+    "velocity_minutes": 1358,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 74.53,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "iPhone 13",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Glasgow",
+    "previous_transaction_time": "2026-07-18T08:47:11Z",
+    "current_transaction_time": "2026-07-19T08:26:11Z",
+    "velocity_minutes": 1419,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "EasyJet",
+    "merchant_category": "Travel",
+    "amount": 95.35,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Google Pixel 7",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Birmingham",
+    "previous_transaction_time": "2026-07-17T19:47:11Z",
+    "current_transaction_time": "2026-07-18T01:14:11Z",
+    "velocity_minutes": 327,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "Argos",
+    "merchant_category": "Retail",
+    "amount": 35.45,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-17T16:32:11Z",
+    "current_transaction_time": "2026-07-18T08:20:11Z",
+    "velocity_minutes": 948,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 381.9,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "Samsung Galaxy S23",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T10:19:11Z",
+    "current_transaction_time": "2026-07-18T12:56:11Z",
+    "velocity_minutes": 157,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 4817.35,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T04:55:11Z",
+    "current_transaction_time": "2026-07-18T08:29:11Z",
+    "velocity_minutes": 214,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 30.84,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Google Pixel 7",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Birmingham",
+    "previous_transaction_time": "2026-07-18T20:49:11Z",
+    "current_transaction_time": "2026-07-19T17:35:11Z",
+    "velocity_minutes": 1246,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "Prezzo",
+    "merchant_category": "Dining",
+    "amount": 53.93,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T19:20:11Z",
+    "current_transaction_time": "2026-07-19T17:10:11Z",
+    "velocity_minutes": 1310,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 100.87,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "Xiaomi Redmi Note 12",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T21:54:11Z",
+    "current_transaction_time": "2026-07-19T21:57:11Z",
+    "velocity_minutes": 1443,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Esso",
+    "merchant_category": "Fuel",
+    "amount": 116.16,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "iPad Pro",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-19T01:04:11Z",
+    "current_transaction_time": "2026-07-19T18:49:11Z",
+    "velocity_minutes": 1065,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "JohnLewis",
+    "merchant_category": "Retail",
+    "amount": 42.49,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manila",
+    "previous_transaction_time": "2026-07-19T02:27:11Z",
+    "current_transaction_time": "2026-07-19T02:50:11Z",
+    "velocity_minutes": 23,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Waitrose",
+    "merchant_category": "Grocery",
+    "amount": 76.31,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Google Pixel 7",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "Dubai",
+    "previous_transaction_time": "2026-07-18T23:54:11Z",
+    "current_transaction_time": "2026-07-19T12:23:11Z",
+    "velocity_minutes": 749,
+    "isFraud": true
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "BP",
+    "merchant_category": "Fuel",
+    "amount": 36.17,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T22:38:11Z",
+    "current_transaction_time": "2026-07-20T00:05:11Z",
+    "velocity_minutes": 1527,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Amazon.co.uk",
+    "merchant_category": "Online",
+    "amount": 711.19,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T06:16:11Z",
+    "current_transaction_time": "2026-07-18T23:14:11Z",
+    "velocity_minutes": 1018,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Marks & Spencer",
+    "merchant_category": "Retail",
+    "amount": 2089.69,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "iPad Pro",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T23:35:11Z",
+    "current_transaction_time": "2026-07-19T04:15:11Z",
+    "velocity_minutes": 280,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 166.51,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "Motorola Edge 40",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T07:59:11Z",
+    "current_transaction_time": "2026-07-17T23:55:11Z",
+    "velocity_minutes": 956,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Currys PC World",
+    "merchant_category": "Electronics",
+    "amount": 99.71,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "iPhone 15 Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T15:26:11Z",
+    "current_transaction_time": "2026-07-18T05:28:11Z",
+    "velocity_minutes": 842,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "AO.com",
+    "merchant_category": "Electronics",
+    "amount": 44.61,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "Nokia G60",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-17T09:32:11Z",
+    "current_transaction_time": "2026-07-18T06:02:11Z",
+    "velocity_minutes": 1230,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Nandos",
+    "merchant_category": "Dining",
+    "amount": 18.82,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-18T19:38:11Z",
+    "current_transaction_time": "2026-07-19T16:27:11Z",
+    "velocity_minutes": 1249,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "GoCompare",
+    "merchant_category": "Transport",
+    "amount": 18.03,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Leeds",
+    "previous_transaction_time": "2026-07-18T03:44:11Z",
+    "current_transaction_time": "2026-07-18T19:33:11Z",
+    "velocity_minutes": 949,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Expedia.co.uk",
+    "merchant_category": "Travel",
+    "amount": 37.79,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-17T14:40:11Z",
+    "current_transaction_time": "2026-07-18T12:31:11Z",
+    "velocity_minutes": 1311,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 5578.01,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "iPhone 15 Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-18T00:28:11Z",
+    "current_transaction_time": "2026-07-18T18:32:11Z",
+    "velocity_minutes": 1084,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "ASOS",
+    "merchant_category": "Online",
+    "amount": 189.29,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "MacBook Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "Lagos",
+    "previous_transaction_time": "2026-07-17T17:26:11Z",
+    "current_transaction_time": "2026-07-17T17:36:11Z",
+    "velocity_minutes": 10,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "Currys PC World",
+    "merchant_category": "Electronics",
+    "amount": 82.54,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "iPhone 13",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Glasgow",
+    "previous_transaction_time": "2026-07-18T21:13:11Z",
+    "current_transaction_time": "2026-07-18T22:58:11Z",
+    "velocity_minutes": 105,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Liam Foster",
+    "customer_id": "C210567433",
+    "phone_number": "+44 7700 900274",
+    "merchant": "National Express",
+    "merchant_category": "Transport",
+    "amount": 26.87,
+    "known_devices": [
+      "OnePlus 11"
+    ],
+    "current_device": "OnePlus 11",
+    "known_locations": [
+      "Leeds"
+    ],
+    "current_location": "Lagos",
+    "previous_transaction_time": "2026-07-17T19:15:11Z",
+    "current_transaction_time": "2026-07-17T19:30:11Z",
+    "velocity_minutes": 15,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 64.58,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Huawei P60",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-18T00:54:11Z",
+    "current_transaction_time": "2026-07-18T12:16:11Z",
+    "velocity_minutes": 682,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "EasyJet",
+    "merchant_category": "Travel",
+    "amount": 12.88,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-17T17:38:11Z",
+    "current_transaction_time": "2026-07-17T21:49:11Z",
+    "velocity_minutes": 251,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Nando's",
+    "merchant_category": "Dining",
+    "amount": 18.52,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "Nokia G60",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-17T18:34:11Z",
+    "current_transaction_time": "2026-07-18T17:40:11Z",
+    "velocity_minutes": 1386,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Noah Patel",
+    "customer_id": "C337719205",
+    "phone_number": "+44 7700 900388",
+    "merchant": "Currys",
+    "merchant_category": "Electronics",
+    "amount": 47.45,
+    "known_devices": [
+      "Samsung Galaxy S23",
+      "iPad Pro"
+    ],
+    "current_device": "Samsung Galaxy S23",
+    "known_locations": [
+      "London"
+    ],
+    "current_location": "Belfast",
+    "previous_transaction_time": "2026-07-18T17:34:11Z",
+    "current_transaction_time": "2026-07-19T15:37:11Z",
+    "velocity_minutes": 1323,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 210.94,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "MacBook Air",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "Accra",
+    "previous_transaction_time": "2026-07-17T22:46:11Z",
+    "current_transaction_time": "2026-07-17T23:09:11Z",
+    "velocity_minutes": 23,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Currys PC World",
+    "merchant_category": "Online",
+    "amount": 102.46,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "Motorola Edge 40",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T05:23:11Z",
+    "current_transaction_time": "2026-07-19T00:12:11Z",
+    "velocity_minutes": 1129,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Sophie Bennett",
+    "customer_id": "C339045170",
+    "phone_number": "+44 7700 900733",
+    "merchant": "Trainline",
+    "merchant_category": "Transport",
+    "amount": 48.55,
+    "known_devices": [
+      "iPhone 12"
+    ],
+    "current_device": "iPhone 12",
+    "known_locations": [
+      "Edinburgh"
+    ],
+    "current_location": "Edinburgh",
+    "previous_transaction_time": "2026-07-17T18:48:11Z",
+    "current_transaction_time": "2026-07-18T09:25:11Z",
+    "velocity_minutes": 877,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Amelia Hughes",
+    "customer_id": "C902144870",
+    "phone_number": "+44 7700 900517",
+    "merchant": "Amazon.co.uk",
+    "merchant_category": "Online",
+    "amount": 108.89,
+    "known_devices": [
+      "iPhone 14 Pro"
+    ],
+    "current_device": "iPhone 14 Pro",
+    "known_locations": [
+      "Cardiff",
+      "Bristol"
+    ],
+    "current_location": "Bristol",
+    "previous_transaction_time": "2026-07-18T16:33:11Z",
+    "current_transaction_time": "2026-07-19T05:01:11Z",
+    "velocity_minutes": 748,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "La Redoute",
+    "merchant_category": "Dining",
+    "amount": 67.91,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "iPhone 14",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T05:58:11Z",
+    "current_transaction_time": "2026-07-19T07:50:11Z",
+    "velocity_minutes": 1552,
+    "isFraud": false
+  },
+  {
+    "customer_name": "James Whitmore",
+    "customer_id": "C771002884",
+    "phone_number": "+44 7700 900112",
+    "merchant": "John Lewis",
+    "merchant_category": "Retail",
+    "amount": 27.22,
+    "known_devices": [
+      "Samsung Galaxy S22"
+    ],
+    "current_device": "Samsung Galaxy S22",
+    "known_locations": [
+      "Manchester",
+      "Leeds"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T23:25:11Z",
+    "current_transaction_time": "2026-07-18T18:48:11Z",
+    "velocity_minutes": 1163,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Jack Wilson",
+    "customer_id": "C556201947",
+    "phone_number": "+44 7700 900806",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 33.89,
+    "known_devices": [
+      "Google Pixel 8"
+    ],
+    "current_device": "Google Pixel 8",
+    "known_locations": [
+      "Liverpool",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T07:04:11Z",
+    "current_transaction_time": "2026-07-18T04:58:11Z",
+    "velocity_minutes": 1314,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Marks & Spencer",
+    "merchant_category": "Retail",
+    "amount": 43.49,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "iPhone 14",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "Manchester",
+    "previous_transaction_time": "2026-07-17T08:35:11Z",
+    "current_transaction_time": "2026-07-18T06:39:11Z",
+    "velocity_minutes": 1324,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Tesco",
+    "merchant_category": "Grocery",
+    "amount": 142.72,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "iPhone 14",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-17T08:37:11Z",
+    "current_transaction_time": "2026-07-18T09:57:11Z",
+    "velocity_minutes": 1520,
+    "isFraud": false
+  },
+  {
+    "customer_name": "Oliver Grant",
+    "customer_id": "C665401938",
+    "phone_number": "+44 7700 900558",
+    "merchant": "Argos",
+    "merchant_category": "Online",
+    "amount": 63.38,
+    "known_devices": [
+      "Google Pixel 7",
+      "iPad Air"
+    ],
+    "current_device": "unknown Android device",
+    "known_locations": [
+      "Birmingham",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T06:59:11Z",
+    "current_transaction_time": "2026-07-18T12:50:11Z",
+    "velocity_minutes": 351,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Emily Clarke",
+    "customer_id": "C481900231",
+    "phone_number": "+44 7700 900341",
+    "merchant": "Tesco",
+    "merchant_category": "Retail",
+    "amount": 153.02,
+    "known_devices": [
+      "iPhone 14",
+      "MacBook Air"
+    ],
+    "current_device": "MacBook Air",
+    "known_locations": [
+      "London",
+      "Manchester"
+    ],
+    "current_location": "Bangkok",
+    "previous_transaction_time": "2026-07-17T20:13:11Z",
+    "current_transaction_time": "2026-07-18T04:16:11Z",
+    "velocity_minutes": 483,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Grace Turner",
+    "customer_id": "C158823406",
+    "phone_number": "+44 7700 900651",
+    "merchant": "Waitrose",
+    "merchant_category": "Grocery",
+    "amount": 60.87,
+    "known_devices": [
+      "iPhone 13"
+    ],
+    "current_device": "iPhone 13",
+    "known_locations": [
+      "Glasgow",
+      "Edinburgh"
+    ],
+    "current_location": "Accra",
+    "previous_transaction_time": "2026-07-17T17:28:11Z",
+    "current_transaction_time": "2026-07-17T17:50:11Z",
+    "velocity_minutes": 22,
+    "isFraud": true
+  },
+  {
+    "customer_name": "Charlotte Reid",
+    "customer_id": "C904377612",
+    "phone_number": "+44 7700 900920",
+    "merchant": "BP",
+    "merchant_category": "Fuel",
+    "amount": 70.23,
+    "known_devices": [
+      "iPhone 15 Pro",
+      "MacBook Pro"
+    ],
+    "current_device": "iPhone 15 Pro",
+    "known_locations": [
+      "Bristol",
+      "London"
+    ],
+    "current_location": "London",
+    "previous_transaction_time": "2026-07-18T13:12:11Z",
+    "current_transaction_time": "2026-07-19T05:51:11Z",
+    "velocity_minutes": 999,
+    "isFraud": false
+  }
+]
