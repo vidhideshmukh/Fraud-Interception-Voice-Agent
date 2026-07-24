@@ -16,7 +16,7 @@ models:
       # nemoguardrails does NOT interpolate ${VAR} here (verified 2026-07-24) —
       # it passes the raw string to httpx, which then rejects "${NIM_BASE_URL:-...}"
       # as a URL with no http(s):// scheme. So this MUST be a literal URL.
-      base_url: https://integrate.api.nvidia.com/v1
+      base_url: http://gpu009:8000/v1
       # NO api_key line on purpose: with engine=nim, guardrails reads NVIDIA_API_KEY
       # from the environment automatically. Putting "api_key: ${NVIDIA_API_KEY}" here
       # would send the literal string (not interpolated) and break auth.
