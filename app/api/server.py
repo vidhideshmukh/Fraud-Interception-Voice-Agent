@@ -508,31 +508,6 @@ def new_transaction(req: NewTransactionRequest):
             "verification_code": verification_code}
 
 
-@app.post("/trigger/random")
-def trigger_random():
-    """Start a call for a RANDOM fraud customer (any customer whose transaction is
-    labelled is_fraud, else any risk-threshold-crossing one) — so the demo rings a
-    different customer each time instead of always the first-in-order one. Rings
-    silently (auto_answer=False) until the presenter taps Answer, same as the
-    transaction form's flagged path."""
-    event = fraud_trigger.random_fraud_event()
-    if event is None:
-        raise HTTPException(404, "no fraud transactions available to trigger")
-    session = orchestrator.start_call(event, auto_answer=False)
-    cust = bank.CUSTOMERS[event.txn.customer_id]
-    audit.log_turn(None, "screening", {
-        "action": "fraud_screen", "txn_id": event.txn.txn_id, "customer_id": event.txn.customer_id,
-        "customer_name": cust.name, "amount_gbp": event.txn.amount_gbp, "merchant": event.txn.merchant,
-        "city": event.txn.city, "channel": event.txn.channel, "risk_score": event.risk_score,
-        "flagged": True, "decision": "flagged_call_initiated", "reason": event.rca_reason,
-        "call_session_id": session.session_id,
-    })
-    return {"txn_id": event.txn.txn_id, "risk_score": event.risk_score, "flagged": True,
-            "reason": event.rca_reason, "auto_triggered_session_id": session.session_id,
-            "verification_code": session.verification_code,
-            "customer_id": event.txn.customer_id, "customer_name": cust.name}
-
-
 class DatasetLoadRequest(BaseModel):
     path: str
 

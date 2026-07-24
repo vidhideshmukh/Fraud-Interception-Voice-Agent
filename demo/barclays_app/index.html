@@ -415,8 +415,6 @@
             </div>
             <button class="primary" type="submit">Submit transaction</button>
           </form>
-          <button class="primary" type="button" id="ringRandomBtn"
-                  style="margin-top:0.5rem; width:100%; background:#8A3F4E;">🎲 Ring a random fraud call</button>
           <div class="txn-result" id="txnResult"></div>
         </div>
       </div>
@@ -850,29 +848,6 @@
       city: document.getElementById("txnCity").value,
       channel: document.getElementById("txnChannel").value,
     });
-  });
-
-  // Ring a RANDOM fraud customer (any customer labelled is_fraud), instead of
-  // filling the form for one specific customer — the server picks the customer.
-  document.getElementById("ringRandomBtn").addEventListener("click", async () => {
-    const btn = document.getElementById("ringRandomBtn");
-    primeAudio();                         // unlock audio within this gesture so the ringtone can play
-    btn.disabled = true; btn.textContent = "Ringing…";
-    try {
-      const data = await postJSON("/trigger/random", {});
-      const box = document.getElementById("txnResult");
-      box.classList.add("show", "flagged"); box.classList.remove("clear");
-      box.innerHTML = `<div class="verdict">⚠ FLAGGED · ${escapeHtml(data.customer_name)} · risk `
-        + `<span class="score">${data.risk_score}</span></div>`
-        + `<div>${escapeHtml(data.reason)}</div>`
-        + `<div style="margin-top:0.4rem;">→ Calling ${escapeHtml(data.customer_name)} now.</div>`;
-      loadRecentActivity(data.customer_id);
-      await attachSession(data.auto_triggered_session_id, data.verification_code);
-    } catch (e) {
-      alert("Couldn't ring a random fraud call: " + e.message);
-    } finally {
-      btn.disabled = false; btn.textContent = "🎲 Ring a random fraud call";
-    }
   });
 
   // ---- deep-link: attach the phone panel to a specific call via ?session= ----
