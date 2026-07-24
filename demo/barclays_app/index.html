@@ -588,15 +588,26 @@
       list.innerHTML = `<div style="color: var(--pn-sheet-muted); font-size: 0.76rem; padding: 0.4rem 0;">No recent activity.</div>`;
       return;
     }
-    list.innerHTML = rows.map(t => `
+    list.innerHTML = rows.map(t => {
+      const when = new Date(t.ts_ms).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+      // A HELD transaction (a flagged payment under fraud review) is NOT charged
+      // yet — the money is only deducted once the customer approves it (status
+      // -> released). Show it as on-hold/pending, never a deducted debit. A
+      // blocked one is never charged either.
+      let amt, sub = when;
+      if (t.status === "held") { amt = `<div class="amt" style="color:var(--pn-sheet-muted);">On hold</div>`; sub = "Pending review — not yet charged"; }
+      else if (t.status === "blocked") { amt = `<div class="amt" style="color:var(--pn-sheet-muted);">Blocked</div>`; sub = "Blocked — not charged"; }
+      else { amt = `<div class="amt debit">-${formatGBP(t.amount_gbp)}</div>`; }
+      return `
       <div class="activity-row">
         <div class="cat">${escapeHtml((t.merchant || "?")[0].toUpperCase())}</div>
         <div class="info">
           <div class="merchant">${escapeHtml(t.merchant)}</div>
-          <div class="time">${new Date(t.ts_ms).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</div>
+          <div class="time">${escapeHtml(sub)}</div>
         </div>
-        <div class="amt debit">-${formatGBP(t.amount_gbp)}</div>
-      </div>`).join("");
+        ${amt}
+      </div>`;
+    }).join("");
   }
 
   // ---- ringtone: a UK-style ringback tone synthesized with Web Audio (no audio
@@ -717,12 +728,7 @@
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
       throw new Error("microphone needs HTTPS or localhost — open via http://localhost:8000");
     const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
-    // Fetch STUN/TURN from the server (.env-driven) so the browser peer also gets a
-    // relay candidate — required when the server is behind a firewall (e.g. cluster).
-    // Falls back to host-only if the endpoint is unavailable or TURN isn't configured.
-    let iceServers = [];
-    try { iceServers = (await (await fetch(`/ice-servers`)).json()).iceServers || []; } catch (e) {}
-    const pc = new RTCPeerConnection(iceServers.length ? { iceServers } : undefined);
+    const pc = new RTCPeerConnection();
     webrtcPc = pc;
     mic.getTracks().forEach(t => pc.addTrack(t, mic));
     // addTrack already makes a sendrecv transceiver: we send the mic and receive the agent's voice.
@@ -739,17 +745,6 @@
       });
     };
     await pc.setLocalDescription(await pc.createOffer());
-    // Wait for ICE gathering to complete so the offer SDP CARRIES our candidates
-    // (including the TURN relay). /offer is one-shot (no trickle-ICE channel), so
-    // any candidate not in this SDP is never delivered — and over TURN the server
-    // can't open a relay permission for a browser address it never learned, which
-    // is exactly what leaves the call stuck on "connecting". Safety-capped at 3s.
-    await new Promise(resolve => {
-      if (pc.iceGatheringState === "complete") return resolve();
-      const done = () => { if (pc.iceGatheringState === "complete") { pc.removeEventListener("icegatheringstatechange", done); resolve(); } };
-      pc.addEventListener("icegatheringstatechange", done);
-      setTimeout(resolve, 3000);
-    });
     const res = await fetch(`/offer`, { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type, session_id: sessionId }) });
     if (!res.ok) throw new Error(`server rejected the call (${res.status})`);

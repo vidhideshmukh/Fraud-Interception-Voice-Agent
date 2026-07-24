@@ -268,17 +268,6 @@ class WebRTCOffer(BaseModel):
     session_id: str
 
 
-@app.get("/ice-servers")
-def ice_servers():
-    """ICE servers (STUN/TURN) for the BROWSER peer, sourced from .env
-    (TURN_URLS/TURN_USERNAME/TURN_CREDENTIAL). The browser fetches this before
-    creating its RTCPeerConnection so it too gets a relay candidate — without it,
-    only the server side has TURN and the connection can't complete across a
-    firewall. Returns {"iceServers": []} when TURN isn't configured."""
-    from app.media import webrtc
-    return {"iceServers": webrtc.ice_servers_json()}
-
-
 @app.post("/offer")
 async def webrtc_offer(offer: WebRTCOffer):
     """WebRTC signaling: the browser sends its SDP offer for a ringing call; we
