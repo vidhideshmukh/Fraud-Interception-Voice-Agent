@@ -1,0 +1,84 @@
+# NeMo Agent Toolkit workflow config.
+# At the event: pip install nvidia-nat, then `nat run --config_file config/workflow.yaml --input "..."`.
+#
+# Verified live 2026-07-18 against nvidia-nat==1.8.0 (`nat validate --config_file
+# config/workflow.yaml`), not just written from docs. Two real things this
+# caught, beyond the function-type rename (see nemo_agent_toolkit/functions.py):
+#   - `react_agent` IS a genuine built-in workflow type (confirmed against
+#     NAT's own `nat workflow create` scaffold template,
+#     nat/cli/commands/workflow/templates/config.yml.j2) but its
+#     registration plugin failed to import in a bare `pip install
+#     nvidia-nat` environment because it transitively needs `langchain-core`
+#     (NOT the full `nvidia-nat[langchain]` extra, which pulls in litellm
+#     and a Rust/Cargo build that failed on this machine — plain
+#     `pip install langchain-core` was enough and is pure-Python).
+#   - `_type: nim` for the llms section needed no changes — short-name
+#     discriminator matching resolves it to the real nat.llm/nim provider
+#     automatically.
+#
+# Function implementations live in nemo_agent_toolkit/functions.py. Entry-point
+# registration is in pyproject.toml (`pip install -e .` from the project
+# root is required for that entry-point to actually be discoverable —
+# just having the file present is not enough).
+#
+# Status of the sync-vs-async decision (see integration-decisions memory):
+# async_llm below IS the intended path — the Banking/Resolution Agent runs
+# through this react_agent, off the critical path, no latency constraint.
+# realtime_llm is defined here but NOT currently used by the live voice
+# loop, which stays on the custom single-hop orchestrator
+# (app/orchestrator.py + app/adapters/llm.py) rather than a NAT react_agent
+# loop. That's a benchmark-gated decision, not a permanent one: NAT's
+# react_agent has its own per-turn overhead that hasn't been measured
+# against the <1s budget. If the team's latency benchmark harness shows it
+# fits, point the live loop at realtime_llm too; until then this entry is
+# here so that migration is a config change, not a redesign.
+
+general:
+  use_uvloop: true
+
+llms:
+  realtime_llm:
+    _type: nim
+    model_name: nvidia/nemotron-3-nano-30b-a3b   # matches NIM_MODEL_REALTIME in app/adapters/llm.py
+    temperature: 0.2
+    max_tokens: 150
+  async_llm:
+    _type: nim
+    model_name: nvidia/llama-3.3-nemotron-super-49b-v1
+    temperature: 0.1
+
+functions:
+  release_hold:
+    _type: nemo_agent_toolkit/release_hold      # implemented in nemo_agent_toolkit/functions.py
+  block_card:
+    _type: nemo_agent_toolkit/block_card
+  open_chargeback:
+    _type: nemo_agent_toolkit/open_chargeback
+  upsert_case:
+    _type: nemo_agent_toolkit/upsert_case
+
+workflow:
+  # tool_calling_agent, NOT react_agent — verified live 2026-07-18 that this
+  # is the right choice for our tools, not a style preference. Our tools take
+  # multiple structured arguments (session_id, txn_id, customer_id). The
+  # react_agent uses the classic text-based ReAct format where "Action
+  # Input:" is a single free-text blob the model has to hand-format as JSON —
+  # and Nemotron consistently mangled it (wrapped tool names in markdown
+  # **bold**, nested the args wrong), so every tool call failed pydantic
+  # validation with a "missing field" error even though the model clearly
+  # intended the right values. tool_calling_agent uses the model's NATIVE
+  # structured tool-calling instead (the model emits a real tool_call object,
+  # not text we have to parse), which maps cleanly onto multi-field schemas.
+  # Same tool_names, same llm — just the robust agent type for structured tools.
+  _type: tool_calling_agent
+  tool_names: [release_hold, block_card, open_chargeback, upsert_case]
+  llm_name: async_llm
+  verbose: true
+  system_prompt: |
+    You are Barclays' async fraud-resolution agent. You are given the outcome of a
+    verified fraud-prevention call and must execute the correct remediation by calling
+    the available tools. Always pass session_id, txn_id, and (for block_card) customer_id
+    exactly as provided. For a confirmed-fraud outcome: call block_card, then open_chargeback,
+    then upsert_case with outcome "fraud_confirmed". For a legitimate outcome: call
+    release_hold, then upsert_case with outcome "false_positive_recovered". Do not ask the
+    customer for anything; you operate off the live call. Call tools; do not describe them.
