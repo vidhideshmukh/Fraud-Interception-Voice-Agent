@@ -16,8 +16,9 @@ the RCA reason the voice agent reads to the customer.
 from __future__ import annotations
 
 import os
+import random
 from dataclasses import dataclass, field
-from typing import Iterator
+from typing import Iterator, Optional
 
 from app.database import bank
 from app.database.models import FraudEvent, Transaction, new_id
@@ -117,3 +118,19 @@ def iter_flagged_events() -> Iterator[FraudEvent]:
         a = assess(txn)
         if a.score >= RISK_THRESHOLD:
             yield FraudEvent(event_id=new_id("evt"), txn=txn, risk_score=a.score, rca_reason=a.reason)
+
+
+def random_fraud_event() -> Optional[FraudEvent]:
+    """Pick a RANDOM fraud transaction from ANY customer and build a FraudEvent
+    for it — so the real-time demo rings a different customer each time instead
+    of always the first-in-order one. Prefers ground-truth `label.is_fraud` when
+    the loaded data carries it; otherwise falls back to any new transaction that
+    crosses the risk threshold. Returns None if there are no fraud candidates."""
+    active = [t for t in bank.TRANSACTIONS.values() if t.status != "settled"]
+    labelled = [t for t in active if t.label and t.label.is_fraud]
+    pool = labelled or [t for t in active if score_transaction(t) >= RISK_THRESHOLD]
+    if not pool:
+        return None
+    txn = random.choice(pool)
+    a = assess(txn)
+    return FraudEvent(event_id=new_id("evt"), txn=txn, risk_score=a.score, rca_reason=a.reason)

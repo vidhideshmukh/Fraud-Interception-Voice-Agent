@@ -415,6 +415,8 @@
             </div>
             <button class="primary" type="submit">Submit transaction</button>
           </form>
+          <button class="primary" type="button" id="ringRandomBtn"
+                  style="margin-top:0.5rem; width:100%; background:#8A3F4E;">🎲 Ring a random fraud call</button>
           <div class="txn-result" id="txnResult"></div>
         </div>
       </div>
@@ -449,7 +451,7 @@
 
             <div class="balance-block">
               <div class="label">Total balance</div>
-              <div class="amount" id="balanceAmount">£2,450</div>
+              <div class="amount" id="balanceAmount">£6,000</div>
             </div>
 
             <div class="card-row">
@@ -599,6 +601,48 @@
       </div>`).join("");
   }
 
+  // ---- ringtone: a UK-style ringback tone synthesized with Web Audio (no audio
+  // file needed, CSP-safe). Played while the call is RINGING, stopped on answer /
+  // hangup / terminal. Autoplay is allowed because startRingtone is reached from a
+  // user gesture (the trigger button / form submit that started the call).
+  let _ringCtx = null, _ringTimer = null, _ringing = false;
+  function _ringBurst() {
+    if (!_ringing || !_ringCtx) return;
+    [0, 0.6].forEach(offset => {                 // UK "ring-ring": two 0.4s tones split by a gap
+      const t0 = _ringCtx.currentTime + offset;
+      [400, 450].forEach(f => {                  // 400 + 450 Hz = the UK ringback pair
+        const osc = _ringCtx.createOscillator(), g = _ringCtx.createGain();
+        osc.type = "sine"; osc.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.12, t0 + 0.02);
+        g.gain.setValueAtTime(0.12, t0 + 0.38);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.4);
+        osc.connect(g).connect(_ringCtx.destination);
+        osc.start(t0); osc.stop(t0 + 0.42);
+      });
+    });
+  }
+  function primeAudio() {
+    // Call from a user gesture (button click / form submit) so the AudioContext
+    // is unlocked before the ringtone actually starts from the poll loop.
+    try {
+      _ringCtx = _ringCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (_ringCtx.state === "suspended") _ringCtx.resume();
+    } catch (e) { /* audio unavailable — stay silent, never crash */ }
+  }
+  function startRingtone() {
+    if (_ringing) return;
+    primeAudio();
+    if (!_ringCtx) return;
+    _ringing = true;
+    _ringBurst();
+    _ringTimer = setInterval(_ringBurst, 3000);   // UK cadence: repeat ~every 3s
+  }
+  function stopRingtone() {
+    _ringing = false;
+    if (_ringTimer) { clearInterval(_ringTimer); _ringTimer = null; }
+  }
+
   function renderSession(data) {
     const [label, cls] = STATE_LABELS[data.state] || [String(data.state).replace(/_/g, " "), ""];
     const pill = document.getElementById("statePill");
@@ -614,6 +658,7 @@
     // Answer button; the agent stays silent until the customer taps it.
     const RINGING = (data.state === "push_sent" || data.state === "dialing");
     document.getElementById("callActions").style.display = RINGING ? "block" : "none";
+    if (RINGING) startRingtone(); else stopRingtone();   // audible ring while it's ringing
     // On a terminal state, the SERVER closes the connection only AFTER the agent's
     // final sentence has finished streaming (see _drain_and_close in webrtc.py), so
     // the last line is heard in full. This browser timer is just a long safety net
@@ -724,6 +769,7 @@
       return;
     }
     if (!currentSessionId) return;
+    stopRingtone();                       // picked up — silence the ringtone before the agent speaks
     btn.disabled = true; btn.textContent = "Connecting…";
     // The /offer handshake ALSO answers the call server-side (see app/media/webrtc.py),
     // so no separate POST /answer is needed on the voice path.
@@ -796,6 +842,7 @@
 
   document.getElementById("txnForm").addEventListener("submit", async (ev) => {
     ev.preventDefault();
+    primeAudio();                         // unlock audio within this gesture (a flagged txn rings)
     await submitTransaction({
       customer_id: document.getElementById("txnCustomer").value,
       amount_gbp: Number(document.getElementById("txnAmount").value),
@@ -803,6 +850,29 @@
       city: document.getElementById("txnCity").value,
       channel: document.getElementById("txnChannel").value,
     });
+  });
+
+  // Ring a RANDOM fraud customer (any customer labelled is_fraud), instead of
+  // filling the form for one specific customer — the server picks the customer.
+  document.getElementById("ringRandomBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("ringRandomBtn");
+    primeAudio();                         // unlock audio within this gesture so the ringtone can play
+    btn.disabled = true; btn.textContent = "Ringing…";
+    try {
+      const data = await postJSON("/trigger/random", {});
+      const box = document.getElementById("txnResult");
+      box.classList.add("show", "flagged"); box.classList.remove("clear");
+      box.innerHTML = `<div class="verdict">⚠ FLAGGED · ${escapeHtml(data.customer_name)} · risk `
+        + `<span class="score">${data.risk_score}</span></div>`
+        + `<div>${escapeHtml(data.reason)}</div>`
+        + `<div style="margin-top:0.4rem;">→ Calling ${escapeHtml(data.customer_name)} now.</div>`;
+      loadRecentActivity(data.customer_id);
+      await attachSession(data.auto_triggered_session_id, data.verification_code);
+    } catch (e) {
+      alert("Couldn't ring a random fraud call: " + e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = "🎲 Ring a random fraud call";
+    }
   });
 
   // ---- deep-link: attach the phone panel to a specific call via ?session= ----
