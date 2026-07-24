@@ -246,16 +246,24 @@ def check_groundedness(candidate_reply: str, event) -> RailVerdict:
     replies are never falsely blocked. A block forces escalation, same as the
     other output rails. `event` is session.event (has .txn.amount_gbp)."""
     try:
-        flagged = round(float(event.txn.amount_gbp))
+        flagged = float(event.txn.amount_gbp)
     except Exception:  # noqa: BLE001 — no parseable flagged amount: nothing to ground against
+        return RailVerdict(blocked=False, verdicts={"input": "pass", "output": "grounded_skipped"})
+    if flagged <= 0:
         return RailVerdict(blocked=False, verdicts={"input": "pass", "output": "grounded_skipped"})
     for raw in _MONEY_RE.findall(candidate_reply):
         try:
-            if round(float(raw.replace(",", ""))) != flagged:
-                return RailVerdict(blocked=True, reply_override=SAFE_ESCALATION_REPLY,
-                                   verdicts={"input": "pass", "output": "blocked_ungrounded_amount"})
+            val = float(raw.replace(",", ""))
         except ValueError:
             continue
+        # Tolerate the rounding the dialog prompt explicitly encourages ("about
+        # £45,000" for a £44,890 charge). Block ONLY a clearly-invented figure —
+        # more than 10% off the real amount — so a legitimate confirmation that
+        # restates a rounded amount is never falsely blocked (which would have
+        # forced an escalation even when the customer approved).
+        if abs(val - flagged) / flagged > 0.10:
+            return RailVerdict(blocked=True, reply_override=SAFE_ESCALATION_REPLY,
+                               verdicts={"input": "pass", "output": "blocked_ungrounded_amount"})
     return RailVerdict(blocked=False, verdicts={"input": "pass", "output": "grounded"})
 
 
