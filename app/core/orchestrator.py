@@ -175,9 +175,10 @@ def _handle_greeting_turn(session: CallSession, text: str) -> str:
     if session.intro_step == 1:
         audit.log_turn(session.session_id, "state", {"intro": "identify_and_ask_time"})
         line = nemotron.generate_line(
-            goal=(f"Identify yourself as the Barclays fraud-prevention team on a recorded line, briefly apologise for "
-                  f"calling {first} unexpectedly, tell them you've spotted an urgent transaction on their account that "
-                  f"may be fraud, and ask if now is an okay moment to talk."),
+            goal=(f"Identify yourself ONLY as the Barclays fraud-prevention team on a recorded line — do NOT invent or "
+                  f"give a personal agent name (never say 'I am <name>'); say 'this is the Barclays fraud-prevention "
+                  f"team'. Then briefly apologise for calling {first} unexpectedly, tell them you've spotted an urgent "
+                  f"transaction on their account that may be fraud, and ask if now is an okay moment to talk."),
             context={"session_id": session.session_id, "customer_first_name": first},
             fallback=(f"Thank you, {first}. This is the Barclays fraud-prevention team, calling on a recorded line. "
                       f"I'm sorry to call you unexpectedly — we've spotted an urgent transaction on your account that "
