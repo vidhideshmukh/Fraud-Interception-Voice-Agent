@@ -91,8 +91,8 @@ def opening_line(session: CallSession) -> str:
     model so it varies naturally; safe fallback offline."""
     first = session.customer.name.split()[0]
     return nemotron.generate_line(
-        goal=(f"Warmly greet the customer and confirm you're speaking with {first} — just a friendly opening; "
-              f"do NOT yet say why you're calling."),
+        goal=(f"Politely greet and confirm you're speaking with {first}, in ONE short sentence. "
+              f"Do NOT ask how they are or make any small talk, and do NOT yet say why you're calling."),
         context={"session_id": session.session_id, "customer_first_name": first},
         fallback=f"Hello, am I speaking with {first}?")
 
