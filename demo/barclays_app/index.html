@@ -728,7 +728,12 @@
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
       throw new Error("microphone needs HTTPS or localhost — open via http://localhost:8000");
     const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const pc = new RTCPeerConnection();
+    // Fetch STUN/TURN from the server (.env-driven) so the browser peer also gets a
+    // relay candidate — required when the server is behind a firewall (e.g. cluster).
+    // Falls back to host-only if the endpoint is unavailable or TURN isn't configured.
+    let iceServers = [];
+    try { iceServers = (await (await fetch(`/ice-servers`)).json()).iceServers || []; } catch (e) {}
+    const pc = new RTCPeerConnection(iceServers.length ? { iceServers } : undefined);
     webrtcPc = pc;
     mic.getTracks().forEach(t => pc.addTrack(t, mic));
     // addTrack already makes a sendrecv transceiver: we send the mic and receive the agent's voice.
@@ -745,6 +750,17 @@
       });
     };
     await pc.setLocalDescription(await pc.createOffer());
+    // Wait for ICE gathering to complete so the offer SDP CARRIES our candidates
+    // (including the TURN relay). /offer is one-shot (no trickle-ICE channel), so
+    // any candidate not in this SDP is never delivered — and over TURN the server
+    // can't open a relay permission for a browser address it never learned, which
+    // is exactly what leaves the call stuck on "connecting". Safety-capped at 3s.
+    await new Promise(resolve => {
+      if (pc.iceGatheringState === "complete") return resolve();
+      const done = () => { if (pc.iceGatheringState === "complete") { pc.removeEventListener("icegatheringstatechange", done); resolve(); } };
+      pc.addEventListener("icegatheringstatechange", done);
+      setTimeout(resolve, 3000);
+    });
     const res = await fetch(`/offer`, { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type, session_id: sessionId }) });
     if (!res.ok) throw new Error(`server rejected the call (${res.status})`);

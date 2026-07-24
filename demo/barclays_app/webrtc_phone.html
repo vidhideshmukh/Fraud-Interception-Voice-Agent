@@ -110,7 +110,11 @@ async function answer() {
   try {
     const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
     setStatus("Connecting…", true);
-    pc = new RTCPeerConnection();
+    // STUN/TURN from the server (.env-driven) so the browser also gets a relay
+    // candidate — needed when the server is behind a firewall. Host-only fallback.
+    let iceServers = [];
+    try { iceServers = (await (await fetch(`${API}/ice-servers`)).json()).iceServers || []; } catch (e) {}
+    pc = new RTCPeerConnection(iceServers.length ? { iceServers } : undefined);
     mic.getTracks().forEach(t => pc.addTrack(t, mic));
     pc.ontrack = ev => { $("agentAudio").srcObject = ev.streams[0]; };
     pc.onconnectionstatechange = () => {
@@ -119,6 +123,15 @@ async function answer() {
     };
     // addTrack already makes a sendrecv transceiver: we send the mic and receive the agent.
     await pc.setLocalDescription(await pc.createOffer());
+    // Wait for ICE gathering so the offer SDP carries our candidates (incl. the TURN
+    // relay). /offer is one-shot (no trickle), so a candidate missing here is never
+    // delivered — over TURN that leaves the call stuck on "connecting". 3s safety cap.
+    await new Promise(resolve => {
+      if (pc.iceGatheringState === "complete") return resolve();
+      const done = () => { if (pc.iceGatheringState === "complete") { pc.removeEventListener("icegatheringstatechange", done); resolve(); } };
+      pc.addEventListener("icegatheringstatechange", done);
+      setTimeout(resolve, 3000);
+    });
     const res = await fetch(`${API}/offer`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type, session_id: session.session_id })
