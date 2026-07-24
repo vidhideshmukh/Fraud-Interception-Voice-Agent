@@ -110,7 +110,11 @@ async function answer() {
   try {
     const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
     setStatus("Connecting…", true);
-    pc = new RTCPeerConnection();
+    // STUN/TURN from the server (.env-driven) so the browser also gets a relay
+    // candidate — needed when the server is behind a firewall. Host-only fallback.
+    let iceServers = [];
+    try { iceServers = (await (await fetch(`${API}/ice-servers`)).json()).iceServers || []; } catch (e) {}
+    pc = new RTCPeerConnection(iceServers.length ? { iceServers } : undefined);
     mic.getTracks().forEach(t => pc.addTrack(t, mic));
     pc.ontrack = ev => { $("agentAudio").srcObject = ev.streams[0]; };
     pc.onconnectionstatechange = () => {

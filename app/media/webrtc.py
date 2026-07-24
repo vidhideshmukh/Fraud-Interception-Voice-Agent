@@ -80,6 +80,25 @@ def _ice_config():
     return RTCConfiguration(iceServers=servers)
 
 
+def ice_servers_json() -> list[dict]:
+    """The same STUN/TURN config in the browser RTCPeerConnection shape
+    ({urls, username, credential}), served to the client via GET /ice-servers so
+    the browser peer also gets a relay candidate. Empty list when TURN is unset —
+    the browser then falls back to host-only, exactly as before. TURN credentials
+    are meant to be presented by the client, so exposing them here is expected."""
+    turn_urls = [u.strip() for u in os.getenv("TURN_URLS", "").split(",") if u.strip()]
+    user = os.getenv("TURN_USERNAME")
+    cred = os.getenv("TURN_CREDENTIAL")
+    if not (turn_urls and user and cred):
+        return []
+    out: list[dict] = []
+    stun = os.getenv("STUN_URL", "stun:stun.relay.metered.ca:80")
+    if stun:
+        out.append({"urls": stun})
+    out.append({"urls": turn_urls, "username": user, "credential": cred})
+    return out
+
+
 def _make_playback_track():
     """A MediaStreamTrack that plays queued TTS PCM (48 kHz mono) and silence when
     idle. Timing modelled on aiortc's own AudioStreamTrack so frames are paced to
