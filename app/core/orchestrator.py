@@ -238,6 +238,19 @@ def _handle_verification_turn(session: CallSession, text: str) -> str:
             fallback="That code has expired for your safety. I've just sent a fresh one to your Barclays app — "
                      "please read me the new code."))
 
+    # If the customer hasn't actually read a code yet — an acknowledgement
+    # ("okay, let me open the app"), a question, or chit-chat — do NOT count it
+    # as a failed attempt (that would waste a 3-strikes try and re-ask as if they
+    # got it wrong). Just wait warmly for them to read the code.
+    if not anti_vishing.looks_like_code(text):
+        return _say(session, nemotron.generate_line(
+            goal=("The customer has not read the verification code yet. Warmly and briefly wait for them: once "
+                  "they've opened the Barclays app, ask them to read you the verification code shown there. Do NOT "
+                  "imply they got anything wrong."),
+            context={"session_id": session.session_id, "customer_first_name": first},
+            fallback=("No problem — whenever you're ready, please open your Barclays app and read me the "
+                      "verification code shown there.")))
+
     if anti_vishing.verify_code(session.session_id, text):
         session.state = CallState.VERIFIED
         session.verification_attempts = 0

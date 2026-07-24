@@ -76,6 +76,16 @@ def _extract_code(text: str) -> str:
     return "".join(out)
 
 
+def looks_like_code(text: str) -> bool:
+    """True if the utterance actually contains enough digits to be a code
+    read-back, rather than an acknowledgement ("okay, let me open the app"), a
+    question, or chit-chat with a stray number. Callers use this so a non-code
+    reply is NOT counted as a failed verification attempt (which would waste a
+    3-strikes try and needlessly re-ask). Threshold is lenient so a partial or
+    slightly mis-heard read still counts as a real (if wrong) attempt."""
+    return len(_extract_code(text)) >= max(3, CODE_LENGTH - 2)
+
+
 def send_push(session_id: str) -> str:
     """Generate and 'push' a fresh one-time numeric code, replacing any prior
     one for this session (also used to re-push mid-call on expiry — see
