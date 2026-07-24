@@ -85,19 +85,20 @@ def fast_path_turn(session: CallSession, user_text: str) -> AgentTurn | None:
 
 
 def opening_line(session: CallSession) -> str:
-    """The FIRST thing said on pickup — just a warm greeting that confirms who
-    we're speaking to, like a real call. Identity, purpose and the code request
-    come on later turns (see orchestrator._handle_greeting_turn). Phrased by the
-    model so it varies naturally; safe fallback offline."""
+    """The SINGLE opening message spoken on pickup: who we are (Barclays fraud
+    team, recorded line), why (a possibly fraudulent transaction) AND an
+    immediate request to read back the app verification code — crisp, 1-2
+    lines, no separate 'am I speaking with X / is now a good time' turns and no
+    waiting on a yes/no. Deterministic on purpose: letting the LLM phrase it
+    kept adding small talk and a made-up self-introduction with a placeholder
+    agent name ("this is NAME_1 from Barclays"). The recorded+fraud wording
+    also satisfies the mandatory-disclosure rail; the model still drives every
+    substantive turn after verification."""
     first = session.customer.name.split()[0]
-    # Deterministic on purpose: this line's ONLY job is to confirm who we're
-    # speaking to — the team introduction and the reason for the call belong to
-    # the next turn (_handle_greeting_turn). Letting the LLM phrase it kept
-    # adding unwanted small talk ("how are you today?") and, worse, a made-up
-    # self-introduction with a placeholder agent name ("this is NAME_1 from
-    # Barclays"). A fixed one-liner removes that whole class of bug; the model
-    # still drives every substantive turn after this.
-    return f"Hello, am I speaking with {first}?"
+    return (f"Hello {first}, this is the Barclays fraud-prevention team calling on a recorded line. "
+            f"We've spotted a transaction on your account that may be fraudulent. To confirm it's really you, "
+            f"please open your Barclays app and read me the verification code shown there — I'll never ask for "
+            f"your PIN, password or full card number.")
 
 
 def handle_turn(session: CallSession, user_text: str) -> nemotron.TurnResult:

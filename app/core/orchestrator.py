@@ -90,9 +90,17 @@ def answer_call(session: CallSession) -> CallSession:
     harmless no-op, because we only transition out of the RINGING state once."""
     if session.state != CallState.PUSH_SENT:
         return session  # already answered / already past the ringing stage
-    session.state = CallState.GREETING
+    # The opening is now ONE crisp message — who we are, why we're calling, and a
+    # request to read the app code — so we go straight to verification instead of
+    # a separate greeting turn that waited on "yes, I'm X".
+    session.state = CallState.AWAITING_VERIFICATION
     audit.log_turn(session.session_id, "state", {"answered": True, "state": session.state.value})
-    opening = fraud_agent.opening_line(session)   # just "Hello, am I speaking with X?"
+    opening = fraud_agent.opening_line(session)
+    # Mandatory-disclosure rail: guarantee the opening states it's a recorded
+    # fraud call; prepend the canonical line only if somehow missing.
+    if not guardrails.disclosure_ok(opening):
+        audit.log_turn(session.session_id, "rail", {"disclosure": "prepended"})
+        opening = guardrails.DISCLOSURE_LINE + opening
     _say(session, opening)
     return session
 
