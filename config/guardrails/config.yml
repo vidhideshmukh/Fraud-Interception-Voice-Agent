@@ -20,6 +20,17 @@ models:
       # NO api_key line on purpose: with engine=nim, guardrails reads NVIDIA_API_KEY
       # from the environment automatically. Putting "api_key: ${NVIDIA_API_KEY}" here
       # would send the literal string (not interpolated) and break auth.
+      #
+      # Turn OFF reasoning for the guardrail checks. nemotron-3-nano is a REASONING
+      # model, so without this each self-check spends ~0.7-1s emitting chain-of-
+      # thought ("We need to classify... So it's allowed. Answer no.") before the
+      # yes/no — ~1.5-2s per turn across the input+output rails. The rails only
+      # need the verdict, not the reasoning. nemoguardrails forwards any extra
+      # parameter straight into the request body (verified), and NIM/vLLM reads
+      # chat_template_kwargs to disable thinking — same switch the main app's
+      # nemotron adapter uses. Verdict quality is unchanged; latency drops ~10x.
+      chat_template_kwargs:
+        enable_thinking: false
 
 rails:
   input:
