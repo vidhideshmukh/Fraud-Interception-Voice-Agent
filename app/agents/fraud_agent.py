@@ -90,11 +90,14 @@ def opening_line(session: CallSession) -> str:
     come on later turns (see orchestrator._handle_greeting_turn). Phrased by the
     model so it varies naturally; safe fallback offline."""
     first = session.customer.name.split()[0]
-    return nemotron.generate_line(
-        goal=(f"Politely greet and confirm you're speaking with {first}, in ONE short sentence. "
-              f"Do NOT ask how they are or make any small talk, and do NOT yet say why you're calling."),
-        context={"session_id": session.session_id, "customer_first_name": first},
-        fallback=f"Hello, am I speaking with {first}?")
+    # Deterministic on purpose: this line's ONLY job is to confirm who we're
+    # speaking to — the team introduction and the reason for the call belong to
+    # the next turn (_handle_greeting_turn). Letting the LLM phrase it kept
+    # adding unwanted small talk ("how are you today?") and, worse, a made-up
+    # self-introduction with a placeholder agent name ("this is NAME_1 from
+    # Barclays"). A fixed one-liner removes that whole class of bug; the model
+    # still drives every substantive turn after this.
+    return f"Hello, am I speaking with {first}?"
 
 
 def handle_turn(session: CallSession, user_text: str) -> nemotron.TurnResult:
