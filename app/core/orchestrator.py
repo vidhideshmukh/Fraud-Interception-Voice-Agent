@@ -472,19 +472,16 @@ def _escalate(session: CallSession, turn: AgentTurn, reason: str) -> str:
     audit.close_session(session.session_id, session.outcome)
 
     if reason == "high_value_deny":
-        # Explain BOTH actions to the customer: what we did now, and why we're
-        # transferring rather than finishing on the call.
+        # Explain BOTH actions to the customer: what we did now, and that the case
+        # goes to the internal team for the money decision.
         return _say(session,
                     f"Thank you — I've blocked your card ending {session.customer.card_last4} right away "
-                    f"so it can't be used again, and a replacement is on its way. Because this is a large "
-                    f"payment of £{session.event.txn.amount_gbp:,.0f}, I'm connecting you to "
-                    f"{specialist['name']}, our fraud specialist at the {specialist['desk']}, who will "
-                    f"complete the investigation and arrange your refund. You will not be liable for this "
-                    f"transaction.")
+                    f"so it can't be used again, and a replacement is on its way. As this is a large payment, "
+                    f"I've escalated this to our internal fraud team for further investigation, and they'll be "
+                    f"in touch. You will not be liable for this transaction. Take care, and have a good day.")
 
-    return _say(session, f"I'm connecting you to {specialist['name']}, our fraud specialist at the "
-                         f"{specialist['desk']}. They can see our full conversation, so you won't "
-                         f"have to repeat yourself.")
+    return _say(session, "Thank you — I've escalated this to our internal fraud team for further "
+                         "investigation, and they'll be in touch with you shortly. Take care, and have a good day.")
 
 
 def _say(session: CallSession, text: str) -> str:
