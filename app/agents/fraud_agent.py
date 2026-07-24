@@ -11,10 +11,12 @@ single-hop latency NFR: only this module calls a model on the live path.
 from __future__ import annotations
 
 import re
+import time
+from dataclasses import dataclass
 
 from app.llm import nemotron
 from app.agents import prompts
-from app.database.models import AgentTurn, CallSession, Intent
+from app.database.models import CallSession, Intent
 
 # ---------------------------------------------------------------------------
 # Latency fast-path (adapted from Jennifer's repo). An exact, unambiguous
@@ -60,30 +62,6 @@ def fast_path_intent(user_text: str) -> Intent | None:
     return None
 
 
-def fast_path_turn(session: CallSession, user_text: str) -> AgentTurn | None:
-    """A deterministic AgentTurn for an exact confirm/deny (no LLM call), or
-    None. Confidence is 1.0 because an exact match is a certainty, not a
-    probabilistic guess. The reply mirrors what the LLM path says for the same
-    intent; on a high-value deny the orchestrator will override this reply with
-    the escalation message anyway (policy is unchanged), so the canned text is
-    only ever spoken on the paths where the LLM would have said the same thing.
-    Replies close warmly, by first name, the way a real agent signs off a call."""
-    intent = fast_path_intent(user_text)
-    if intent is None:
-        return None
-    last4 = session.customer.card_last4
-    first = session.customer.name.split()[0]
-    if intent == Intent.CONFIRM_LEGIT:
-        return AgentTurn(intent=intent, confidence=1.0,
-                         reply=(f"That's great, thank you {first}. I've released the hold, so your card ending "
-                                f"{last4} is working normally again. Sorry to have interrupted your day — thank you "
-                                f"for your time, and take care. Goodbye."))
-    return AgentTurn(intent=intent, confidence=1.0,
-                     reply=(f"Thank you for confirming, {first}. I'm blocking your card ending {last4} right now, and a "
-                            f"replacement is already on its way to you. You will not be liable for this transaction. "
-                            f"Thank you for helping us stop it — take care, and goodbye."))
-
-
 def opening_line(session: CallSession) -> str:
     """The SINGLE opening message spoken on pickup: who we are (Barclays fraud
     team, recorded line), why (a possibly fraudulent transaction) AND an
@@ -107,20 +85,76 @@ def opening_line(session: CallSession) -> str:
                   f"verification code shown there — I'll never ask for your PIN or card number."))
 
 
-def handle_turn(session: CallSession, user_text: str) -> nemotron.TurnResult:
-    """Returns the full TurnResult (not just the AgentTurn) so the orchestrator
-    can stamp model_id/prompt_version/latency_ms onto the audit record without
-    this module needing to know anything about audit logging itself."""
-    context = {
-        "name": session.customer.name,
-        "last4": session.customer.card_last4,
-        "home_city": session.customer.home_city,
-        "merchant": session.event.txn.merchant,
-        "amount": session.event.txn.amount_gbp,
-        "city": session.event.txn.city,
-        "rca": session.event.rca_reason,
-        "verified": session.state.value,
-        "session_id": session.session_id,   # for per-call latency metrics
-    }
-    history = [{"role": m["role"], "content": m["text"]} for m in session.transcript]
-    return nemotron.complete_turn(prompts.REALTIME_SYSTEM, history, user_text, context)
+# ---------------------------------------------------------------------------
+# Phase-1 style LLM-DRIVEN investigation loop. Instead of the model only
+# CLASSIFYING the utterance into a fixed intent (which the orchestrator then
+# maps to an action), the model DRIVES the call: each turn it reads the flagged
+# txn + full transcript and returns ONE decision — ask another question, or
+# conclude (approve / block / escalate). The orchestrator executes whatever it
+# decides (validated by the action rail). This is what makes the dialog feel
+# investigative and human rather than a one-shot classify-and-act.
+# ---------------------------------------------------------------------------
+_VALID_ACTIONS = {"ask", "approve", "block", "escalate"}
+
+
+@dataclass
+class Decision:
+    action: str          # ask | approve | block | escalate
+    message: str         # what the agent says this turn
+    confidence: float
+    model_id: str
+    latency_ms: float
+
+
+def _dialog_history(session: CallSession) -> str:
+    lines = [f"{'Agent' if t['role'] == 'assistant' else 'Customer'}: {t['text']}"
+             for t in session.transcript]
+    return "\n".join(lines) if lines else "(no conversation yet)"
+
+
+def _fallback_decision(session: CallSession, user_text: str, latency_ms: float) -> Decision:
+    """Keyword decision used ONLY in mock mode or if the LLM is unreachable —
+    keeps the call alive with the same {action, message} contract the loop uses."""
+    t = user_text.lower()
+    first = session.customer.name.split()[0]
+    txn = session.event.txn
+    if any(w in t for w in ("scared", "help", "human", "person", "agent", "scam", "panic")):
+        return Decision("escalate", "I understand — let me pass this to our internal team who will look into "
+                        "it further. Take care, and have a good day.", 0.5, "fallback", latency_ms)
+    if any(w in t for w in ("not me", "didn't", "did not", "wasn't", "no i", "never", "fraud")):
+        return Decision("block", f"Thank you, {first}. I'm blocking your card ending {session.customer.card_last4} "
+                        "now and a replacement is on its way. Take care, and have a good day.", 0.9, "fallback", latency_ms)
+    if any(w in t for w in ("yes", "i did", "that was me", "i made", "authorised", "authorized", "my purchase")):
+        return Decision("approve", f"Thanks for confirming, {first}. I've released the hold, so your card works "
+                        "normally again. Take care, and have a good day.", 0.9, "fallback", latency_ms)
+    return Decision("ask", f"Thanks, {first}. Just to check — do you recognise the £{txn.amount_gbp:,.0f} "
+                    f"payment at {txn.merchant}?", 0.6, "fallback", latency_ms)
+
+
+def investigate_turn(session: CallSession, user_text: str) -> Decision:
+    """One turn of the LLM-driven investigation loop (phase-1 logic). The model
+    returns {action, message, confidence}; on mock mode or any failure a keyword
+    fallback keeps the call alive."""
+    txn = session.event.txn
+    user_msg = (
+        f"Flagged transaction: £{txn.amount_gbp:,.0f} at {txn.merchant}, {txn.city}. "
+        f"Why it was flagged: {session.event.rca_reason}. "
+        f"Customer: {session.customer.name} (card ending {session.customer.card_last4}, "
+        f"home city {session.customer.home_city}).\n\n"
+        f"Conversation so far:\n{_dialog_history(session)}\n\n"
+        f"The customer just said: \"{user_text}\"\n\n"
+        f"Decide your next step and reply with the JSON contract."
+    )
+    t0 = time.perf_counter()
+    data = nemotron.complete_json(prompts.INVESTIGATION_DIALOG_SYSTEM, user_msg,
+                                  stage="dialog", session_id=session.session_id, max_tokens=200)
+    latency_ms = round((time.perf_counter() - t0) * 1000, 1)
+    action = (data.get("action") or "").strip().lower()
+    message = (data.get("message") or "").strip()
+    if action not in _VALID_ACTIONS or not message:
+        return _fallback_decision(session, user_text, latency_ms)
+    try:
+        confidence = float(data.get("confidence", 0.7))
+    except (TypeError, ValueError):
+        confidence = 0.7
+    return Decision(action, message, confidence, nemotron.NIM_MODEL_REALTIME, latency_ms)

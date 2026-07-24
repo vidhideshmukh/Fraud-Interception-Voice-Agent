@@ -26,6 +26,9 @@ from app.database import bank
 
 CONF_THRESHOLD = float(os.getenv("CONFIDENCE_ESCALATION_THRESHOLD", "0.7"))
 HIGH_VALUE_GBP = float(os.getenv("HIGH_VALUE_ESCALATION_GBP", "750"))
+# Safety cap on LLM-driven investigation questions before we hand to a human —
+# mirrors phase-1's max_turns, so the model can't loop forever asking questions.
+MAX_DIALOG_TURNS = int(os.getenv("MAX_DIALOG_TURNS", "6"))
 MAX_VERIFICATION_ATTEMPTS = int(os.getenv("MAX_VERIFICATION_ATTEMPTS", "3"))
 # Latency fast-path: an exact "yes"/"no" skips the dialog + output-rail LLM
 # calls (see fraud_agent.fast_path_turn). On by default; set FAST_PATH_ENABLED=
@@ -328,60 +331,77 @@ def _freeze_channel(session: CallSession) -> str:
                   "your identity through another method. Thank you for your patience.")))
 
 
+_ACTION_TO_INTENT = {"approve": Intent.CONFIRM_LEGIT, "block": Intent.DENY,
+                     "escalate": Intent.UNSURE, "ask": Intent.UNSURE}
+
+
 def _handle_dialog_turn(session: CallSession, text: str) -> str:
-    # Latency fast-path: an exact, unambiguous "yes"/"no" is answered with a
-    # deterministic turn — NO dialog LLM call, and NO output-rail LLM call
-    # either (the reply is our own canned text, so there is nothing
-    # model-generated to screen). Everything downstream — repetition guard,
-    # audit record, escalation policy, bank action — runs identically to the
-    # LLM path, because the fast-path emits the same {intent, confidence} shape.
-    fast = fraud_agent.fast_path_turn(session, text) if FAST_PATH_ENABLED else None
-    if fast is not None:
-        turn: AgentTurn = fast
-        model_id, prompt_version, latency_ms, seed = "fastpath", prompts.PROMPT_VERSION, 0.0, None
-        reply_text, output_blocked = turn.reply, False
-        rail_verdicts = {"input": "keyword_only", "output": "skipped_fastpath"}
-    else:
-        result = fraud_agent.handle_turn(session, text)  # llm.TurnResult
-        turn = result.turn
-        model_id, prompt_version = result.model_id, result.prompt_version
-        latency_ms, seed = result.latency_ms, result.seed
-        # Guardrails run on the model-proposed reply before it's ever spoken:
-        # first the self-check (PII/credentials/advice/tone/topic), then the
-        # groundedness rail (no made-up figures). Either block forces escalation.
-        output_verdict = guardrails.check_output(turn.reply)
-        if not output_verdict.blocked:
-            output_verdict = guardrails.check_groundedness(turn.reply, session.event)
-        reply_text = output_verdict.reply_override if output_verdict.blocked else turn.reply
-        output_blocked = output_verdict.blocked
-        rail_verdicts = output_verdict.verdicts
+    """Phase-1 style LLM-DRIVEN investigation loop. The model reads the flagged
+    transaction + full transcript and returns ONE decision — ask another
+    question, or conclude (approve / block / escalate). We execute the model's
+    chosen action (validated by the action rail in resolution_agent), rather than
+    classifying a fixed intent and mapping it deterministically. This is what
+    makes the dialog investigative and human instead of one-shot classify+act.
 
-    # Repetition guard: a near-duplicate of the agent's own recent reply
-    # means the dialog isn't progressing. Scenario catalog's own rule: "max
-    # 2 clarification loops, then escalate — never a third rephrase."
-    is_repeat = repetition_guard.is_repetitive(turn.reply, session.agent_utterances())
+    Deterministic safety nets still wrap the model: output+groundedness rails on
+    every spoken line, a repetition guard, a turn cap, and a human review (HITL)
+    before RELEASING a hold on a low-confidence approval."""
+    session.dialog_turns += 1
+    decision = fraud_agent.investigate_turn(session, text)
+    action, message, confidence = decision.action, decision.message, decision.confidence
 
-    audit.log_agent_turn(session.session_id, predicted_intent=turn.intent, confidence=turn.confidence,
-                         reply_text=reply_text, state_after=session.state.value,
-                         model_id=model_id, prompt_version=prompt_version,
-                         latency_ms=latency_ms, seed=seed,
-                         rail_verdicts=rail_verdicts)
+    # Output rails on the spoken line: self-check (PII/advice/tone/topic) then
+    # groundedness (no invented figures). A block overrides to a safe escalation.
+    ov = guardrails.check_output(message)
+    if not ov.blocked:
+        ov = guardrails.check_groundedness(message, session.event)
+    if ov.blocked:
+        message = ov.reply_override
 
-    reason = _escalation_reason(session, turn, is_repeat=is_repeat, output_blocked=output_blocked)
-    if reason:
-        return _escalate(session, turn, reason)
+    is_repeat = repetition_guard.is_repetitive(message, session.agent_utterances())
+    turn = AgentTurn(reply=message, intent=_ACTION_TO_INTENT.get(action, Intent.UNSURE),
+                     confidence=confidence)
 
-    if turn.intent == Intent.CONFIRM_LEGIT:
+    audit.log_agent_turn(session.session_id, predicted_intent=turn.intent, confidence=confidence,
+                         reply_text=message, state_after=session.state.value,
+                         model_id=decision.model_id, prompt_version=prompts.PROMPT_VERSION,
+                         latency_ms=decision.latency_ms, rail_verdicts=ov.verdicts)
+    audit.log_turn(session.session_id, "decision", {"action": action, "confidence": confidence})
+
+    # Safety overrides that force a human regardless of the model's choice.
+    if ov.blocked:
+        return _escalate(session, turn, "guardrail_blocked_reply")
+    if is_repeat:
+        return _escalate(session, turn, "repetition_loop")
+    if action == "ask" and session.dialog_turns >= MAX_DIALOG_TURNS:
+        return _escalate(session, turn, "max_turns")
+
+    if action == "ask":
+        return _say(session, message)
+
+    if action == "escalate":
+        return _escalate(session, turn, "model_escalate")
+
+    # Releasing a hold on a possibly-fraudulent payment is the one direction that
+    # gets a human safety net when the model isn't confident (HITL, unchanged).
+    if action == "approve" and confidence < CONF_THRESHOLD:
+        return _escalate(session, turn, "low_confidence")
+
+    if action == "approve":
         session.state = CallState.RESOLVED_LEGIT
         session.outcome = "false_positive_recovered"
         resolution_agent.resolve_legit(session)          # async in prod; inline in demo
         audit.close_session(session.session_id, session.outcome)
-    elif turn.intent == Intent.DENY:
+        return _say(session, message)
+
+    if action == "block":
         session.state = CallState.RESOLVED_FRAUD
         session.outcome = "fraud_confirmed"
         resolution_agent.resolve_fraud(session)          # async in prod; inline in demo
         audit.close_session(session.session_id, session.outcome)
-    return _say(session, reply_text)
+        return _say(session, message)
+
+    return _escalate(session, turn, "unknown_action")     # defensive: never fall through
 
 
 def no_answer(session: CallSession) -> str:

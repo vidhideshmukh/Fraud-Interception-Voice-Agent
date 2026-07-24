@@ -144,6 +144,7 @@ class CallSession(BaseModel):
     verification_code: str = ""  # one-time numeric OTP pushed to the app (see security/anti_vishing.py)
     verification_attempts: int = 0  # 3 wrong attempts -> CHANNEL_FROZEN, not infinite re-prompts
     intro_step: int = 0  # progress through the human greeting turns before verification
+    dialog_turns: int = 0  # LLM-driven investigation turns after verification (safety cap -> escalate)
     transcript: list[dict] = Field(default_factory=list)
     outcome: Optional[str] = None
 
