@@ -500,6 +500,15 @@ def _escalate(session: CallSession, turn: AgentTurn, reason: str) -> str:
                     f"I've escalated this to our internal fraud team for further investigation, and they'll be "
                     f"in touch. You will not be liable for this transaction. Take care, and have a good day.")
 
+    # For a model-CHOSEN escalation, speak the model's own line — it already tells
+    # the customer (naturally, in context) that they're being passed to a specialist,
+    # and it has passed the output+groundedness rails. For every OTHER escalation
+    # reason (low-confidence approval, repetition, max-turns, a blocked reply) the
+    # model's message was about something else, so we speak the reliable canonical
+    # escalation line instead.
+    if reason == "model_escalate" and turn.reply:
+        return _say(session, turn.reply)
+
     return _say(session, "Thank you — I've escalated this to our internal fraud team for further "
                          "investigation, and they'll be in touch with you shortly. Take care, and have a good day.")
 
