@@ -182,6 +182,12 @@ def _handle_greeting_turn(session: CallSession, text: str) -> str:
             fallback=(f"Thank you, {first}. This is the Barclays fraud-prevention team, calling on a recorded line. "
                       f"I'm sorry to call you unexpectedly — we've spotted an urgent transaction on your account that "
                       f"may be fraudulent, and I'd like to check it with you. Is now an okay moment to talk?"))
+        # Mandatory-disclosure rail: this opening turn MUST state it's a recorded
+        # fraud call. If the model's line omitted either fact, prepend the
+        # canonical disclosure so it is guaranteed regardless of generation.
+        if not guardrails.disclosure_ok(line):
+            audit.log_turn(session.session_id, "rail", {"disclosure": "prepended"})
+            line = guardrails.DISCLOSURE_LINE + line
         return _say(session, line)
 
     # step 2: acknowledge the "do you have time" answer, then ask for the code.
@@ -318,8 +324,12 @@ def _handle_dialog_turn(session: CallSession, text: str) -> str:
         turn = result.turn
         model_id, prompt_version = result.model_id, result.prompt_version
         latency_ms, seed = result.latency_ms, result.seed
-        # Guardrails run on the model-proposed reply before it's ever spoken.
+        # Guardrails run on the model-proposed reply before it's ever spoken:
+        # first the self-check (PII/credentials/advice/tone/topic), then the
+        # groundedness rail (no made-up figures). Either block forces escalation.
         output_verdict = guardrails.check_output(turn.reply)
+        if not output_verdict.blocked:
+            output_verdict = guardrails.check_groundedness(turn.reply, session.event)
         reply_text = output_verdict.reply_override if output_verdict.blocked else turn.reply
         output_blocked = output_verdict.blocked
         rail_verdicts = output_verdict.verdicts

@@ -72,6 +72,27 @@ CREDENTIAL_REFUSAL_REPLY = ("No — please never share your PIN, OTP or card num
                             "code from your Barclays app.")
 SAFE_ESCALATION_REPLY = "Let me connect you with a specialist to be safe."
 
+# --- Execution rail: only these four banking actions may ever fire. ---
+# A concluded action that isn't one of these (a hallucinated or injected tool
+# name) is refused by validate_action() before it can touch bank.py.
+ALLOWED_ACTIONS = frozenset({"block_card", "release_hold", "open_chargeback", "upsert_case"})
+
+# --- Dialog rail: mandatory opening disclosure. ---
+# Early in the call the agent MUST disclose that this is a recorded
+# fraud-prevention call. disclosure_ok() checks both facts are present; if the
+# model's line omits either, the orchestrator prepends DISCLOSURE_LINE.
+_DISCLOSURE_PATTERNS = (r"record", r"fraud")
+DISCLOSURE_LINE = ("Before we continue — this is the Barclays fraud-prevention team and this call "
+                   "is recorded. I'm calling about a possible fraudulent transaction on your account. ")
+
+# --- Output rail: tone / toxicity. Offline keyword catch only; the live LLM
+# self_check_output prompt carries the real "professional, empathetic" judgment. ---
+_TOXIC_WORDS = ("idiot", "stupid", "shut up", "moron", "screw you", "you people",
+                "shut it", "damn you")
+
+# £-amounts, for the groundedness rail.
+_MONEY_RE = re.compile(r"£\s?([\d,]+(?:\.\d+)?)")
+
 _rails = None
 
 
@@ -156,7 +177,8 @@ def _mock_self_check(text: str) -> bool:
     financial_advice_words = ("you should invest", "guaranteed return", "buy this stock")
     return (any(w in t for w in credential_words)
             or any(w in t for w in jailbreak_words)
-            or any(w in t for w in financial_advice_words))
+            or any(w in t for w in financial_advice_words)
+            or any(w in t for w in _TOXIC_WORDS))
 
 
 def check_input(user_text: str, *, run_self_check: bool = True) -> RailVerdict:
@@ -213,3 +235,41 @@ def check_output(candidate_reply: str) -> RailVerdict:
         return RailVerdict(blocked=True, reply_override=SAFE_ESCALATION_REPLY,
                            verdicts={"input": "pass", "output": "blocked_nemo_output_rail"})
     return RailVerdict(blocked=False, verdicts={"input": "pass", "output": "pass"})
+
+
+def check_groundedness(candidate_reply: str, event) -> RailVerdict:
+    """Output rail — groundedness: the agent may only quote figures that come
+    from the flagged transaction, never a made-up one. Deterministic and
+    fail-OPEN: it blocks ONLY when the reply states a £-amount that doesn't
+    match the real flagged amount (a hallucinated figure); anything it can't
+    parse — or a reply with no amount at all — passes untouched, so ordinary
+    replies are never falsely blocked. A block forces escalation, same as the
+    other output rails. `event` is session.event (has .txn.amount_gbp)."""
+    try:
+        flagged = round(float(event.txn.amount_gbp))
+    except Exception:  # noqa: BLE001 — no parseable flagged amount: nothing to ground against
+        return RailVerdict(blocked=False, verdicts={"input": "pass", "output": "grounded_skipped"})
+    for raw in _MONEY_RE.findall(candidate_reply):
+        try:
+            if round(float(raw.replace(",", ""))) != flagged:
+                return RailVerdict(blocked=True, reply_override=SAFE_ESCALATION_REPLY,
+                                   verdicts={"input": "pass", "output": "blocked_ungrounded_amount"})
+        except ValueError:
+            continue
+    return RailVerdict(blocked=False, verdicts={"input": "pass", "output": "grounded"})
+
+
+def disclosure_ok(text: str) -> bool:
+    """Dialog rail — mandatory disclosure: True when the line states BOTH that
+    the call is recorded and that it concerns fraud. The orchestrator uses this
+    on the opening turn and prepends DISCLOSURE_LINE if either is missing, so the
+    disclosure is guaranteed regardless of what the model generated."""
+    t = text.lower()
+    return all(re.search(p, t) for p in _DISCLOSURE_PATTERNS)
+
+
+def validate_action(action_name: str) -> bool:
+    """Execution rail: True only for the four sanctioned banking actions. Called
+    before anything in resolution_agent touches bank.py, so a hallucinated or
+    injected action name (anything outside ALLOWED_ACTIONS) is refused."""
+    return action_name in ALLOWED_ACTIONS

@@ -19,29 +19,44 @@ from __future__ import annotations
 from app.database.models import CallSession
 from app.security import audit
 from app.database import bank
+from app.security import guardrails
+
+
+def _guarded(session: CallSession, action_name: str, fn):
+    """Execution rail: run a banking action ONLY if it is one of the four
+    sanctioned actions (guardrails.validate_action). A disallowed name — a
+    hallucinated or injected action — is refused and audited before it can
+    reach bank.py, never silently executed."""
+    if not guardrails.validate_action(action_name):
+        audit.log_turn(session.session_id, "rail_block",
+                       {"action": action_name, "reason": "not an allowed banking action"})
+        raise ValueError(f"execution rail refused disallowed action: {action_name}")
+    return fn()
 
 
 def resolve_fraud(session: CallSession) -> dict:
     txn = session.event.txn
     actions = []
     try:
-        actions.append(bank.block_card(session.session_id, txn.txn_id, session.customer.customer_id))
+        actions.append(_guarded(session, "block_card",
+                                lambda: bank.block_card(session.session_id, txn.txn_id, session.customer.customer_id)))
     except Exception as e:
         # If the card is already blocked, we still want to continue with the
         # other actions. Log the error but don't crash the whole resolution.
         audit.log_turn(session.session_id, "tool_error", {"action": "block_card", "error": str(e)})
     try:
-        actions.append(bank.open_chargeback(session.session_id, txn.txn_id))
+        actions.append(_guarded(session, "open_chargeback",
+                                lambda: bank.open_chargeback(session.session_id, txn.txn_id)))
     except Exception as e:
         # If the card is already blocked, we still want to continue with the
         # other actions. Log the error but don't crash the whole resolution.
         audit.log_turn(session.session_id, "tool_error", {"action": "open_chargeback", "error": str(e)})
-    case = bank.upsert_case(
+    case = _guarded(session, "upsert_case", lambda: bank.upsert_case(
         session.session_id,
         outcome="fraud_confirmed",
         note=(f"Customer denied txn {txn.txn_id} ({txn.merchant}, £{txn.amount_gbp:,.0f}). "
               f"Card blocked, reissue ordered, chargeback opened. RCA: {session.event.rca_reason}"),
-    )
+    ))
     for a in actions:
         audit.log_turn(session.session_id, "tool", a)
     audit.log_turn(session.session_id, "state", {"case": case["case_id"], "outcome": "fraud_confirmed"})
@@ -50,12 +65,13 @@ def resolve_fraud(session: CallSession) -> dict:
 
 def resolve_legit(session: CallSession) -> dict:
     txn = session.event.txn
-    action = bank.release_hold(session.session_id, txn.txn_id)
-    case = bank.upsert_case(
+    action = _guarded(session, "release_hold",
+                      lambda: bank.release_hold(session.session_id, txn.txn_id))
+    case = _guarded(session, "upsert_case", lambda: bank.upsert_case(
         session.session_id,
         outcome="false_positive_recovered",
         note=f"Customer confirmed txn {txn.txn_id}. Hold released. RCA: {session.event.rca_reason}",
-    )
+    ))
     audit.log_turn(session.session_id, "tool", action)
     audit.log_turn(session.session_id, "state", {"case": case["case_id"], "outcome": "false_positive_recovered"})
     return {"actions": [action], "case": case}

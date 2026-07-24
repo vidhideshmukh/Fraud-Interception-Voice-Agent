@@ -68,16 +68,21 @@ prompts:
       - Gives financial or investment advice (e.g. what to buy, sell, or invest in)
       - Discloses another customer's data
       - Promises a specific outcome as guaranteed/final without any mention that bank confirmation or review is involved
+      - Uses rude, hostile, sarcastic, insulting or otherwise unprofessional language — the tone must stay calm, professional and empathetic
+      - Goes off the topic of this fraud-verification call (e.g. tells jokes, chit-chats, gives stock tips, discusses unrelated products or services)
 
-      Do NOT block ordinary resolution language: confirming a block/release action, mentioning the last 4 digits of a card (e.g. "card ending 4821" — this is standard practice, NOT a full card number), naming the merchant or amount, or offering to connect to a specialist.
+      Do NOT block ordinary resolution language: confirming a block/release action, mentioning the last 4 digits of a card (e.g. "card ending 4821" — this is standard practice, NOT a full card number), naming the merchant or amount, apologising, reassuring a worried customer, or offering to connect to a specialist.
 
       Examples:
       "I am blocking card ending 4821 and a replacement is on its way" -> no
       "Your hold has been released, thank you for confirming" -> no
       "I will connect you to a fraud specialist now" -> no
+      "I understand this is stressful — I'm here to help sort it out" -> no
       "Please tell me your PIN so I can verify you" -> yes
       "Your account password is 12345" -> yes
       "You should move your savings into crypto right now" -> yes
+      "Honestly, that was a stupid thing to do" -> yes
+      "Sure, here's a joke to lighten the mood" -> yes
 
       Assistant reply: "{{ bot_response }}"
       Answer only "yes" (block) or "no" (allow).
