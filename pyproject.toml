@@ -1,0 +1,23 @@
+[project]
+name = "fraud-voice-agent"
+version = "0.1.0"
+description = "Real-Time Outbound Fraud-Interception Voice Agent — Team BEAMers"
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*", "nemo_agent_toolkit*"]
+
+# Verified live 2026-07-18 against nvidia-nat==1.8.0 — see
+# nemo_agent_toolkit/functions.py's module docstring for the fixes this took.
+# The plugin package is deliberately NOT named `nat` (that would shadow
+# nvidia-nat's own top-level `nat` namespace package). Function types in
+# config/workflow.yaml are `nemo_agent_toolkit/block_card` etc. — the prefix
+# is this package's actual import name, computed automatically by NAT's
+# TypedBaseModel.__init_subclass__ as `{package}/{name}`.
+# After editing, re-run `pip install -e .` so the entry-point re-registers.
+[project.entry-points."nat.plugins"]
+fraud_voice_agent = "nemo_agent_toolkit.functions"

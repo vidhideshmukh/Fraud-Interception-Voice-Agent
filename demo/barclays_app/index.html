@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Barclays — Live Fraud-Interception Demo</title>
+<!--
+  Demo dashboard: phone-styled Barclays app (anti-vishing push +
+  call status) + live transaction ticker + compliance/audit panel, all on
+  one screen so a presenter never has to switch windows on stage.
+
+  Deliberately no external font/CDN dependency — event wifi is the
+  documented #1 hackathon-killer risk in this team's own field manual, and
+  this page has to keep working if it drops. System font stack only.
+
+  All state lives server-side (FastAPI + orchestrator); this page just
+  polls a handful of JSON endpoints on an interval. See app/api/server.py and
+  app/core/transaction_stream.py for what's being polled and why.
+-->
+<style>
+  :root {
+    --bg: #F1F3F2; --surface: #FFFFFF; --surface-2: #F7F8F7; --text: #0A0F16;
+    --text-muted: #55626B; --border: #D9DEDC; --signal: #146B72; --signal-soft: #E4F0EF;
+    --hot: #B85E19; --hot-soft: #F7EADC; --hot-border: #E3C39C;
+    --cool: #2F5C8F; --cool-soft: #E7EEF6; --cool-border: #C2D3E5;
+    --guard: #8A3F4E; --guard-soft: #F3E6E9; --guard-border: #DEBEC5;
+    --ok: #2F7A4F; --ok-soft: #E4F1E9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0A0F16; --surface: #121A24; --surface-2: #0E151E; --text: #ECEFED;
+      --text-muted: #93A0AA; --border: #24303C; --signal: #4CC1C3; --signal-soft: #122423;
+      --hot: #E38B47; --hot-soft: #241A10; --hot-border: #4A331C;
+      --cool: #7DA3D0; --cool-soft: #131C28; --cool-border: #2A3C52;
+      --guard: #D18A9B; --guard-soft: #241318; --guard-border: #4A2831;
+      --ok: #5FBE85; --ok-soft: #10241A;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px; line-height: 1.45;
+  }
+  .topbar {
+    display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+    padding: 0.85rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  .topbar h1 { font-size: 1rem; font-weight: 700; margin: 0; margin-right: auto; }
+  .topbar .eyebrow { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.04em; }
+  button {
+    font: inherit; font-weight: 600; font-size: 0.82rem; padding: 0.5rem 0.9rem;
+    border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2);
+    color: var(--text); cursor: pointer;
+  }
+  button:hover { filter: brightness(0.97); }
+  button.primary { background: var(--signal); border-color: var(--signal); color: #fff; }
+  button:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+
+  .page { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+
+  /* Two clearly separate systems, on purpose: the bank side (internal —
+     transaction feed, fraud scoring, ticker) never writes to the phone
+     panel directly. It only ever creates real transactions and calls
+     orchestrator.start_call() when the score crosses threshold, same as
+     production would; the phone panel finds out purely by polling its own
+     session state, exactly like a real cardholder only learns about a
+     flagged transaction when the call/push actually arrives.
+
+     The two zones get FIXED, opposite visual identities — dark technical
+     "ops console" for the bank side, bright consumer "phone screen" for
+     the customer side — regardless of the viewer's own light/dark
+     preference. This is deliberate, not a mistake: the whole point is
+     that at a glance, with zero reading, these look like two unrelated
+     systems, because in the real world they are. Each zone redefines the
+     same token names (--surface, --text, --border, etc.) that every
+     .panel/button already consumes via var(), so the existing component
+     styles pick up each zone's identity automatically. */
+  .zones { display: flex; gap: 0.75rem; align-items: stretch; }
+  .zone {
+    display: flex; flex-direction: column; gap: 1rem;
+    border-radius: 16px; padding: 1rem;
+  }
+  /* Contrast strategy: the bank side reads as a plain internal admin
+     tool — light, dense, monospace-leaning, unbranded — because that's
+     what fraud-ops tooling actually looks like. The customer side stays
+     visually quiet at the ZONE level too; all of its personality lives in
+     the .phone element itself (a real Barclays-branded navy app screen),
+     so the contrast a viewer actually perceives is "boring internal form"
+     vs. "a phone with a real bank app open," which is a much stronger
+     and more honest signal than two different flat zone colors would be. */
+  .zone-bank {
+    flex: 2;
+    --surface: #FFFFFF; --surface-2: #F3F4F6; --text: #1B222C; --text-muted: #6B7480;
+    --border: #E1E4E8; --signal: #146B72; --signal-soft: #E4F0EF;
+    --hot: #B5651D; --hot-soft: #FBEEDD; --hot-border: #E7C79B;
+    --cool: #2F5C8F; --cool-soft: #E7EEF6; --cool-border: #C2D3E5;
+    --ok: #2F7A4F; --ok-soft: #E4F1E9;
+    background: #F6F7F8; border: 1px solid #E4E7EA;
+  }
+  .zone-customer {
+    flex: 1.1;
+    --surface: #FFFFFF; --surface-2: #F3F4F6; --text: #1B222C; --text-muted: #6B7480;
+    --border: #E1E4E8; --signal: #146B72; --signal-soft: #E4F0EF;
+    --hot: #C96A1F; --hot-soft: #FBEEE0; --hot-border: #E9CBA5;
+    --cool: #2F5C8F; --cool-soft: #E7EEF6; --cool-border: #C2D3E5;
+    --ok: #2F7A4F; --ok-soft: #E4F1E9;
+    background: #F7F5F1; border: 1px solid #E9E4DC;
+  }
+  .zone-label {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: ui-monospace, Consolas, monospace; font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 0.15rem 0.1rem;
+  }
+  .zone-label .sub { text-transform: none; font-weight: 500; letter-spacing: 0; opacity: 0.75; }
+  .zone-bank .zone-label { color: #146B72; }
+  .zone-customer .zone-label { color: #C96A1F; }
+  .zone-connector {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+    width: 2.5rem; color: var(--text-muted); font-size: 1.3rem; padding-top: 3.5rem;
+  }
+  @media (max-width: 1000px) {
+    .zones { flex-direction: column; }
+    .zone-connector { width: auto; padding: 0; transform: rotate(90deg); }
+  }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.1rem; max-height: 60vh; display: flex; flex-direction: column;
+  }
+  .panel h2 {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--signal); margin: 0 0 0.75rem;
+  }
+  .panel .scroll { overflow-y: auto; flex: 1; }
+
+  .txn-form { display: flex; flex-direction: column; gap: 0.55rem; }
+  .txn-form label { font-size: 0.72rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.25rem; }
+  .txn-form input, .txn-form select {
+    font: inherit; font-size: 0.85rem; padding: 0.45rem 0.6rem; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  }
+  .txn-form .row { display: flex; gap: 0.6rem; }
+  .txn-form .row > label { flex: 1; }
+  .txn-result {
+    margin-top: 0.7rem; padding: 0.6rem 0.7rem; border-radius: 8px; font-size: 0.8rem;
+    border: 1px solid var(--border); background: var(--surface-2); display: none;
+  }
+  .txn-result.show { display: block; }
+  .txn-result.flagged { border-color: var(--hot-border); background: var(--hot-soft); }
+  .txn-result.clear { border-color: var(--ok-soft); background: var(--ok-soft); }
+  .txn-result .verdict { font-weight: 700; margin-bottom: 0.25rem; }
+  .txn-result .score { font-family: ui-monospace, Consolas, monospace; }
+
+  /* Small hint under the customer picker: their behavioral baseline, so you
+     can see what "normal" is for this account before you submit. */
+  .customer-baseline {
+    font-size: 0.72rem; color: var(--text-muted); background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 7px; padding: 0.4rem 0.55rem;
+    line-height: 1.5;
+  }
+  .customer-baseline b { color: var(--text); font-weight: 600; }
+
+  .quick-scenarios { margin-top: 0.9rem; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+  .quick-scenarios .qs-label { font-size: 0.68rem; color: var(--text-muted); width: 100%; margin-bottom: 0.1rem; }
+  .quick-scenarios .qs { font-size: 0.72rem; padding: 0.35rem 0.6rem; }
+
+  /* ---- phone mockup — matches Team BEAMers' own Barclays app reference
+     design (navy consumer app, gold card, icon-driven quick actions,
+     real transaction feed). Deliberately its own fixed palette via
+     --pn-* tokens rather than the page's --surface/--text tokens: a
+     banking app has its own brand identity regardless of the viewer's OS
+     theme, same reasoning as the zone tokens but one level more specific. ---- */
+  .phone {
+    --pn-top: #1B3560; --pn-bottom: #0A1B38; --pn-text: #F2F5FA; --pn-muted: #A9B7CE;
+    --pn-badge: #2E8BE0; --pn-gold: #D4A72C; --pn-good: #34C77B; --pn-debit: #E8677A;
+    --pn-card-bg: rgba(255,255,255,0.07); --pn-card-border: rgba(255,255,255,0.16);
+    --pn-sheet-bg: #FFFFFF; --pn-sheet-text: #12161D; --pn-sheet-muted: #6E7784;
+    border: 6px solid #10131A; border-radius: 32px;
+    background: linear-gradient(180deg, var(--pn-top) 0%, var(--pn-bottom) 100%);
+    color: var(--pn-text);
+    padding: 0; display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 14px 34px rgba(10,20,40,0.35);
+    min-height: 560px;
+  }
+  .phone-statusbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.4rem 1rem 0.1rem; font-size: 0.68rem; font-weight: 600; color: var(--pn-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .phone-statusbar .icons { display: flex; gap: 0.3rem; align-items: center; }
+  .phone-statusbar .bars { display: flex; gap: 1.5px; align-items: flex-end; }
+  .phone-statusbar .bars span { width: 3px; background: var(--pn-text); border-radius: 1px; }
+  .phone-statusbar .bars span:nth-child(1) { height: 4px; }
+  .phone-statusbar .bars span:nth-child(2) { height: 6px; }
+  .phone-statusbar .bars span:nth-child(3) { height: 8px; }
+  .phone-statusbar .battery {
+    width: 18px; height: 9px; border: 1px solid var(--pn-text); border-radius: 2px; position: relative;
+  }
+  .phone-statusbar .battery::after { content: ""; position: absolute; inset: 1.5px; width: 70%;
+    background: var(--pn-text); border-radius: 1px; }
+
+  .bank-appbar { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 1.1rem 0.85rem; }
+  .bank-appbar .badge {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--pn-badge); flex: none;
+    display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 800; color: #fff;
+  }
+  .bank-appbar .titles { display: flex; flex-direction: column; gap: 0.05rem; }
+  .bank-appbar .wordmark { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--pn-muted); }
+  .bank-appbar .greeting { font-size: 0.95rem; font-weight: 700; }
+  .bank-appbar .bell {
+    margin-left: auto; width: 26px; height: 26px; border-radius: 50%; flex: none; position: relative;
+    background: var(--pn-card-bg); border: 1px solid var(--pn-card-border);
+  }
+  .bank-appbar .bell.unread::after {
+    content: ""; position: absolute; top: 4px; right: 4px; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--pn-debit);
+  }
+
+  .balance-block { padding: 0 1.1rem 0.85rem; }
+  .balance-block .label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--pn-muted); margin-bottom: 0.2rem; }
+  .balance-block .amount { font-size: 1.7rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+  .card-row {
+    margin: 0 1.1rem 1rem; padding: 0.55rem 0.7rem; border-radius: 12px;
+    background: var(--pn-card-bg); border: 1px solid var(--pn-card-border);
+    display: flex; align-items: center; gap: 0.55rem;
+  }
+  .card-row .chip { width: 26px; height: 19px; border-radius: 4px; background: var(--pn-gold); flex: none; }
+  .card-row .num { font-family: ui-monospace, Consolas, monospace; font-size: 0.8rem; flex: 1; }
+  .card-row .status {
+    font-size: 0.6rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px;
+    background: rgba(52,199,123,0.18); color: var(--pn-good);
+  }
+
+  .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin: 0 1.1rem 1rem; }
+  .quick-actions .qa {
+    display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+    padding: 0.5rem 0.2rem; border-radius: 12px;
+    background: var(--pn-card-bg); border: 1px solid var(--pn-card-border);
+  }
+  .quick-actions .qa .dot { width: 15px; height: 15px; border-radius: 50%; }
+  .quick-actions .qa:nth-child(1) .dot { background: #6FB7F0; }
+  .quick-actions .qa:nth-child(2) .dot { background: var(--pn-gold); }
+  .quick-actions .qa:nth-child(3) .dot { background: #B48BE0; }
+  .quick-actions .qa:nth-child(4) .dot { background: var(--pn-debit); }
+  .quick-actions .qa span { font-size: 0.6rem; color: var(--pn-muted); font-weight: 600; }
+
+  /* Security-alert card — floats over the navy section, matching the
+     reference design's "tap to view" alert treatment. Shown the instant
+     a code is pushed, i.e. before any call audio exists — this is
+     deliberately the FIRST visible sign anything happened, addressing
+     the "I saw the code but nothing seemed to start" gap directly. */
+  .notification {
+    margin: 0 1.1rem 0.8rem; background: var(--pn-sheet-bg); color: var(--pn-sheet-text);
+    border-radius: 14px; padding: 0.7rem 0.8rem; display: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.28); gap: 0.6rem; align-items: flex-start;
+  }
+  .notification.show { display: flex; }
+  .notification .alert-badge {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--pn-badge); flex: none;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.72rem; font-weight: 800;
+  }
+  .notification .alert-body { flex: 1; min-width: 0; }
+  .notification .label { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.15rem; }
+  .notification .desc { font-size: 0.7rem; color: var(--pn-sheet-muted); margin-bottom: 0.4rem; }
+  .notification .code { font-family: ui-monospace, Consolas, monospace; font-size: 1.25rem;
+    font-weight: 700; letter-spacing: 0.1em; color: var(--signal); }
+  .notification .channels { display: flex; gap: 0.3rem; margin-top: 0.5rem; }
+  .notification .channel-badge {
+    font-size: 0.58rem; font-weight: 700; padding: 0.12rem 0.4rem; border-radius: 5px;
+    border: 1px solid #DDE1E6; color: #9BA3AF;
+  }
+  .notification .channel-badge.active { background: var(--signal-soft); color: var(--signal); border-color: transparent; }
+
+  /* Live-call card — same white-sheet treatment, only present once a
+     session actually exists, sits between the alert and Recent Activity. */
+  .call-card {
+    margin: 0 1.1rem 0.8rem; background: var(--pn-sheet-bg); color: var(--pn-sheet-text);
+    border-radius: 14px; padding: 0.7rem 0.8rem; display: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  }
+  .call-card.show { display: block; }
+  .call-status { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .call-status > span:first-child { font-size: 0.76rem; color: var(--pn-sheet-muted); }
+  .state-pill {
+    font-size: 0.68rem; font-weight: 700; padding: 0.22rem 0.55rem; border-radius: 999px;
+    background: #F0F1F3; border: 1px solid #E1E4E8; color: #6E7784;
+  }
+  .state-pill.ringing { background: var(--hot-soft); color: var(--hot); border-color: var(--hot-border); }
+  .state-pill.live { background: var(--cool-soft); color: var(--cool); border-color: var(--cool-border);
+    animation: pulse-live 1.6s ease-in-out infinite; }
+  .state-pill.good { background: var(--ok-soft); color: var(--ok); }
+  .state-pill.alert { background: #F3E6E9; color: #8A3F4E; border-color: #DEBEC5; }
+  @keyframes pulse-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+  .voice-toggle { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; color: var(--pn-sheet-muted); }
+  .voice-toggle input { margin: 0; }
+  .voice-cmd {
+    margin-top: 0.4rem; font-family: ui-monospace, Consolas, monospace; font-size: 0.66rem;
+    background: #F5F6F8; border: 1px solid #E1E4E8; border-radius: 7px;
+    padding: 0.4rem 0.5rem; display: none; align-items: center; justify-content: space-between; gap: 0.4rem;
+  }
+  .voice-cmd.show { display: flex; }
+  .voice-cmd button { padding: 0.18rem 0.45rem; font-size: 0.64rem; }
+  .voice-cmd code { overflow-x: auto; white-space: nowrap; }
+
+  .transcript { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; }
+  .bubble { border-radius: 12px; padding: 0.45rem 0.65rem; font-size: 0.78rem; max-width: 92%; }
+  .bubble.assistant { background: var(--cool-soft); color: var(--pn-sheet-text); align-self: flex-start; }
+  .bubble.user { background: #F0F1F3; color: var(--pn-sheet-text); align-self: flex-end; }
+
+  /* Bottom sheet: Recent Activity + tab bar, always visible, rounded top
+     corners over the navy background — the standard banking-app pattern. */
+  .activity-sheet {
+    background: var(--pn-sheet-bg); color: var(--pn-sheet-text);
+    border-radius: 18px 18px 0 0; padding: 0.9rem 1.1rem 0;
+    flex: 1; display: flex; flex-direction: column; min-height: 0;
+  }
+  .activity-sheet .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
+  .activity-sheet .head h3 { font-size: 0.78rem; font-weight: 700; margin: 0; }
+  .activity-sheet .head .view-all { font-size: 0.66rem; color: var(--signal); font-weight: 600; }
+  .activity-list { overflow-y: auto; flex: 1; min-height: 0; }
+  .activity-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid #EEF0F2; }
+  .activity-row:last-child { border-bottom: none; }
+  .activity-row .cat {
+    width: 28px; height: 28px; border-radius: 50%; flex: none; background: var(--cool-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700; color: var(--cool);
+  }
+  .activity-row .info { flex: 1; min-width: 0; }
+  .activity-row .merchant { font-size: 0.78rem; font-weight: 600; }
+  .activity-row .time { font-size: 0.64rem; color: var(--pn-sheet-muted); }
+  .activity-row .amt { font-size: 0.78rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .activity-row .amt.debit { color: #C0435A; }
+  .activity-row .amt.credit { color: #2F9E5C; }
+
+  .phone-tabbar {
+    display: flex; justify-content: space-around; padding: 0.5rem 0 0.65rem;
+    border-top: 1px solid #EEF0F2;
+  }
+  .phone-tabbar .tab { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+  .phone-tabbar .tab .icon { width: 15px; height: 15px; border-radius: 4px; background: #E1E4E8; }
+  .phone-tabbar .tab.active .icon { background: var(--signal); }
+  .phone-tabbar .tab span { font-size: 0.58rem; color: var(--pn-sheet-muted); }
+  .phone-tabbar .tab.active span { color: var(--signal); font-weight: 600; }
+
+  /* ---- ticker rows ---- */
+  .ticker-row {
+    display: flex; justify-content: space-between; gap: 0.6rem; padding: 0.45rem 0.5rem;
+    border-radius: 7px; font-size: 0.78rem; border-bottom: 1px solid var(--border);
+  }
+  .ticker-row.flagged { background: var(--hot-soft); border: 1px solid var(--hot-border); }
+  .ticker-row .amount { font-family: ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---- audit rows ---- */
+  .audit-row { padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--border); font-size: 0.76rem; }
+  .audit-row .kind {
+    font-family: ui-monospace, Consolas, monospace; font-size: 0.65rem; font-weight: 700;
+    text-transform: uppercase; color: var(--guard); background: var(--guard-soft);
+    border-radius: 5px; padding: 0.08rem 0.35rem; margin-right: 0.4rem;
+  }
+  .audit-row .hash { color: var(--text-muted); font-family: ui-monospace, Consolas, monospace; }
+  .chain-status { font-size: 0.78rem; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+  .chain-status .light { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+  .chain-status .light.broken { background: var(--guard); }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div>
+      <h1>Barclays — Fraud-Interception Live Demo</h1>
+      <div class="eyebrow">Team BEAMers · Track A — Agentic Workflows</div>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="zones">
+
+      <!-- BANK SIDE: internal systems. A transaction landing here is scored
+           automatically; the customer has no visibility into anything in
+           this zone, and nothing here can directly mark a call as fraud —
+           only a risk score crossing the threshold can. -->
+      <div class="zone zone-bank">
+        <div class="zone-label">Barclays fraud engine <span class="sub">— internal; the customer never sees this</span></div>
+
+        <div class="panel" style="max-height: none;">
+          <h2>New transaction — scored against the customer's history</h2>
+          <form class="txn-form" id="txnForm">
+            <label>Customer
+              <select id="txnCustomer" required></select>
+            </label>
+            <div class="customer-baseline" id="customerBaseline"></div>
+            <div class="row">
+              <label>Amount (£)
+                <input type="number" id="txnAmount" min="1" step="1" value="45" required />
+              </label>
+              <label>Channel
+                <select id="txnChannel">
+                  <option value="card_present">card present</option>
+                  <option value="online">online</option>
+                </select>
+              </label>
+            </div>
+            <div class="row">
+              <label>Merchant
+                <input type="text" id="txnMerchant" value="Tesco" required />
+              </label>
+              <label>City
+                <input type="text" id="txnCity" value="London" required />
+              </label>
+            </div>
+            <button class="primary" type="submit">Submit transaction</button>
+          </form>
+          <div class="txn-result" id="txnResult"></div>
+        </div>
+      </div>
+
+      <div class="zone-connector">→</div>
+
+      <!-- CUSTOMER SIDE: strictly passive. Nothing here can originate a
+           call or a push — this panel only ever reflects state it polled
+           from /session/{id}, which only exists because the bank side
+           already decided (via risk score, not a button) to start one. -->
+      <div class="zone zone-customer">
+        <div class="zone-label">Customer <span class="sub">— Barclays app on their phone</span></div>
+
+        <div class="panel" style="max-height: none; padding: 0; background: transparent; border: none;">
+          <div class="phone">
+            <div class="phone-statusbar">
+              <span id="clockTime">9:41</span>
+              <div class="icons">
+                <div class="bars"><span></span><span></span><span></span></div>
+                <div class="battery"></div>
+              </div>
+            </div>
+
+            <div class="bank-appbar">
+              <span class="badge">B</span>
+              <div class="titles">
+                <span class="wordmark">Barclays</span>
+                <span class="greeting" id="greeting">Hello, Priya</span>
+              </div>
+              <span class="bell" id="bellIcon"></span>
+            </div>
+
+            <div class="balance-block">
+              <div class="label">Total balance</div>
+              <div class="amount" id="balanceAmount">₹2,45,000</div>
+            </div>
+
+            <div class="card-row">
+              <div class="chip"></div>
+              <div class="num" id="cardNumber">VISA •••• 4821</div>
+              <div class="status">Active</div>
+            </div>
+
+            <div class="quick-actions">
+              <div class="qa"><div class="dot"></div><span>Send</span></div>
+              <div class="qa"><div class="dot"></div><span>Request</span></div>
+              <div class="qa"><div class="dot"></div><span>Pay Bills</span></div>
+              <div class="qa"><div class="dot"></div><span>Transfer</span></div>
+            </div>
+
+            <!-- Security alert — the first visible sign a call started,
+                 shown immediately on push, before any audio exists. -->
+            <div class="notification" id="pushNotification">
+              <div class="alert-badge">B</div>
+              <div class="alert-body">
+                <div class="label">Security Alert</div>
+                <div class="desc">Read this verification code to the agent to verify the call before answering.</div>
+                <div class="code" id="pushCode">— — —</div>
+                <div class="channels">
+                  <span class="channel-badge active">App</span>
+                  <span class="channel-badge" title="Roadmap — for customers not on the app">SMS</span>
+                  <span class="channel-badge" title="Roadmap — for customers not on the app">WhatsApp</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="call-card" id="callCard">
+              <div class="call-status">
+                <span>Call status:</span>
+                <span class="state-pill" id="statePill">No active call</span>
+              </div>
+
+              <!-- Shown only while the call is RINGING. Tapping it answers the
+                   call (POST /answer), which is when the agent's Riva voice
+                   starts — so it never speaks to an unanswered phone. -->
+              <div id="callActions" style="display:none; margin:0.5rem 0;">
+                <button type="button" id="answerBtn"
+                  style="width:100%; padding:0.65rem; border:none; border-radius:999px;
+                         background:#16a34a; color:#fff; font-weight:700; font-size:0.92rem;
+                         cursor:pointer; letter-spacing:0.02em;">📞 Answer call</button>
+              </div>
+
+              <!-- The agent's voice plays here when the call is answered over WebRTC. -->
+              <audio id="agentAudio" autoplay style="display:none"></audio>
+
+              <div class="transcript scroll" id="transcript" style="max-height: 26vh;"></div>
+            </div>
+
+            <div class="activity-sheet">
+              <div class="head">
+                <h3>Recent Activity</h3>
+                <span class="view-all">View All</span>
+              </div>
+              <div class="activity-list scroll" id="activityList"></div>
+              <div class="phone-tabbar">
+                <div class="tab active"><div class="icon"></div><span>Home</span></div>
+                <div class="tab"><div class="icon"></div><span>Cards</span></div>
+                <div class="tab"><div class="icon"></div><span>Pay</span></div>
+                <div class="tab"><div class="icon"></div><span>More</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  // ---- tiny fetch helpers -------------------------------------------------
+  async function getJSON(path) {
+    const r = await fetch(path);
+    if (!r.ok) throw new Error(`${path} -> ${r.status}`);
+    return r.json();
+  }
+  async function postJSON(path, body) {
+    const r = await fetch(path, {
+      method: "POST",
+      headers: body ? { "Content-Type": "application/json" } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (!r.ok) throw new Error(`${path} -> ${r.status}`);
+    return r.json();
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;",
+      '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  function formatGBP(n) {
+    return "£" + Number(n).toLocaleString("en-GB", { maximumFractionDigits: 0 });
+  }
+
+  // ---- state ---------------------------------------------------------------
+  let currentSessionId = null;
+  let sessionTimer = null;
+
+  // ---- phone panel -----------------------------------------------------------
+  // Friendly, phone-call-shaped labels for the raw orchestrator states — a
+  // real banking app doesn't show a customer the string "awaiting_verification".
+  const STATE_LABELS = {
+    push_sent: ["Ringing…", "ringing"], dialing: ["Ringing…", "ringing"],
+    awaiting_verification: ["Ringing — read the code to answer", "ringing"],
+    verified: ["In call", "live"],
+    resolved_legit: ["Call ended — card safe", "good"],
+    resolved_fraud: ["Call ended — card blocked", "alert"],
+    escalated: ["Transferring to a specialist…", "alert"],
+    channel_frozen: ["Call ended — security hold", "alert"],
+    no_answer: ["Missed call — hold kept", "alert"],
+  };
+
+  function showPushNotification(code) {
+    const el = document.getElementById("pushNotification");
+    document.getElementById("pushCode").textContent = code;
+    el.classList.add("show");
+  }
+
+  // Recent Activity is real backend data, not decorative — it lists this
+  // customer's actual transactions from /bank/state (including whatever
+  // was just submitted in the bank-side form), sorted newest first. Every
+  // row here is a genuine debit; the system has no concept of credits
+  // (salary, refunds) to show, so none are faked in just to look fuller.
+  let lastActivityCustomerId = null;
+  async function loadRecentActivity(customerId) {
+    if (customerId === lastActivityCustomerId) return;
+    lastActivityCustomerId = customerId;
+    const state = await getJSON("/bank/state");
+    const rows = state.transactions.filter(t => t.customer_id === customerId)
+      .sort((a, b) => b.ts_ms - a.ts_ms).slice(0, 8);
+    const list = document.getElementById("activityList");
+    if (rows.length === 0) {
+      list.innerHTML = `<div style="color: var(--pn-sheet-muted); font-size: 0.76rem; padding: 0.4rem 0;">No recent activity.</div>`;
+      return;
+    }
+    list.innerHTML = rows.map(t => `
+      <div class="activity-row">
+        <div class="cat">${escapeHtml((t.merchant || "?")[0].toUpperCase())}</div>
+        <div class="info">
+          <div class="merchant">${escapeHtml(t.merchant)}</div>
+          <div class="time">${new Date(t.ts_ms).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</div>
+        </div>
+        <div class="amt debit">-${formatGBP(t.amount_gbp)}</div>
+      </div>`).join("");
+  }
+
+  function renderSession(data) {
+    const [label, cls] = STATE_LABELS[data.state] || [String(data.state).replace(/_/g, " "), ""];
+    const pill = document.getElementById("statePill");
+    pill.textContent = label;
+    pill.className = "state-pill " + cls;
+
+    const firstName = (data.customer_name || "").split(" ")[0];
+    document.getElementById("greeting").textContent = firstName ? `Hello, ${firstName}` : "Hello";
+    document.getElementById("cardNumber").textContent = "VISA •••• " + (data.customer_card_last4 || "····");
+    loadRecentActivity(data.txn.customer_id);
+
+    // A call in push_sent/dialing is RINGING — not yet answered. Show the
+    // Answer button; the agent stays silent until the customer taps it.
+    const RINGING = (data.state === "push_sent" || data.state === "dialing");
+    document.getElementById("callActions").style.display = RINGING ? "block" : "none";
+    // On a terminal state, the SERVER closes the connection only AFTER the agent's
+    // final sentence has finished streaming (see _drain_and_close in webrtc.py), so
+    // the last line is heard in full. This browser timer is just a long safety net
+    // in case the server-side close never arrives.
+    if (["resolved_legit", "resolved_fraud", "escalated", "no_answer", "channel_frozen"].includes(data.state)
+        && webrtcPc && !terminalCloseTimer) {
+      terminalCloseTimer = setTimeout(() => { stopWebRTC(); terminalCloseTimer = null; }, 60000);
+    }
+
+    const box = document.getElementById("transcript");
+    if (data.transcript.length === 0) {
+      box.innerHTML = RINGING
+        ? `<div style="color: var(--pn-sheet-muted); font-size: 0.76rem;">📞 Incoming call from the Barclays fraud team — tap <b>Answer call</b> to take it.</div>`
+        : `<div style="color: var(--pn-sheet-muted); font-size: 0.76rem;">Waiting for the call to begin…</div>`;
+    } else {
+      box.innerHTML = data.transcript.map(t =>
+        `<div class="bubble ${t.role === "user" ? "user" : "assistant"}">${escapeHtml(t.text)}</div>`
+      ).join("");
+    }
+    box.scrollTop = box.scrollHeight;
+  }
+
+  async function attachSession(sessionId, code) {
+    currentSessionId = sessionId;
+    if (terminalCloseTimer) { clearTimeout(terminalCloseTimer); terminalCloseTimer = null; }
+    stopWebRTC();          // close any lingering connection from a previous call
+    const ab = document.getElementById("answerBtn");  // reset for this new call
+    ab.disabled = false; ab.textContent = "📞 Answer call"; ab.dataset.tapToHear = "";
+    document.getElementById("callCard").classList.add("show");
+    document.getElementById("bellIcon").classList.add("unread");
+    if (code) showPushNotification(code);
+    if (sessionTimer) clearInterval(sessionTimer);
+    const poll = async () => {
+      try {
+        const data = await getJSON(`/session/${currentSessionId}`);
+        renderSession(data);
+      } catch (e) { /* session may not exist yet on the very first tick — ignore */ }
+    };
+    await poll();
+    sessionTimer = setInterval(poll, 900);
+  }
+
+  // ---- phone chrome: status-bar clock + copy button ---------------------------
+  function updateClock() {
+    const el = document.getElementById("clockTime");
+    if (el) el.textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+  updateClock();
+  setInterval(updateClock, 15000);
+
+  // Answer the ringing call: the agent greets (and the Riva voice handset
+  // speaks) only after this. The 900ms poll loop then renders the greeting
+  // and flips the button off, so no manual UI update is needed here.
+  // ---- WebRTC voice: the browser becomes the phone (mic <-> server Riva) ------
+  let webrtcPc = null;
+  let terminalCloseTimer = null;
+  async function startWebRTC(sessionId) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
+      throw new Error("microphone needs HTTPS or localhost — open via http://localhost:8000");
+    const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const pc = new RTCPeerConnection();
+    webrtcPc = pc;
+    mic.getTracks().forEach(t => pc.addTrack(t, mic));
+    // addTrack already makes a sendrecv transceiver: we send the mic and receive the agent's voice.
+    pc.ontrack = ev => {
+      const a = document.getElementById("agentAudio");
+      a.srcObject = ev.streams[0];
+      a.muted = false; a.volume = 1.0;
+      // ontrack fires AFTER the connection completes — often past the click's
+      // user-gesture window — so autoplay may be blocked. Try to play; if blocked,
+      // turn the Answer button into a one-tap unmute.
+      a.play().catch(() => {
+        const btn = document.getElementById("answerBtn");
+        btn.dataset.tapToHear = "1"; btn.disabled = false; btn.textContent = "🔊 Tap to hear the agent";
+      });
+    };
+    await pc.setLocalDescription(await pc.createOffer());
+    const res = await fetch(`/offer`, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type, session_id: sessionId }) });
+    if (!res.ok) throw new Error(`server rejected the call (${res.status})`);
+    await pc.setRemoteDescription(await res.json());
+  }
+  function stopWebRTC() { if (webrtcPc) { try { webrtcPc.close(); } catch (e) {} webrtcPc = null; } }
+
+  document.getElementById("answerBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("answerBtn");
+    // If autoplay was blocked, this click is a fresh user gesture that unmutes the
+    // already-connected call (see pc.ontrack above).
+    if (btn.dataset.tapToHear === "1") {
+      document.getElementById("agentAudio").play().catch(() => {});
+      btn.dataset.tapToHear = ""; btn.disabled = true; btn.textContent = "🎙️ On call — speak now";
+      return;
+    }
+    if (!currentSessionId) return;
+    btn.disabled = true; btn.textContent = "Connecting…";
+    // The /offer handshake ALSO answers the call server-side (see app/media/webrtc.py),
+    // so no separate POST /answer is needed on the voice path.
+    try {
+      await startWebRTC(currentSessionId);
+      btn.textContent = "🎙️ On call — speak now";
+    } catch (e) {
+      // Graceful fallback so a mic/permission issue never dead-ends the demo:
+      // answer in text mode (the voice_loop.py handset or transcript still work).
+      try { await postJSON(`/answer/${currentSessionId}`); } catch (_) {}
+      btn.textContent = "📞 On call (text mode)";
+      console.warn("WebRTC voice failed, answered in text mode:", e);
+      alert("Voice call couldn't start: " + e.message +
+            "\n\nAnswered in TEXT mode instead. For real voice, allow the microphone and open the app via http://localhost:8000.");
+    }
+  });
+
+  // ---- bank fraud engine: submit a transaction, score it against the
+  //      customer's HISTORY, and auto-start a call only if it's flagged. -------
+  // This is NOT a "report fraud" button — the form just makes a transaction
+  // happen (a swipe / checkout). The server's fraud model
+  // (app/core/fraud_trigger.py) decides fraud-or-not by comparing it to THIS
+  // customer's own baseline; a call only starts if the score crosses the
+  // threshold, exactly like production. The phone panel finds out only via
+  // the resulting push/call, never directly from this form.
+  let CUSTOMERS_BY_ID = {};
+  async function loadCustomers() {
+    const customers = await getJSON("/bank/customers");
+    CUSTOMERS_BY_ID = Object.fromEntries(customers.map(c => [c.customer_id, c]));
+    const select = document.getElementById("txnCustomer");
+    select.innerHTML = customers.map(c =>
+      `<option value="${c.customer_id}">${escapeHtml(c.name)} — ${escapeHtml(c.home_city)}, ${escapeHtml(c.account_type)} (••••${c.card_last4})</option>`
+    ).join("");
+    showBaseline();
+  }
+
+  // Show the selected customer's behavioral baseline — what "normal" is for
+  // this account, so it's clear WHY a given transaction is (or isn't) anomalous.
+  function showBaseline() {
+    const c = CUSTOMERS_BY_ID[document.getElementById("txnCustomer").value];
+    const el = document.getElementById("customerBaseline");
+    if (!c || !c.behavior) { el.textContent = ""; return; }
+    const b = c.behavior;
+    el.innerHTML = `Baseline: usually spends in <b>${b.cities.join(", ")}</b> · `
+      + `typical high spend <b>${formatGBP(b.p95_gbp)}</b> · `
+      + `travels abroad: <b>${b.intl_travel ? "yes" : "no"}</b>`;
+  }
+  document.getElementById("txnCustomer").addEventListener("change", showBaseline);
+  loadCustomers();
+
+  async function submitTransaction(body) {
+    const data = await postJSON("/bank/transactions", body);
+    const box = document.getElementById("txnResult");
+    box.classList.add("show");
+    if (data.flagged) {
+      box.classList.add("flagged"); box.classList.remove("clear");
+      box.innerHTML = `<div class="verdict">⚠ FLAGGED · risk <span class="score">${data.risk_score}</span></div>`
+        + `<div>${escapeHtml(data.reason)}</div>`
+        + `<div style="margin-top:0.4rem;">→ Pipeline triggered: verification code pushed, agent is calling the customer now.</div>`;
+      await attachSession(data.auto_triggered_session_id, data.verification_code);
+    } else {
+      box.classList.add("clear"); box.classList.remove("flagged");
+      box.innerHTML = `<div class="verdict">✓ Cleared · risk <span class="score">${data.risk_score}</span></div>`
+        + `<div>${escapeHtml(data.reason)}</div>`
+        + `<div style="margin-top:0.4rem;">No call — this matches the customer's normal pattern. Screening decision logged in the audit chain.</div>`;
+      // A cleared transaction starts no call — detach the phone panel from any prior session.
+      currentSessionId = null;
+    }
+  }
+
+  document.getElementById("txnForm").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    await submitTransaction({
+      customer_id: document.getElementById("txnCustomer").value,
+      amount_gbp: Number(document.getElementById("txnAmount").value),
+      merchant: document.getElementById("txnMerchant").value,
+      city: document.getElementById("txnCity").value,
+      channel: document.getElementById("txnChannel").value,
+    });
+  });
+
+  // ---- deep-link: attach the phone panel to a specific call via ?session= ----
+  // For the synchronized voice demo: I trigger a call server-side, then hand
+  // over a URL like /app/?session=call_ab12&code=482917. Opening it attaches
+  // the customer phone panel to that exact session, so as the presenter talks
+  // to the agent (voice_loop.py --session call_ab12), this browser view
+  // updates live — one window, no manual clicking.
+  (function attachFromUrl() {
+    const params = new URLSearchParams(location.search);
+    const sid = params.get("session");
+    if (!sid) return;
+    // A ?session= deep-link attaches the phone panel to a specific in-progress call.
+    attachSession(sid, params.get("code"));
+  })();
+</script>
+</body>
+</html>

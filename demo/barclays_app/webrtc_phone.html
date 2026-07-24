@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Barclays — WebRTC Voice Call</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #0b1020; color: #e8ecf5;
+         display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+  .phone { width: 340px; background: #141b30; border: 1px solid #22304f; border-radius: 22px;
+           padding: 28px 24px; box-shadow: 0 20px 60px rgba(0,0,0,.5); text-align: center; }
+  .brand { color: #00aeef; font-weight: 700; letter-spacing: .5px; }
+  h1 { font-size: 1.1rem; margin: .4rem 0 1.2rem; }
+  .status { font-size: .85rem; color: #8a97b4; min-height: 1.2em; margin-bottom: 1rem; }
+  .code { font-size: 2rem; font-weight: 700; letter-spacing: .4rem; color: #22d3ee;
+          background: #0e1628; border: 1px dashed #2a3a5c; border-radius: 12px; padding: .6rem 0; margin: 1rem 0; }
+  .dim { color: #5c6a8c; font-size: .78rem; }
+  button { width: 100%; padding: 14px; border: 0; border-radius: 999px; font-size: 1rem; font-weight: 600;
+           cursor: pointer; margin-top: .5rem; }
+  .ring   { background: #00aeef; color: #04121f; }
+  .answer { background: #22c55e; color: #06210f; }
+  .hangup { background: #ef4444; color: #2a0808; }
+  button:disabled { opacity: .4; cursor: default; }
+  .pulse { animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .45 } }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="brand">BARCLAYS</div>
+    <h1>Fraud Prevention</h1>
+    <div id="status" class="status">Ready.</div>
+    <div id="who" class="dim"></div>
+    <div id="codeWrap" style="display:none">
+      <div class="dim">Your verification code</div>
+      <div id="code" class="code">— — — — — —</div>
+      <div class="dim">Read this code aloud when the agent asks.</div>
+    </div>
+    <button id="ringBtn" class="ring">Ring a test fraud call</button>
+    <button id="answerBtn" class="answer" style="display:none">Answer</button>
+    <button id="hangupBtn" class="hangup" style="display:none">Hang up</button>
+    <audio id="agentAudio" autoplay></audio>
+    <div id="hint" class="dim" style="margin-top:.9rem"></div>
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+const API = location.origin;
+let pc = null, session = null, polling = true;
+
+function setStatus(t, pulse=false) {
+  const s = $("status"); s.textContent = t; s.classList.toggle("pulse", pulse);
+}
+function showCall(s) {
+  session = s;
+  $("who").textContent = `Incoming: ${s.customer_name || "customer"}` +
+    (s.merchant ? ` · ${s.merchant} £${s.amount_gbp ?? ""}` : "");
+  if (s.verification_code) { $("codeWrap").style.display = "block"; $("code").textContent = s.verification_code; }
+  $("ringBtn").style.display = "none";
+  $("answerBtn").style.display = "block";
+  setStatus("Incoming call — tap Answer", true);
+}
+
+// Poll for a call that's ringing (e.g. one inserted from the main app)
+async function findCall() {
+  if (!polling || session) return;
+  try {
+    const s = await (await fetch(`${API}/sessions/latest`)).json();
+    if (s && s.session_id) { showCall(s); return; }
+  } catch (e) {}
+  setTimeout(findCall, 1500);
+}
+
+// Self-contained: trigger a fraud-scoring transaction that RINGS a call
+async function ringTestCall() {
+  $("ringBtn").disabled = true;
+  setStatus("Ringing a test fraud call…", true);
+  try {
+    const res = await fetch(`${API}/bank/transactions`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customer_id: "cust_emily", amount_gbp: 2200,
+        merchant: "Electronics Bazaar", city: "Lagos", channel: "card_present", category: "electronics" })
+    });
+    const j = await res.json();
+    if (j.session_id) {
+      polling = false;
+      showCall({ session_id: j.session_id, customer_name: "Emily Clarke",
+                 merchant: "Electronics Bazaar", amount_gbp: 2200, verification_code: j.verification_code });
+    } else {
+      setStatus("Transaction didn't cross the fraud threshold — try again.");
+      $("ringBtn").disabled = false;
+    }
+  } catch (e) {
+    setStatus("Could not reach the server: " + e.message);
+    $("ringBtn").disabled = false;
+  }
+}
+
+async function answer() {
+  if (!session) { setStatus("No incoming call yet — tap ‘Ring a test fraud call’ first."); return; }
+  // WebRTC mic capture needs a secure context (localhost is fine; a LAN IP is NOT)
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setStatus("Microphone blocked — open this page via http://localhost:8000 (not an IP address).");
+    $("hint").textContent = "getUserMedia requires HTTPS or localhost.";
+    return;
+  }
+  $("answerBtn").disabled = true;
+  setStatus("Requesting microphone…", true);
+  try {
+    const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
+    setStatus("Connecting…", true);
+    pc = new RTCPeerConnection();
+    mic.getTracks().forEach(t => pc.addTrack(t, mic));
+    pc.ontrack = ev => { $("agentAudio").srcObject = ev.streams[0]; };
+    pc.onconnectionstatechange = () => {
+      if (pc.connectionState === "connected") setStatus("On call — speak to the agent");
+      if (["failed","disconnected","closed"].includes(pc.connectionState)) setStatus("Call ended");
+    };
+    // addTrack already makes a sendrecv transceiver: we send the mic and receive the agent.
+    await pc.setLocalDescription(await pc.createOffer());
+    const res = await fetch(`${API}/offer`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type, session_id: session.session_id })
+    });
+    if (!res.ok) throw new Error(`offer rejected (${res.status}): ${await res.text()}`);
+    await pc.setRemoteDescription(await res.json());
+    $("answerBtn").style.display = "none";
+    $("hangupBtn").style.display = "block";
+  } catch (e) {
+    setStatus("Could not connect: " + e.message);
+    $("answerBtn").disabled = false;
+  }
+}
+
+function hangup() {
+  if (pc) { pc.close(); pc = null; }
+  setStatus("Call ended");
+  $("hangupBtn").style.display = "none";
+}
+
+$("ringBtn").onclick = ringTestCall;
+$("answerBtn").onclick = answer;
+$("hangupBtn").onclick = hangup;
+findCall();
+</script>
+</body>
+</html>

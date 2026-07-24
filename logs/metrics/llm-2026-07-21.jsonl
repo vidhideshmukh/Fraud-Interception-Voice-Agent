@@ -1,0 +1,2 @@
+{"ts": 1784611063206, "stage": "dialog", "model": "nvidia/nemotron-3-nano-30b-a3b", "latency_ms": 1269.6, "tokens_in": 91, "tokens_out": 22, "session_id": null}
+{"ts": 1784611064848, "stage": "input_rail", "model": "nvidia/nemotron-3-nano-30b-a3b", "latency_ms": 1639.6, "tokens_in": null, "tokens_out": null, "session_id": null}
