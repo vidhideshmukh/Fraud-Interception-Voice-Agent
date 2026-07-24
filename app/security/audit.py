@@ -46,6 +46,14 @@ AUDIT_PERSIST = os.getenv("AUDIT_PERSIST", "true").lower() == "true"
 SESSIONS_DIR = AUDIT_DIR / "sessions"
 SESSIONS_INDEX = AUDIT_DIR / "sessions_index.jsonl"
 
+# The per-session file is written HUMAN-READABLE (adapted from jenjam007 /
+# the phase-1 repo): a session header box, then one indented JSON block per
+# event separated by a '=' rule — so a reviewer opens one file and reads the
+# whole call top-to-bottom. The day-partitioned master stays compact JSONL
+# (machine-readable) because it powers the ops dashboard's aggregate view.
+_HDR = "#" * 72
+_SEP = "=" * 72
+
 _SESSION_START: dict[str, int] = {}   # session_id -> start epoch-ms (for time-to-intercept)
 _CLOSED: set[str] = set()             # sessions already closed (idempotency)
 
@@ -57,14 +65,19 @@ def _persist(record: dict) -> None:
     try:
         AUDIT_DIR.mkdir(parents=True, exist_ok=True)
         day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        line = json.dumps(record, sort_keys=True, default=str) + "\n"
+        # Day-partitioned master: compact one-record-per-line (machine-readable,
+        # powers read_all_persisted + the ops dashboard).
         with (AUDIT_DIR / f"audit-{day}.jsonl").open("a", encoding="utf-8") as f:
-            f.write(line)
+            f.write(json.dumps(record, sort_keys=True, default=str) + "\n")
         sid = record.get("session_id")
-        if sid:  # per-call file — one file per session, easy single-call review
+        if sid:  # per-call file — one file per session, HUMAN-READABLE
             SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
-            with (SESSIONS_DIR / f"{sid}.jsonl").open("a", encoding="utf-8") as f:
-                f.write(line)
+            path = SESSIONS_DIR / f"{sid}.jsonl"
+            new_file = not path.exists()   # write the header once, and never twice after a restart
+            with path.open("a", encoding="utf-8") as f:
+                if new_file:
+                    f.write(f"{_HDR}\n# SESSION {sid}\n{_HDR}\n")
+                f.write(f"\n{_SEP}\n{json.dumps(record, indent=2, default=str)}\n")
     except Exception:  # noqa: BLE001 — a disk hiccup must never break a live call
         pass
 
@@ -185,10 +198,13 @@ def read_session_file(session_id: str) -> list[dict]:
     if not path.exists():
         return []
     out = []
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        if raw.strip():
+    # The file is the human-readable format (header box + '=' rules + indented
+    # JSON blocks), so split on the rule and parse each block that is JSON.
+    for block in path.read_text(encoding="utf-8").split(_SEP):
+        block = block.strip()
+        if block.startswith("{"):
             try:
-                out.append(json.loads(raw))
+                out.append(json.loads(block))
             except Exception:  # noqa: BLE001
                 pass
     return out
