@@ -205,7 +205,7 @@ def complete_turn(system: str, history: list[dict], user_text: str, context: dic
         f"\n\nCurrent call context:\n"
         f"- Customer: {context.get('name')} (card ending {context.get('last4')}, "
         f"home city {context.get('home_city')})\n"
-        f"- Flagged transaction: £{context.get("amount", 0):,.0f} at "
+        f"- Flagged transaction: £{context.get('amount', 0):,.0f} at "
         f"{context.get('merchant')}, {context.get('city')}\n"
         f"- RCA reason: {context.get('rca')}\n"
         f"- Verification status: {context.get('verified')}"
