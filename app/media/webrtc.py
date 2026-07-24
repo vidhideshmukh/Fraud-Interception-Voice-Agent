@@ -18,8 +18,9 @@ Design notes:
     the same "listen until they stop" behaviour MicStreamASR had, over frames.
   - Riva ASR/TTS calls are blocking gRPC, so they run in a thread executor to
     keep the aiortc event loop responsive.
-  - Localhost/LAN only: no STUN/TURN configured. Add an ICE server list for a
-    real deployment behind NAT.
+  - STUN/TURN is optional and env-driven (see _ice_config): set TURN_URLS/
+    TURN_USERNAME/TURN_CREDENTIAL to traverse NAT/firewall (e.g. laptop browser ->
+    cluster server). With those unset it stays localhost/LAN only, as before.
 
 Full voice needs a live Riva (MOCK_MODE=false + RIVA_* env). In mock mode the
 transport still establishes and audio frames flow (verified by a loopback
@@ -52,6 +53,31 @@ def _import_rtc():
     from aiortc import RTCPeerConnection, RTCSessionDescription
     from aiortc.mediastreams import MediaStreamTrack
     return av, np, RTCPeerConnection, RTCSessionDescription, MediaStreamTrack
+
+
+def _ice_config():
+    """Build an RTCConfiguration (STUN + TURN) from env, so WebRTC can traverse a
+    firewall/NAT (e.g. browser on a laptop -> server on the DGX cluster). Reads:
+        STUN_URL         - optional STUN url (default: metered public STUN)
+        TURN_URLS        - comma-separated TURN url(s), e.g.
+                           "turn:global.relay.metered.ca:443,turns:global.relay.metered.ca:443?transport=tcp"
+        TURN_USERNAME    - TURN username
+        TURN_CREDENTIAL  - TURN credential
+    Returns None when no TURN is configured, so aiortc keeps its default host-only
+    (localhost/LAN) behaviour — the app runs unchanged when TURN isn't set."""
+    turn_urls = [u.strip() for u in os.getenv("TURN_URLS", "").split(",") if u.strip()]
+    user = os.getenv("TURN_USERNAME")
+    cred = os.getenv("TURN_CREDENTIAL")
+    if not (turn_urls and user and cred):
+        return None
+    from aiortc import RTCConfiguration, RTCIceServer
+    servers = []
+    stun = os.getenv("STUN_URL", "stun:stun.relay.metered.ca:80")
+    if stun:
+        servers.append(RTCIceServer(urls=stun))
+    servers.append(RTCIceServer(urls=turn_urls, username=user, credential=cred))
+    log.info("webrtc: using ICE config with %d TURN url(s)", len(turn_urls))
+    return RTCConfiguration(iceServers=servers)
 
 
 def _make_playback_track():
@@ -205,7 +231,8 @@ async def handle_offer(sdp: str, offer_type: str, session_id: str | None) -> dic
     if session is None:
         raise KeyError(f"no active call session '{session_id}'")
 
-    pc = RTCPeerConnection()
+    ice = _ice_config()
+    pc = RTCPeerConnection(configuration=ice) if ice else RTCPeerConnection()
     _pcs.add(pc)
     outbound = _make_playback_track()
 
