@@ -1,0 +1,121 @@
+{
+  "data_designer": {
+    "columns": [
+      {
+        "name": "cid",
+        "drop": false,
+        "column_type": "sampler",
+        "skip": null,
+        "propagate_skip": true,
+        "sampler_type": "category",
+        "params": {
+          "values": [
+            "C481900231",
+            "C771002884",
+            "C339045170",
+            "C665401938",
+            "C904377612",
+            "C210567433",
+            "C158823406",
+            "C337719205",
+            "C902144870",
+            "C556201947"
+          ],
+          "weights": null,
+          "sampler_type": "category"
+        },
+        "conditional_params": {},
+        "convert_to": null
+      },
+      {
+        "name": "merchant_category",
+        "drop": false,
+        "column_type": "sampler",
+        "skip": null,
+        "propagate_skip": true,
+        "sampler_type": "category",
+        "params": {
+          "values": [
+            "Grocery",
+            "Dining",
+            "Retail",
+            "Fuel",
+            "Travel",
+            "Online",
+            "Transport",
+            "Electronics"
+          ],
+          "weights": null,
+          "sampler_type": "category"
+        },
+        "conditional_params": {},
+        "convert_to": null
+      },
+      {
+        "name": "is_fraud",
+        "drop": false,
+        "column_type": "sampler",
+        "skip": null,
+        "propagate_skip": true,
+        "sampler_type": "bernoulli",
+        "params": {
+          "p": 0.35,
+          "sampler_type": "bernoulli"
+        },
+        "conditional_params": {},
+        "convert_to": null
+      },
+      {
+        "name": "is_ambiguous",
+        "drop": false,
+        "column_type": "sampler",
+        "skip": null,
+        "propagate_skip": true,
+        "sampler_type": "bernoulli",
+        "params": {
+          "p": 0.4,
+          "sampler_type": "bernoulli"
+        },
+        "conditional_params": {},
+        "convert_to": null
+      },
+      {
+        "name": "merchant",
+        "drop": false,
+        "column_type": "llm-text",
+        "skip": null,
+        "propagate_skip": true,
+        "prompt": "Give the name of one realistic UK merchant in the '{{ merchant_category }}' category.",
+        "model_alias": "nvidia-text",
+        "system_prompt": "You name UK high-street/online merchants. Reply with ONLY the merchant name, no quotes, no preamble.",
+        "multi_modal_context": null,
+        "tool_alias": null,
+        "with_trace": "none",
+        "extract_reasoning_content": false
+      }
+    ],
+    "model_configs": [
+      {
+        "alias": "nvidia-text",
+        "model": "nvidia/llama-3.3-nemotron-super-49b-v1",
+        "inference_parameters": {
+          "generation_type": "chat-completion",
+          "max_parallel_requests": 4,
+          "timeout": null,
+          "extra_body": null,
+          "temperature": null,
+          "top_p": null,
+          "max_tokens": null
+        },
+        "provider": "nvidia_build",
+        "skip_health_check": false
+      }
+    ],
+    "tool_configs": [],
+    "seed_config": null,
+    "constraints": null,
+    "profilers": null,
+    "processors": null
+  },
+  "library_version": "0.8.0"
+}

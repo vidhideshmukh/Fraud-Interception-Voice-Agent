@@ -1,0 +1,149 @@
+{
+  "actual_num_records": 200,
+  "buffer_size": 1000,
+  "column_statistics": [
+    {
+      "column_name": "cid",
+      "column_type": "sampler",
+      "distribution": {
+        "histogram": {
+          "categories": [
+            "C158823406",
+            "C337719205",
+            "C771002884",
+            "C665401938",
+            "C904377612",
+            "C902144870",
+            "C481900231",
+            "C339045170",
+            "C556201947",
+            "C210567433"
+          ],
+          "counts": [
+            24,
+            22,
+            22,
+            20,
+            20,
+            19,
+            19,
+            18,
+            18,
+            18
+          ]
+        },
+        "least_common_value": "C210567433",
+        "most_common_value": "C158823406"
+      },
+      "distribution_type": "categorical",
+      "num_null": 0,
+      "num_records": 200,
+      "num_unique": 10,
+      "pyarrow_dtype": "string",
+      "sampler_type": "category",
+      "simple_dtype": "string"
+    },
+    {
+      "column_name": "merchant_category",
+      "column_type": "sampler",
+      "distribution": {
+        "histogram": {
+          "categories": [
+            "Online",
+            "Travel",
+            "Dining",
+            "Transport",
+            "Electronics",
+            "Grocery",
+            "Retail",
+            "Fuel"
+          ],
+          "counts": [
+            29,
+            29,
+            28,
+            28,
+            25,
+            23,
+            21,
+            17
+          ]
+        },
+        "least_common_value": "Fuel",
+        "most_common_value": "Online"
+      },
+      "distribution_type": "categorical",
+      "num_null": 0,
+      "num_records": 200,
+      "num_unique": 8,
+      "pyarrow_dtype": "string",
+      "sampler_type": "category",
+      "simple_dtype": "string"
+    },
+    {
+      "column_name": "is_fraud",
+      "column_type": "sampler",
+      "distribution": {
+        "max": 1,
+        "mean": 0.31,
+        "median": 0.0,
+        "min": 0,
+        "stddev": 0.46
+      },
+      "distribution_type": "numerical",
+      "num_null": 0,
+      "num_records": 200,
+      "num_unique": 2,
+      "pyarrow_dtype": "int64",
+      "sampler_type": "bernoulli",
+      "simple_dtype": "int"
+    },
+    {
+      "column_name": "is_ambiguous",
+      "column_type": "sampler",
+      "distribution": {
+        "max": 1,
+        "mean": 0.36,
+        "median": 0.0,
+        "min": 0,
+        "stddev": 0.48
+      },
+      "distribution_type": "numerical",
+      "num_null": 0,
+      "num_records": 200,
+      "num_unique": 2,
+      "pyarrow_dtype": "int64",
+      "sampler_type": "bernoulli",
+      "simple_dtype": "int"
+    },
+    {
+      "column_name": "merchant",
+      "column_type": "llm-text",
+      "input_tokens_mean": 38.38,
+      "input_tokens_median": 38.0,
+      "input_tokens_stddev": 0.49,
+      "num_null": 0,
+      "num_records": 200,
+      "num_unique": 64,
+      "output_tokens_mean": 3.1,
+      "output_tokens_median": 2.0,
+      "output_tokens_stddev": 5.15,
+      "pyarrow_dtype": "string",
+      "simple_dtype": "string"
+    }
+  ],
+  "config_hash": "sha256:8003c85205805e2b2fdd52b4b9719b5362b9cf999a421f2d06f29bf64ae3695c",
+  "config_hash_algo": "sha256",
+  "config_hash_version": 2,
+  "dataset_name": "dataset",
+  "file_paths": {
+    "parquet-files": [
+      "parquet-files\\batch_00000.parquet"
+    ]
+  },
+  "num_completed_batches": 1,
+  "original_target_num_records": 200,
+  "preserve_dropped_columns": true,
+  "target_num_records": 200,
+  "total_num_batches": 1
+}

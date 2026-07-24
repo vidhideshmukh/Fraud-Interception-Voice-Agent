@@ -1,0 +1,72 @@
+# ---------------------------------------------------------------------------
+# Tier 1 — Core. Mock mode runs offline with ONLY these (zero API keys).
+# `pytest`, `python demo/run_demo.py`, and the FastAPI server + dashboard
+# all work with just this tier installed.
+# ---------------------------------------------------------------------------
+fastapi>=0.110
+uvicorn>=0.29
+pydantic>=2.6
+httpx>=0.27
+python-dotenv>=1.0
+pytest>=8.0
+
+# ---------------------------------------------------------------------------
+# Tier 2 — Live NVIDIA stack. All of the below are INSTALLED AND VERIFIED
+# WORKING in this repo's .venv as of 2026-07-18 (versions pinned to what was
+# actually tested). This is the real stack, not designed-in stubs:
+#
+#   - NIM Nemotron Nano/Super  -> openai client        (app/adapters/llm.py, guardrails via NeMo)
+#   - Riva streaming ASR + TTS -> nvidia-riva-client    (app/adapters/asr.py, tts.py; live voice verified)
+#   - NeMo Guardrails          -> nemoguardrails        (app/adapters/guardrails.py; real LLMRails, input+output rails verified)
+#   - NeMo Agent Toolkit       -> nvidia-nat[+langchain] (nat_plugin/functions.py, config/workflow.yaml; `nat run` verified end-to-end)
+#
+# Install for live mode:  pip install -r requirements.txt  (uncomment below)
+# ---------------------------------------------------------------------------
+openai>=1.30                          # NIM (OpenAI-compatible) — live dialog loop
+nvidia-riva-client>=2.20              # Riva streaming ASR + TTS
+numpy>=1.26                           # TTS audio buffers
+sounddevice>=0.4                      # cross-platform mic + speaker (demo/voice_loop.py)
+# --- WebRTC media leg (browser-as-phone): app/media/webrtc.py + POST /offer ---
+aiortc>=1.15                          # server-side WebRTC peer connection (browser mic <-> server)
+av>=11                                # PyAV — audio frame codecs + 48k<->16k/22k resampling
+requests>=2.31                        # demo/voice_loop.py -> server HTTP
+
+nemoguardrails>=0.23                  # REAL NeMo Guardrails (LLMRails); reads config/guardrails/
+
+# NeMo Data Designer — the standalone client-side package (github.com/NVIDIA-NeMo/
+# DataDesigner), NOT the nemo-microservices/nemo-platform SDK (which needs a
+# deployed NeMo Microservices platform). This one runs locally and generates
+# against the NVIDIA Build API with the nvapi key. Backs `--engine datadesigner`
+# in data/generate_datasets.py. Note: it pins opentelemetry-sdk<1.44 (vs NAT's
+# 1.44); the resulting downgrade is benign — NAT validate + run still work.
+data-designer>=0.8                    # REAL NeMo Data Designer (Dataset 1 LLM-generated backend)
+
+# NeMo Agent Toolkit + the langchain plugin that provides the agent workflows.
+# NOTE: `pip install nvidia-nat[langchain]` pulls langchain-litellm, which
+# needs a Rust/Cargo toolchain to build and failed on a stock Windows box.
+# These four lines install the SAME agent capability WITHOUT that build:
+nvidia-nat>=1.8                       # NeMo Agent Toolkit core + `nat` CLI
+nvidia-nat-langchain>=1.8             # provides tool_calling_agent / react_agent workflow types
+langgraph>=1.0                        # graph engine the agents run on
+langchain>=1.3                        # agent framework
+langchain-nvidia-ai-endpoints>=1.4    # NIM LLM client for the NAT agents
+# transitive-but-needed so the langchain plugin's register.py imports cleanly:
+langchain-classic>=1.0
+opentelemetry-api>=1.30
+opentelemetry-sdk>=1.30
+opentelemetry-exporter-otlp>=1.30
+
+# IMPORTANT: after installing, run `pip install -e .` from the project root so
+# the nat_plugin/ banking-tool functions register as NAT entry-points (see
+# pyproject.toml). Without that, `nat run` can't find nat_plugin/block_card etc.
+
+# ---------------------------------------------------------------------------
+# Tier 3 — designed-in, NOT installed (honest status):
+#   - NemoClaw: alpha, Ubuntu/GPU-only, cannot run on the demo machine. The
+#     hash-chained audit log (app/services/audit.py) + privacy-router seam
+#     (the llm adapter's mock->NIM->local swap point) mirror its interfaces;
+#     the team's own field manual presents it as production hardening, not a
+#     live demo component. This is the one part of the PPT stack that stays
+#     designed-in — and it's designed-in by NVIDIA's own constraint, not ours.
+#   - redis: only needed if you outgrow in-memory call state (production note).
+# ---------------------------------------------------------------------------

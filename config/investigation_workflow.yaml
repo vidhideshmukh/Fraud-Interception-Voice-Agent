@@ -1,0 +1,64 @@
+# NeMo Agent Toolkit workflow — the FRAUD INVESTIGATION AGENT for ambiguous cases.
+#
+# Run:  nat run --config_file config/investigation_workflow.yaml --input "case_0001"
+# (needs: pip install -e .  so the evidence_* functions are discoverable, and an
+#  NVIDIA_API_KEY for the reasoning model.)
+#
+# Architecture — this is where a built-in NAT agent GENUINELY fits (not for its
+# own sake): the deterministic scorer resolves the obvious cases; this agent
+# handles the ambiguous "messy middle" where amount+geography alone is a coin-flip.
+#
+#   rewoo_agent -> PLANS four evidence steps (device, location, velocity, amount),
+#                  EXECUTES the evidence tools, and SOLVES the verdict by reasoning
+#                  over the combined findings. ReWOO (plan->execute->solve) fits
+#                  because the investigation is exactly that shape.
+#
+# Why NOT parallel_executor here (considered, deliberately dropped): the four
+# evidence checks are independent, so concurrency is possible — but they are
+# in-memory microsecond lookups, not I/O, so running them in parallel buys ~zero
+# real latency. Adding the executor purely to "use a parallel primitive" would be
+# for-the-sake-of-it; it earns its place only when the branches do slow I/O.
+#
+# The scoring math and the evidence checks stay deterministic (app/core +
+# app/agents/investigation_agent.py); the agent only reasons over their output.
+# Offline/mock equivalent + the 44%->92% eval: app/agents/investigation_agent.py.
+
+general:
+  use_uvloop: true
+
+llms:
+  reasoning_llm:
+    _type: nim
+    model_name: nvidia/llama-3.3-nemotron-super-49b-v1   # off critical path — capable model, no latency budget
+    temperature: 0.1
+
+functions:
+  evidence_device:
+    _type: nemo_agent_toolkit/evidence_device
+  evidence_location:
+    _type: nemo_agent_toolkit/evidence_location
+  evidence_velocity:
+    _type: nemo_agent_toolkit/evidence_velocity
+  evidence_amount:
+    _type: nemo_agent_toolkit/evidence_amount
+
+workflow:
+  _type: rewoo_agent                  # built-in NAT agent: plan -> execute -> solve
+  tool_names: [evidence_device, evidence_location, evidence_velocity, evidence_amount]
+  llm_name: reasoning_llm
+  verbose: true
+  description: Fraud investigation agent — reasons over combined evidence to judge an ambiguous case.
+  # Keep ReWOO's default planner/solver prompts (they define the required JSON plan
+  # format); layer the fraud-specific guidance on top via the additional_* fields.
+  additional_planner_instructions: |
+    The task is an ambiguous fraud case id (e.g. 'case_0001'). Plan FOUR evidence steps: call
+    evidence_device, evidence_location, evidence_velocity and evidence_amount, each with the
+    case id as the tool input, storing each result. Then the solver reasons over all four.
+  additional_solver_instructions: |
+    You are Barclays' fraud investigation solver. Reason over the combined evidence. Key rule:
+    no single signal decides — ONE suspicious signal is usually explainable (a traveller, a
+    one-off large purchase, a newly-upgraded phone); TWO OR MORE suspicious signals together is
+    the fraud pattern. A recognised device with an otherwise-normal profile strongly de-risks
+    the case. Answer with: verdict (FRAUD or LEGITIMATE), a confidence 0-1, a recommendation
+    (block_and_escalate | human_review | clear), and a one-sentence rationale citing the
+    specific signals that decided it.
