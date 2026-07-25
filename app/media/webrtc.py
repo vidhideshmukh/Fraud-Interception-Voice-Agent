@@ -227,16 +227,22 @@ async def _consume_inbound(track, session, outbound, pc) -> None:
                 if now - silence_since > SILENCE_TIMEOUT_S:
                     utter, collected[:] = bytes(collected), b""
                     in_speech, silence_since = False, None
-                    text = await loop.run_in_executor(None, asr.transcribe, utter)
-                    if text and text.strip():
-                        log.info("webrtc heard: %s", text)
-                        reply = await loop.run_in_executor(None, orchestrator.customer_says, session, text)
-                        await _speak(reply, outbound)
-                        # If that turn resolved the call, let the final line play out
-                        # fully, then close — instead of the browser cutting it off.
-                        if session.state.value in _TERMINAL_STATES:
-                            await _drain_and_close(outbound, pc)
-                            return
+                    try:
+                        text = await loop.run_in_executor(None, asr.transcribe, utter)
+                        if text and text.strip():
+                            log.info("webrtc heard: %s", text)
+                            reply = await loop.run_in_executor(None, orchestrator.customer_says, session, text)
+                            await _speak(reply, outbound)
+                            # If that turn resolved the call, let the final line play out
+                            # fully, then close — instead of the browser cutting it off.
+                            if session.state.value in _TERMINAL_STATES:
+                                await _drain_and_close(outbound, pc)
+                                return
+                    except Exception as e:  # noqa: BLE001 — one failed turn (ASR/LLM/guardrail/TTS
+                        # blip) must NOT kill the audio loop and silence the rest of the call —
+                        # which is exactly the "stops responding after a few turns" symptom. Log
+                        # it and keep listening for the next utterance.
+                        log.warning("webrtc turn failed (%s) — staying on the call for the next utterance", e)
 
 
 async def handle_offer(sdp: str, offer_type: str, session_id: str | None) -> dict:
