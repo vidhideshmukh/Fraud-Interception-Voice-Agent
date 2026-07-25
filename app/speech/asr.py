@@ -36,6 +36,8 @@ from typing import Callable, Optional
 MOCK_MODE = os.getenv("MOCK_MODE", "true").lower() == "true"
 RIVA_SERVER_URI = os.getenv("RIVA_SERVER_URI", "grpc.nvcf.nvidia.com:443")
 RIVA_ASR_FUNCTION_ID = os.getenv("RIVA_ASR_FUNCTION_ID", "")
+# Dedicated ASR auth key (Riva/NVCF). Falls back to NVIDIA_API_KEY if unset.
+RIVA_ASR_API_KEY = os.getenv("RIVA_ASR_API_KEY") or os.getenv("NVIDIA_API_KEY", "")
 SAMPLE_RATE = int(os.getenv("RIVA_SAMPLE_RATE", "16000"))
 SILENCE_TIMEOUT_S = float(os.getenv("ASR_SILENCE_TIMEOUT_S", "2.0"))
 # Force English by default. Found live 2026-07-18: with language_code=RIVA_ASR_LANGUAGE
@@ -80,7 +82,7 @@ def transcribe(utterance_or_audio) -> str:
 
     auth = riva.client.Auth(
         uri=RIVA_SERVER_URI, use_ssl=True,
-        metadata_args=[["authorization", f"Bearer {os.environ['NVIDIA_API_KEY']}"],
+        metadata_args=[["authorization", f"Bearer {RIVA_ASR_API_KEY}"],
                        ["function-id", RIVA_ASR_FUNCTION_ID]],
     )
     asr_service = riva.client.ASRService(auth)
@@ -135,7 +137,7 @@ class MicStreamASR:
 
         auth = riva.client.Auth(
             uri=RIVA_SERVER_URI, use_ssl=True,
-            metadata_args=[["authorization", f"Bearer {os.environ['NVIDIA_API_KEY']}"],
+            metadata_args=[["authorization", f"Bearer {RIVA_ASR_API_KEY}"],
                            ["function-id", RIVA_ASR_FUNCTION_ID]],
         )
         self._asr = riva.client.ASRService(auth)

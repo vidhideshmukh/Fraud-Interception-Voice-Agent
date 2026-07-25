@@ -27,6 +27,8 @@ MOCK_MODE = os.getenv("MOCK_MODE", "true").lower() == "true"
 RIVA_TTS_DISABLED = os.getenv("RIVA_TTS_DISABLED", "false").lower() == "true"
 RIVA_SERVER_URI = os.getenv("RIVA_SERVER_URI", "grpc.nvcf.nvidia.com:443")
 RIVA_TTS_FUNCTION_ID = os.getenv("RIVA_TTS_FUNCTION_ID", "")
+# Dedicated TTS auth key (Riva/NVCF). Falls back to NVIDIA_API_KEY if unset.
+RIVA_TTS_API_KEY = os.getenv("RIVA_TTS_API_KEY") or os.getenv("NVIDIA_API_KEY", "")
 RIVA_TTS_VOICE = os.getenv("RIVA_TTS_VOICE", "Magpie-Multilingual.EN-US.Aria")
 TTS_SAMPLE_RATE = int(os.getenv("RIVA_TTS_SAMPLE_RATE", "22050"))
 
@@ -43,7 +45,7 @@ def _service():
         import riva.client  # deferred import: not needed in mock mode
         _auth = riva.client.Auth(
             uri=RIVA_SERVER_URI, use_ssl=True,
-            metadata_args=[["authorization", f"Bearer {os.environ['NVIDIA_API_KEY']}"],
+            metadata_args=[["authorization", f"Bearer {RIVA_TTS_API_KEY}"],
                            ["function-id", RIVA_TTS_FUNCTION_ID]],
         )
         _tts_service = riva.client.SpeechSynthesisService(_auth)
