@@ -138,8 +138,12 @@ def investigate_turn(session: CallSession, user_text: str) -> Decision:
         f"Decide your next step and reply with the JSON contract."
     )
     t0 = time.perf_counter()
+    # 512 tokens (matching the phase-1 loop) — 200 truncated nuanced replies, so a
+    # multi-part customer turn ("is this the same as my $6,000 last week?") got a
+    # terse, out-of-context answer. The reply lives in the JSON "message" field, so
+    # it needs real room even with reasoning off.
     data = nemotron.complete_json(prompts.INVESTIGATION_DIALOG_SYSTEM, user_msg,
-                                  stage="dialog", session_id=session.session_id, max_tokens=200)
+                                  stage="dialog", session_id=session.session_id, max_tokens=512)
     latency_ms = round((time.perf_counter() - t0) * 1000, 1)
     action = (data.get("action") or "").strip().lower()
     message = (data.get("message") or "").strip()
