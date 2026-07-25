@@ -39,12 +39,12 @@ general:
 llms:
   realtime_llm:
     _type: nim
-    model_name: nvidia/nemotron-3-nano-30b-a3b   # matches NIM_MODEL_REALTIME in app/adapters/llm.py
+    model_name: ${NIM_MODEL_REALTIME}   # from .env (NAT interpolates ${VAR}); no hard-coded model id
     temperature: 0.2
     max_tokens: 150
   async_llm:
     _type: nim
-    model_name: nvidia/llama-3.3-nemotron-super-49b-v1
+    model_name: ${NIM_MODEL_ASYNC}   # from .env; the Super-class resolution model
     temperature: 0.1
 
 functions:

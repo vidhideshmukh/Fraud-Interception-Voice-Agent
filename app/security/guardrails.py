@@ -36,8 +36,10 @@ from dataclasses import dataclass, field
 from app.observability import metrics
 
 MOCK_MODE = os.getenv("MOCK_MODE", "true").lower() == "true"
-GUARDRAILS_MODEL = os.getenv("NIM_MODEL_GUARDRAILS", "nvidia/nemotron-3-nano-30b-a3b")
-NIM_BASE_URL = os.getenv("NIM_BASE_URL", "https://integrate.api.nvidia.com/v1")
+# From .env — no hard-coded model/endpoint. Empty means "not set"; the runtime
+# override below only applies a value when it IS set, so config is the source.
+GUARDRAILS_MODEL = os.getenv("NIM_MODEL_GUARDRAILS", "")
+NIM_BASE_URL = os.getenv("NIM_BASE_URL", "")
 GUARDRAILS_CONFIG_PATH = os.getenv("GUARDRAILS_CONFIG_PATH", "config/guardrails")
 
 # The actual self-check prompts live in config/guardrails/config.yml — that's
@@ -130,8 +132,10 @@ def _apply_llm_env_overrides(config):
     reads. A self-hosted NIM ignores the key; a hosted endpoint needs a real one."""
     for m in getattr(config, "models", []):
         if getattr(m, "type", None) == "main":
-            m.model = GUARDRAILS_MODEL
-            m.parameters["base_url"] = NIM_BASE_URL
+            if GUARDRAILS_MODEL:
+                m.model = GUARDRAILS_MODEL
+            if NIM_BASE_URL:
+                m.parameters["base_url"] = NIM_BASE_URL
             m.parameters["api_key"] = os.getenv("NVIDIA_API_KEY") or "not-needed"
     return config
 

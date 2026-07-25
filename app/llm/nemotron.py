@@ -35,8 +35,12 @@ MOCK_MODE = os.getenv("MOCK_MODE", "true").lower() == "true"
 # intent classification on 4 labels doesn't need a bigger model. The async
 # resolution agent (app/agents/resolution_agent.py) uses the Super-class
 # model instead, where the 30s budget makes its extra quality nearly free.
-NIM_MODEL_REALTIME = os.getenv("NIM_MODEL_REALTIME", "nvidia/nemotron-3-nano-30b-a3b")
-NIM_BASE_URL = os.getenv("NIM_BASE_URL", "https://integrate.api.nvidia.com/v1")
+# All LLM identity — endpoint, model name, key — comes from .env. There are NO
+# hard-coded model names or URLs in this code: an empty value here means it was
+# not configured, and live mode fails loudly (see _require_live_config) rather
+# than silently using a baked-in default that could mismatch the endpoint.
+NIM_MODEL_REALTIME = os.getenv("NIM_MODEL_REALTIME", "")
+NIM_BASE_URL = os.getenv("NIM_BASE_URL", "")
 LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS_REALTIME", "150"))
 # Optional — only meaningful for the eval harness replaying Dataset 3's
 # scripted calls, where a fixed seed makes a run reproducible enough to
@@ -58,9 +62,11 @@ _DISTRESS_WORDS = ("scared", "help", "panic", "human", "person", "agent", "scam"
 # (nvidia/nemotron-3-nano-30b-a3b), authenticated with a real nvapi key.
 # Failover only activates when a REAL key is configured (a placeholder like
 # 'local' doesn't count) and the fallback points somewhere other than primary.
-NIM_FALLBACK_ENABLED = os.getenv("NIM_FALLBACK_ENABLED", "true").lower() == "true"
-NIM_FALLBACK_BASE_URL = os.getenv("NIM_FALLBACK_BASE_URL", "https://integrate.api.nvidia.com/v1")
-NIM_FALLBACK_MODEL = os.getenv("NIM_FALLBACK_MODEL", "nvidia/nemotron-3-nano-30b-a3b")
+# Fallback endpoint — also entirely from .env, no hard-coded values. Off unless
+# NIM_FALLBACK_* is configured with a real key and a different endpoint.
+NIM_FALLBACK_ENABLED = os.getenv("NIM_FALLBACK_ENABLED", "false").lower() == "true"
+NIM_FALLBACK_BASE_URL = os.getenv("NIM_FALLBACK_BASE_URL", "")
+NIM_FALLBACK_MODEL = os.getenv("NIM_FALLBACK_MODEL", "")
 NIM_FALLBACK_API_KEY = os.getenv("NIM_FALLBACK_API_KEY") or os.getenv("NVIDIA_API_KEY", "")
 
 _client = None
@@ -78,11 +84,25 @@ def _openai_client():
     'quote measured numbers, not targets' rule is for."""
     global _client
     if _client is None:
+        _require_live_config()
         from openai import OpenAI  # deferred import: not needed in mock mode
         # A self-hosted NIM ignores the key; fall back to a placeholder so an
         # unset key doesn't KeyError (the hosted fallback uses its own key).
         _client = OpenAI(base_url=NIM_BASE_URL, api_key=os.getenv("NVIDIA_API_KEY") or "not-needed")
     return _client
+
+
+def _require_live_config() -> None:
+    """Fail loudly (not silently) if live mode is missing its LLM config. Since
+    there are no hard-coded model/endpoint defaults, an unset value is a config
+    error the operator must fix in .env — surfaced here with a clear message
+    instead of a cryptic empty-URL failure deep in the HTTP client."""
+    missing = [name for name, val in (("NIM_BASE_URL", NIM_BASE_URL),
+                                      ("NIM_MODEL_REALTIME", NIM_MODEL_REALTIME)) if not val]
+    if missing:
+        raise RuntimeError(
+            "LLM not configured — set " + ", ".join(missing) + " in .env "
+            "(MOCK_MODE=false requires the LLM endpoint + model in config).")
 
 
 def _fallback_client():

@@ -29,7 +29,7 @@ general:
 llms:
   reasoning_llm:
     _type: nim
-    model_name: nvidia/llama-3.3-nemotron-super-49b-v1   # off critical path — capable model, no latency budget
+    model_name: ${NIM_MODEL_REASONING}   # from .env; off critical path — capable model, no latency budget
     temperature: 0.1
 
 functions:
