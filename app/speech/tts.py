@@ -116,27 +116,33 @@ def synthesize_pcm(text: str) -> tuple[bytes, int]:
     in mock mode / if the hosted function is degraded, so the caller degrades to
     on-screen text (same policy as speak()). Never raises."""
     if MOCK_MODE or RIVA_TTS_DISABLED:
-        _log.warning("tts.synthesize_pcm: no audio — MOCK_MODE=%s RIVA_TTS_DISABLED=%s",
-                     MOCK_MODE, RIVA_TTS_DISABLED)
         return b"", TTS_SAMPLE_RATE
-    try:
-        buf = bytearray()
-        for resp in _service().synthesize_online(
-                text=text, voice_name=RIVA_TTS_VOICE,
-                language_code="en-US", sample_rate_hz=TTS_SAMPLE_RATE):
-            if resp.audio:
-                buf.extend(resp.audio)
-        if buf:
-            _log.info("tts.synthesize_pcm: %d bytes @ %dHz for %r", len(buf), TTS_SAMPLE_RATE, text[:40])
-        else:
-            _log.warning("tts.synthesize_pcm: Riva returned 0 audio bytes (server=%s function=%s voice=%s) for %r",
-                         RIVA_SERVER_URI, RIVA_TTS_FUNCTION_ID, RIVA_TTS_VOICE, text[:40])
-        return bytes(buf), TTS_SAMPLE_RATE
-    except Exception as e:  # noqa: BLE001 — a synth failure must not crash the call; degrade to text
-        _log.warning("tts.synthesize_pcm: Riva FAILED (%s: %s) server=%s function=%s — degrading to no audio",
-                     type(e).__name__, str(e)[:200], RIVA_SERVER_URI, RIVA_TTS_FUNCTION_ID)
-        _reset_service()
-        return b"", TTS_SAMPLE_RATE
+    # Retry across a couple of attempts: the hosted NVCF TTS function scales to
+    # zero and the FIRST call can fail with DEADLINE_EXCEEDED / "failed to
+    # establish link to worker" while a GPU worker cold-starts. A retry often
+    # catches the now-warm worker. (Startup also warms it — see server.py.)
+    last = None
+    for attempt in range(3):
+        try:
+            buf = bytearray()
+            for resp in _service().synthesize_online(
+                    text=text, voice_name=RIVA_TTS_VOICE,
+                    language_code="en-US", sample_rate_hz=TTS_SAMPLE_RATE):
+                if resp.audio:
+                    buf.extend(resp.audio)
+            if buf:
+                _log.info("tts.synthesize_pcm: %d bytes @ %dHz (attempt %d) for %r",
+                          len(buf), TTS_SAMPLE_RATE, attempt + 1, text[:40])
+                return bytes(buf), TTS_SAMPLE_RATE
+            last = "Riva returned 0 audio bytes"
+        except Exception as e:  # noqa: BLE001 — synth failure must not crash the call
+            last = f"{type(e).__name__}: {str(e)[:160]}"
+            _reset_service()  # drop the channel so the next attempt reconnects
+        if attempt < 2:
+            time.sleep(1.2)   # give the NVCF worker a moment to come up
+    _log.warning("tts.synthesize_pcm: no audio after 3 attempts (%s) server=%s function=%s voice=%s",
+                 last, RIVA_SERVER_URI, RIVA_TTS_FUNCTION_ID, RIVA_TTS_VOICE)
+    return b"", TTS_SAMPLE_RATE
 
 
 def speak_text_only(text: str) -> str:

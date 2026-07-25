@@ -91,6 +91,16 @@ def _warm_live_connections():
                                history=[], user_text="warmup", context={"last4": "0000"})
         guardrails.check_input("warmup")
         log.info("startup: live LLM + guardrails connections warmed")
+        # Warm Riva TTS too: the hosted NVCF TTS function scales to zero, so the
+        # FIRST synth cold-starts a GPU worker and can time out mid-call. Doing it
+        # here spins the worker up before any call, and tells us at boot whether
+        # the TTS function is healthy (byte count) or degraded (0 bytes / error).
+        from app.speech import tts
+        _pcm, _ = tts.synthesize_pcm("Warming up the fraud prevention line.")
+        if _pcm:
+            log.info("startup: Riva TTS warmed (%d bytes) — function is UP", len(_pcm))
+        else:
+            log.warning("startup: Riva TTS produced NO audio — the hosted TTS function looks DOWN/degraded")
     except Exception as e:  # noqa: BLE001 — startup warm-up must never block boot
         log.warning("startup: warm-up call failed (%s) — first real call pays the cold-start cost", e)
 
