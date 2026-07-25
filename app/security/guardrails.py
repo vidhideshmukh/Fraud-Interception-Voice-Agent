@@ -143,11 +143,35 @@ def _nemo_check(text: str, *, is_input: bool) -> bool:
                     {"role": "assistant", "content": text}]
 
     opts = GenerationOptions(rails=rails_opt, log=GenerationLogOptions(activated_rails=True))
-    resp = _nemo_rails().generate(messages=messages, options=opts)
+    try:
+        resp = _nemo_rails().generate(messages=messages, options=opts)
+    except Exception:  # noqa: BLE001 — guardrail LLM endpoint unreachable (e.g. gpu009 down)
+        # Degrade, don't crash the call. Found live: when the rail's LLM
+        # endpoint was down, this raised straight through customer_says and
+        # killed the whole WebRTC turn. The cheap keyword/topical checks in
+        # check_input already ran before this LLM self-check, so failing it
+        # open here keeps the call alive; the dialog model (which has its own
+        # hosted fallback) still produces the reply. Returns False = "not
+        # blocked by the LLM rail" rather than propagating the error.
+        _rail_llm_unavailable(is_input)
+        return False
     for r in (resp.log.activated_rails if resp.log else []):
         if any("refuse" in str(d).lower() for d in (r.decisions or [])):
             return True
     return False
+
+
+_RAIL_WARNED = {"input": False, "output": False}
+
+
+def _rail_llm_unavailable(is_input: bool) -> None:
+    """Warn once per stage that the guardrail LLM is unreachable, so the log
+    isn't flooded every turn while it's down."""
+    key = "input" if is_input else "output"
+    if not _RAIL_WARNED[key]:
+        _RAIL_WARNED[key] = True
+        print(f"[guardrails] {key} rail LLM unreachable — degrading to keyword checks "
+              f"for this stage until it recovers (call continues).")
 
 
 @dataclass

@@ -50,7 +50,21 @@ _DENY_WORDS = ("not me", "didn't", "did not", "no i", "never", "fraud", "wasn't 
 _CONFIRM_WORDS = ("yes", "i did", "that was me", "my purchase", "i made")
 _DISTRESS_WORDS = ("scared", "help", "panic", "human", "person", "agent", "scam")
 
+# --- Fallback endpoint: hosted NVIDIA Build API -----------------------------
+# The primary endpoint (NIM_BASE_URL) is the self-hosted Nano on the cluster
+# (gpu009). If that node is down/unreachable, every dialog call would otherwise
+# fail and the agent would deflect. So each live call fails over to the hosted
+# Build API — a DIFFERENT endpoint, which serves the model under a different id
+# (nvidia/nemotron-3-nano-30b-a3b), authenticated with a real nvapi key.
+# Failover only activates when a REAL key is configured (a placeholder like
+# 'local' doesn't count) and the fallback points somewhere other than primary.
+NIM_FALLBACK_ENABLED = os.getenv("NIM_FALLBACK_ENABLED", "true").lower() == "true"
+NIM_FALLBACK_BASE_URL = os.getenv("NIM_FALLBACK_BASE_URL", "https://integrate.api.nvidia.com/v1")
+NIM_FALLBACK_MODEL = os.getenv("NIM_FALLBACK_MODEL", "nvidia/nemotron-3-nano-30b-a3b")
+NIM_FALLBACK_API_KEY = os.getenv("NIM_FALLBACK_API_KEY") or os.getenv("NVIDIA_API_KEY", "")
+
 _client = None
+_fb_client = None
 
 
 def _openai_client():
@@ -65,8 +79,46 @@ def _openai_client():
     global _client
     if _client is None:
         from openai import OpenAI  # deferred import: not needed in mock mode
-        _client = OpenAI(base_url=NIM_BASE_URL, api_key=os.environ["NVIDIA_API_KEY"])
+        # A self-hosted NIM ignores the key; fall back to a placeholder so an
+        # unset key doesn't KeyError (the hosted fallback uses its own key).
+        _client = OpenAI(base_url=NIM_BASE_URL, api_key=os.getenv("NVIDIA_API_KEY") or "not-needed")
     return _client
+
+
+def _fallback_client():
+    """Lazy singleton for the hosted Build API fallback endpoint."""
+    global _fb_client
+    if _fb_client is None:
+        from openai import OpenAI
+        _fb_client = OpenAI(base_url=NIM_FALLBACK_BASE_URL, api_key=NIM_FALLBACK_API_KEY or "not-needed")
+    return _fb_client
+
+
+def _fallback_ok() -> bool:
+    """True only if failover is usable: enabled, a REAL key (not 'local'/empty),
+    and pointing at a DIFFERENT endpoint than primary (no point retrying a dead
+    endpoint against itself)."""
+    key = (NIM_FALLBACK_API_KEY or "").strip()
+    return (NIM_FALLBACK_ENABLED and key and key.lower() != "local"
+            and NIM_FALLBACK_BASE_URL.rstrip("/") != NIM_BASE_URL.rstrip("/"))
+
+
+def _chat(*, messages, timeout, **kwargs):
+    """One chat completion WITH automatic failover. Tries the primary (local)
+    endpoint first; on ANY error, if a usable fallback is configured, retries
+    once against the hosted Build API (with its own model id). Returns
+    (response, model_id_used) so the caller records which model actually
+    answered. Raises only if the primary fails and no fallback is usable."""
+    try:
+        resp = _openai_client().chat.completions.create(
+            model=NIM_MODEL_REALTIME, messages=messages, timeout=timeout, **kwargs)
+        return resp, NIM_MODEL_REALTIME
+    except Exception:  # noqa: BLE001 — primary endpoint failed (e.g. gpu009 down)
+        if not _fallback_ok():
+            raise
+        resp = _fallback_client().chat.completions.create(
+            model=NIM_FALLBACK_MODEL, messages=messages, timeout=timeout, **kwargs)
+        return resp, NIM_FALLBACK_MODEL
 
 
 @dataclass
@@ -96,8 +148,7 @@ def complete_json(system: str, user: str, *, stage: str = "investigation",
                                 session_id=session_id)
         return {}
     try:
-        resp = _openai_client().chat.completions.create(
-            model=NIM_MODEL_REALTIME,
+        resp, model_used = _chat(
             messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
             temperature=0.1, max_tokens=max_tokens, timeout=8.0,
             response_format={"type": "json_object"},
@@ -105,12 +156,12 @@ def complete_json(system: str, user: str, *, stage: str = "investigation",
         raw = resp.choices[0].message.content.strip()
         data = json.loads(raw[raw.index("{"): raw.rindex("}") + 1])
         usage = getattr(resp, "usage", None)
-        metrics.record_llm_call(stage, NIM_MODEL_REALTIME, (time.perf_counter() - t0) * 1000,
+        metrics.record_llm_call(stage, model_used, (time.perf_counter() - t0) * 1000,
                                 tokens_in=getattr(usage, "prompt_tokens", None),
                                 tokens_out=getattr(usage, "completion_tokens", None),
                                 session_id=session_id)
         return data
-    except Exception:  # noqa: BLE001 — API error or malformed JSON; caller has a deterministic fallback
+    except Exception:  # noqa: BLE001 — both endpoints failed / malformed JSON; caller has a deterministic fallback
         metrics.record_llm_call(stage, NIM_MODEL_REALTIME, (time.perf_counter() - t0) * 1000,
                                 session_id=session_id)
         return {}
@@ -138,15 +189,14 @@ def generate_line(goal: str, *, context: dict | None = None, fallback: str = "",
     try:
         ctx = ("\n\nContext: " + "; ".join(f"{k}: {v}" for k, v in context.items() if k != "session_id")
                ) if context else ""
-        resp = _openai_client().chat.completions.create(
-            model=NIM_MODEL_REALTIME,
+        resp, model_used = _chat(
             messages=[{"role": "system", "content": _DIALOGUE_SYSTEM},
                       {"role": "user", "content": "GOAL: " + goal + ctx}],
             temperature=0.7, max_tokens=140, timeout=6.0,
             extra_body={"chat_template_kwargs": {"enable_thinking": False}})
         line = (resp.choices[0].message.content or "").strip().strip('"').strip()
         usage = getattr(resp, "usage", None)
-        metrics.record_llm_call(stage, NIM_MODEL_REALTIME, (time.perf_counter() - t0) * 1000,
+        metrics.record_llm_call(stage, model_used, (time.perf_counter() - t0) * 1000,
                                 tokens_in=getattr(usage, "prompt_tokens", None),
                                 tokens_out=getattr(usage, "completion_tokens", None), session_id=sid)
         return line or fallback
@@ -190,8 +240,7 @@ def complete_turn(system: str, history: list[dict], user_text: str, context: dic
         return TurnResult(turn=turn, model_id="mock", prompt_version=PROMPT_VERSION,
                           latency_ms=lat, seed=LLM_SEED)
 
-    # --- live mode: NVIDIA NIM, OpenAI-compatible ---
-    client = _openai_client()
+    # --- live mode: NVIDIA NIM, OpenAI-compatible (with hosted fallback) ---
     # Found live (2026-07-18): `context` was accepted as a parameter here
     # but never actually used to build `messages` — only _mock_turn() used
     # it. REALTIME_SYSTEM's own text claims the model is given "customer
@@ -214,7 +263,6 @@ def complete_turn(system: str, history: list[dict], user_text: str, context: dic
                 + history
                 + [{"role": "user", "content": user_text}])
     create_kwargs = dict(
-        model=NIM_MODEL_REALTIME,
         messages=messages,
         temperature=0.2,
         max_tokens=LLM_MAX_TOKENS,
@@ -251,24 +299,33 @@ def complete_turn(system: str, history: list[dict], user_text: str, context: dic
     # backoff on an API error) recovers it; the safe UNSURE fallback still
     # applies only if the retry ALSO fails, so a truly malformed turn can
     # never fall through to an action branch.
-    turn = None
-    for attempt in range(2):
+    # Two attempts: primary (local) first, then the hosted Build API fallback
+    # when it's configured — so a down gpu009 fails OVER to the hosted model
+    # instead of deflecting. With no usable fallback the second attempt just
+    # retries the primary (the original transient-rate-limit recovery).
+    attempts = [(_openai_client(), NIM_MODEL_REALTIME)]
+    attempts.append((_fallback_client(), NIM_FALLBACK_MODEL) if _fallback_ok()
+                    else (_openai_client(), NIM_MODEL_REALTIME))
+
+    turn, model_used = None, NIM_MODEL_REALTIME
+    for attempt, (client, model) in enumerate(attempts):
         try:
             _c0 = time.perf_counter()
-            resp = client.chat.completions.create(**create_kwargs, timeout=3.0)
+            resp = client.chat.completions.create(model=model, **create_kwargs, timeout=3.0)
             call_ms = (time.perf_counter() - _c0) * 1000   # THIS single inference's latency
             raw = resp.choices[0].message.content.strip()
             data = json.loads(raw[raw.index("{"): raw.rindex("}") + 1])
             turn = AgentTurn(**data)
+            model_used = model
             usage = getattr(resp, "usage", None)
-            metrics.record_llm_call("dialog", NIM_MODEL_REALTIME, call_ms,
+            metrics.record_llm_call("dialog", model_used, call_ms,
                                     tokens_in=getattr(usage, "prompt_tokens", None),
                                     tokens_out=getattr(usage, "completion_tokens", None),
                                     session_id=context.get("session_id"))
             break
-        except Exception:  # noqa: BLE001 — API error OR malformed JSON; both get one retry
+        except Exception:  # noqa: BLE001 — API error OR malformed JSON; try the next attempt (fallback/retry)
             if attempt == 0:
-                time.sleep(0.6)  # brief backoff for a transient rate-limit
+                time.sleep(0.6)  # brief backoff before the fallback/retry
     if turn is None:
         # Both attempts failed — degrade safely to escalation. The "code
         # writes cheques" guarantee: a malformed reply never falls through
@@ -277,5 +334,5 @@ def complete_turn(system: str, history: list[dict], user_text: str, context: dic
                          intent=Intent.UNSURE, confidence=0.0)
 
     latency_ms = round((time.perf_counter() - t0) * 1000, 1)
-    return TurnResult(turn=turn, model_id=NIM_MODEL_REALTIME,
+    return TurnResult(turn=turn, model_id=model_used,
                       prompt_version=PROMPT_VERSION, latency_ms=latency_ms, seed=LLM_SEED)
