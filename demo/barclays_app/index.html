@@ -738,7 +738,15 @@
     // Falls back to host-only if the endpoint is unavailable or TURN isn't configured.
     let iceServers = [];
     try { iceServers = (await (await fetch(`/ice-servers`)).json()).iceServers || []; } catch (e) {}
-    const pc = new RTCPeerConnection(iceServers.length ? { iceServers } : undefined);
+    // When TURN is configured (server on a cluster/behind a firewall), force
+    // iceTransportPolicy:"relay". The cluster node advertises ~18 unreachable
+    // Docker/bridge host candidates (192.168.x.x); relay-only makes the browser
+    // skip all of them and connect straight through the TURN relay — the only
+    // path that works laptop<->cluster. Without this, ICE floods junk pairs and
+    // often stalls in "connecting" before the relay pair is nominated. With no
+    // TURN (pure local dev) we keep the default so localhost still works.
+    const pc = new RTCPeerConnection(
+      iceServers.length ? { iceServers, iceTransportPolicy: "relay" } : undefined);
     webrtcPc = pc;
     mic.getTracks().forEach(t => pc.addTrack(t, mic));
     // addTrack already makes a sendrecv transceiver: we send the mic and receive the agent's voice.

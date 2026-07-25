@@ -114,7 +114,10 @@ async function answer() {
     // candidate — needed when the server is behind a firewall. Host-only fallback.
     let iceServers = [];
     try { iceServers = (await (await fetch(`${API}/ice-servers`)).json()).iceServers || []; } catch (e) {}
-    pc = new RTCPeerConnection(iceServers.length ? { iceServers } : undefined);
+    // Force relay when TURN is configured (cluster): skip the node's ~18
+    // unreachable Docker/bridge host candidates and connect via the TURN relay.
+    pc = new RTCPeerConnection(
+      iceServers.length ? { iceServers, iceTransportPolicy: "relay" } : undefined);
     mic.getTracks().forEach(t => pc.addTrack(t, mic));
     pc.ontrack = ev => { $("agentAudio").srcObject = ev.streams[0]; };
     pc.onconnectionstatechange = () => {
