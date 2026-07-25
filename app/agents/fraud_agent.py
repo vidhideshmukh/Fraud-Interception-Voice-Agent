@@ -66,23 +66,15 @@ def opening_line(session: CallSession) -> str:
     """The SINGLE opening message spoken on pickup: who we are (Barclays fraud
     team, recorded line), why (a possibly fraudulent transaction) AND an
     immediate request to read back the app verification code — no separate
-    'am I speaking with X / is now a good time' turns and no waiting on a
-    yes/no. Model-phrased so it varies naturally, but tightly constrained: at
-    most 1-2 sentences, no invented personal agent name, no small talk. The
-    goal's recorded+fraud wording keeps the mandatory-disclosure rail satisfied
-    (answer_call prepends the canonical line only if the model somehow drops
-    it); the safe fallback carries the same content offline."""
+    'am I speaking with X / is now a good time' turns and no waiting on a yes/no.
+    DETERMINISTIC (no LLM call) so there is zero model latency before the agent
+    greets — the greeting doesn't depend on anything the customer says. The
+    recorded+fraud wording satisfies the mandatory-disclosure rail; the model
+    still drives every substantive turn after verification."""
     first = session.customer.name.split()[0]
-    return nemotron.generate_line(
-        goal=(f"In AT MOST 1-2 short sentences: greet {first} by first name, say this is the Barclays "
-              f"fraud-prevention team on a recorded line about a possibly fraudulent transaction on their account, "
-              f"then ask them to open their Barclays app and read back the verification code shown there. Do NOT "
-              f"invent or give any personal agent name (never say 'I am <name>'), do NOT make small talk or ask how "
-              f"they are. Briefly reassure you'll never ask for their PIN or card number."),
-        context={"session_id": session.session_id, "customer_first_name": first},
-        fallback=(f"Hello {first} — this is the Barclays fraud-prevention team on a recorded line, about a possibly "
-                  f"fraudulent transaction on your account. Please open your Barclays app and read me the "
-                  f"verification code shown there — I'll never ask for your PIN or card number."))
+    return (f"Hello {first} — this is the Barclays fraud-prevention team on a recorded line, about a possibly "
+            f"fraudulent transaction on your account. Please open your Barclays app and read me the "
+            f"verification code shown there — I'll never ask for your PIN or card number.")
 
 
 # ---------------------------------------------------------------------------
