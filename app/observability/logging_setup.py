@@ -54,6 +54,16 @@ def setup_logging() -> None:
     root = logging.getLogger()
     root.setLevel(LOG_LEVEL)
     root.handlers[:] = [file_handler, console]  # replace defaults so we don't double-log
+
+    # Quiet noisy third-party loggers. NeMo Guardrails logs EVERY internal Colang
+    # event at INFO (~40 lines per input+output check), and httpx logs every HTTP
+    # request — together that's ~90% of the per-turn console noise. Drop them to
+    # WARNING so only meaningful lines show. Set NOISY_LOG_LEVEL to override
+    # (e.g. INFO to bring the detail back for debugging).
+    noisy_level = os.getenv("NOISY_LOG_LEVEL", "WARNING").upper()
+    for noisy in ("nemoguardrails", "nemoguardrails.colang", "httpx", "openai",
+                  "uvicorn.access"):
+        logging.getLogger(noisy).setLevel(noisy_level)
     _configured = True
 
 
