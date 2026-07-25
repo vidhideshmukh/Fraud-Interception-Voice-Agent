@@ -667,7 +667,7 @@
     // Answer button; the agent stays silent until the customer taps it.
     const RINGING = (data.state === "push_sent" || data.state === "dialing");
     document.getElementById("callActions").style.display = RINGING ? "block" : "none";
-    if (RINGING) startRingtone(); else stopRingtone();   // audible ring while it's ringing
+    if (RINGING && !answering) startRingtone(); else stopRingtone();   // ring only while un-answered
     // On a terminal state, the SERVER closes the connection only AFTER the agent's
     // final sentence has finished streaming (see _drain_and_close in webrtc.py), so
     // the last line is heard in full. This browser timer is just a long safety net
@@ -692,6 +692,7 @@
 
   async function attachSession(sessionId, code) {
     currentSessionId = sessionId;
+    answering = false;                    // a fresh incoming call may ring again
     if (terminalCloseTimer) { clearTimeout(terminalCloseTimer); terminalCloseTimer = null; }
     stopWebRTC();          // close any lingering connection from a previous call
     const ab = document.getElementById("answerBtn");  // reset for this new call
@@ -724,6 +725,10 @@
   // ---- WebRTC voice: the browser becomes the phone (mic <-> server Riva) ------
   let webrtcPc = null;
   let terminalCloseTimer = null;
+  // True once the customer taps Answer. The server-side state stays "push_sent"
+  // through the whole WebRTC handshake ("connecting"), so without this flag the
+  // 900ms poll would keep re-starting the ringtone while the call is connecting.
+  let answering = false;
   async function startWebRTC(sessionId) {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
       throw new Error("microphone needs HTTPS or localhost — open via http://localhost:8000");
@@ -750,16 +755,25 @@
       });
     };
     await pc.setLocalDescription(await pc.createOffer());
-    // Wait for ICE gathering to complete so the offer SDP CARRIES our candidates
-    // (including the TURN relay). /offer is one-shot (no trickle-ICE channel), so
-    // any candidate not in this SDP is never delivered — and over TURN the server
-    // can't open a relay permission for a browser address it never learned, which
-    // is exactly what leaves the call stuck on "connecting". Safety-capped at 3s.
+    // /offer is one-shot (no trickle-ICE), so the offer SDP must already carry a
+    // candidate the server can reach. But waiting for gathering to fully "complete"
+    // is slow with TURN (it waits for EVERY STUN/TURN server) and is most of the
+    // "connecting" delay. So send as soon as we have ONE usable candidate (a TURN
+    // relay or a srflx) — enough to connect — else a short safety cap.
     await new Promise(resolve => {
       if (pc.iceGatheringState === "complete") return resolve();
-      const done = () => { if (pc.iceGatheringState === "complete") { pc.removeEventListener("icegatheringstatechange", done); resolve(); } };
-      pc.addEventListener("icegatheringstatechange", done);
-      setTimeout(resolve, 3000);
+      let done = false;
+      const finish = () => {
+        if (done) return; done = true;
+        pc.removeEventListener("icecandidate", onCand);
+        pc.removeEventListener("icegatheringstatechange", onState);
+        resolve();
+      };
+      const onCand = (e) => { if (e.candidate && /typ (relay|srflx)/.test(e.candidate.candidate)) finish(); };
+      const onState = () => { if (pc.iceGatheringState === "complete") finish(); };
+      pc.addEventListener("icecandidate", onCand);
+      pc.addEventListener("icegatheringstatechange", onState);
+      setTimeout(finish, 1500);
     });
     const res = await fetch(`/offer`, { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type, session_id: sessionId }) });
@@ -778,7 +792,7 @@
       return;
     }
     if (!currentSessionId) return;
-    stopRingtone();                       // picked up — silence the ringtone before the agent speaks
+    answering = true; stopRingtone();     // picked up — silence the ring and keep it silent through "connecting"
     btn.disabled = true; btn.textContent = "Connecting…";
     // The /offer handshake ALSO answers the call server-side (see app/media/webrtc.py),
     // so no separate POST /answer is needed on the voice path.
