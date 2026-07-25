@@ -210,11 +210,22 @@ def list_logs():
     if not LOG_ROOT.exists():
         return {"root": str(LOG_ROOT), "files": []}
     files = []
-    for p in sorted(LOG_ROOT.rglob("*")):
-        if p.is_file():
-            st = p.stat()
-            files.append({"path": p.relative_to(LOG_ROOT).as_posix(),
-                          "size": st.st_size, "modified_ms": int(st.st_mtime * 1000)})
+    # Be defensive: on a shared filesystem (e.g. the cluster's lustre mount) a
+    # single unreadable file, broken symlink, or permission-denied subdir would
+    # otherwise raise and 500 this endpoint — which froze the whole ops console
+    # (its poll fetches every panel together). Skip anything we can't stat.
+    try:
+        entries = sorted(LOG_ROOT.rglob("*"))
+    except OSError:
+        entries = []
+    for p in entries:
+        try:
+            if p.is_file():
+                st = p.stat()
+                files.append({"path": p.relative_to(LOG_ROOT).as_posix(),
+                              "size": st.st_size, "modified_ms": int(st.st_mtime * 1000)})
+        except OSError:
+            continue
     return {"root": str(LOG_ROOT), "files": files}
 
 

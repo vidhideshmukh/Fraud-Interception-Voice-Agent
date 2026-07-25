@@ -491,10 +491,19 @@
 
   async function tick() {
     let audit, auditAll, sessions, incidents, history, logs, latency;
-    try { [audit, auditAll, sessions, incidents, history, logs, latency] = await Promise.all(
-      [getJSON("/audit"), getJSON("/audit/all"), getJSON("/sessions"), getJSON("/incidents"),
-       getJSON("/history"), getJSON("/logs"), getJSON("/metrics/latency")]); }
-    catch (e) { return; }
+    // allSettled, NOT all: one failing endpoint must not freeze the whole
+    // dashboard (that made every panel + all clicks feel dead if e.g. /logs
+    // 500'd on an unreadable file). Each endpoint falls back to an empty
+    // default so the rest of the console keeps rendering + refreshing.
+    const _eps = ["/audit","/audit/all","/sessions","/incidents","/history","/logs","/metrics/latency"];
+    const _def = [{chain_valid:true,records:[]},{records:[]},[],[],[],{files:[]},{samples:[],summary:[]}];
+    const _res = await Promise.allSettled(_eps.map(getJSON));
+    const _failed = [];
+    [audit, auditAll, sessions, incidents, history, logs, latency] = _res.map((r,i) => {
+      if (r.status === "fulfilled") return r.value;
+      _failed.push(_eps[i]); console.warn("ops: endpoint failed:", _eps[i], r.reason); return _def[i];
+    });
+    if (_failed.length) { const b=$("chainLabel"); if (b) b.title = "endpoints failing: "+_failed.join(", "); }
     // DURABLE records (all runs) drive every panel + metric; the live in-memory
     // /audit only supplies the current-run tamper-evidence light.
     const records = auditAll.records || [];
