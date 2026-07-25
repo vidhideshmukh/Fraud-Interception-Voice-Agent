@@ -115,8 +115,25 @@ def _nemo_rails():
         import nest_asyncio  # nemoguardrails dependency; always present when it is
         nest_asyncio.apply()
         from nemoguardrails import LLMRails, RailsConfig  # deferred: only needed live
-        _rails = LLMRails(RailsConfig.from_path(GUARDRAILS_CONFIG_PATH))
+        cfg = _apply_llm_env_overrides(RailsConfig.from_path(GUARDRAILS_CONFIG_PATH))
+        _rails = LLMRails(cfg)
     return _rails
+
+
+def _apply_llm_env_overrides(config):
+    """Point the guardrails 'main' model at the SAME endpoint/model the realtime
+    loop uses, from the environment — so switching local<->hosted is a single
+    .env change, not a config.yml edit. NeMo Guardrails 0.23 does NOT expand
+    ${VAR} inside a model's parameters (it passes the literal string to httpx),
+    so config.yml can't do this itself; we set it here from os.getenv — the same
+    NIM_BASE_URL / NIM_MODEL_GUARDRAILS / NVIDIA_API_KEY the rest of the app
+    reads. A self-hosted NIM ignores the key; a hosted endpoint needs a real one."""
+    for m in getattr(config, "models", []):
+        if getattr(m, "type", None) == "main":
+            m.model = GUARDRAILS_MODEL
+            m.parameters["base_url"] = NIM_BASE_URL
+            m.parameters["api_key"] = os.getenv("NVIDIA_API_KEY") or "not-needed"
+    return config
 
 
 def _nemo_check(text: str, *, is_input: bool) -> bool:
