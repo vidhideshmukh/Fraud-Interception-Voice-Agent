@@ -11,12 +11,17 @@
 models:
   - type: main
     engine: nim
-    model: nvidia/nemotron-3-nano   # MUST match the name gpu009 serves (mentor's deploy: nvidia/nemotron-3-nano), NOT the hosted -30b-a3b id
+    # model + base_url below are DEFAULTS only — app/security/guardrails.py
+    # overrides both at runtime from the environment (NIM_MODEL_GUARDRAILS,
+    # NIM_BASE_URL, NVIDIA_API_KEY) via _apply_llm_env_overrides, so the endpoint
+    # is switched purely through .env. These defaults target the hosted NVIDIA
+    # Build API (the same primary the app uses now).
+    model: nvidia/nemotron-3-nano-30b-a3b   # hosted Build API model id
     parameters:
       # nemoguardrails does NOT interpolate ${VAR} here (verified 2026-07-24) —
-      # it passes the raw string to httpx, which then rejects "${NIM_BASE_URL:-...}"
-      # as a URL with no http(s):// scheme. So this MUST be a literal URL.
-      base_url: http://gpu009:8000/v1
+      # it passes the raw string to httpx, which rejects a "${...}" as a URL with
+      # no scheme. So this is a literal; the Python override sets the live value.
+      base_url: https://integrate.api.nvidia.com/v1
       # NO api_key line on purpose: with engine=nim, guardrails reads NVIDIA_API_KEY
       # from the environment automatically. Putting "api_key: ${NVIDIA_API_KEY}" here
       # would send the literal string (not interpolated) and break auth.
