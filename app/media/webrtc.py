@@ -170,7 +170,11 @@ async def _speak(text: str, outbound) -> None:
     loop = asyncio.get_event_loop()
     pcm, sr = await loop.run_in_executor(None, tts.synthesize_pcm, text)
     if pcm:
-        await outbound.push(_resample_pcm(pcm, sr, TTS_OUT_RATE))
+        out = _resample_pcm(pcm, sr, TTS_OUT_RATE)
+        await outbound.push(out)
+        log.info("webrtc: pushed %d bytes of agent audio (%r)", len(out), text[:40])
+    else:
+        log.warning("webrtc: NO agent audio to send (Riva returned empty) for %r", text[:40])
 
 
 _TERMINAL_STATES = {"resolved_legit", "resolved_fraud", "escalated", "no_answer", "channel_frozen"}

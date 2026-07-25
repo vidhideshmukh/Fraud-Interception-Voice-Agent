@@ -17,6 +17,10 @@ from __future__ import annotations
 import os
 import time
 
+from app.observability.logging_setup import get_logger
+
+_log = get_logger("tts")
+
 MOCK_MODE = os.getenv("MOCK_MODE", "true").lower() == "true"
 # Escape hatch for when the hosted Riva/NVCF TTS function is DEGRADED on
 # NVIDIA's side (a real outage hit 2026-07-18). Set RIVA_TTS_DISABLED=true and
@@ -112,6 +116,8 @@ def synthesize_pcm(text: str) -> tuple[bytes, int]:
     in mock mode / if the hosted function is degraded, so the caller degrades to
     on-screen text (same policy as speak()). Never raises."""
     if MOCK_MODE or RIVA_TTS_DISABLED:
+        _log.warning("tts.synthesize_pcm: no audio — MOCK_MODE=%s RIVA_TTS_DISABLED=%s",
+                     MOCK_MODE, RIVA_TTS_DISABLED)
         return b"", TTS_SAMPLE_RATE
     try:
         buf = bytearray()
@@ -120,8 +126,15 @@ def synthesize_pcm(text: str) -> tuple[bytes, int]:
                 language_code="en-US", sample_rate_hz=TTS_SAMPLE_RATE):
             if resp.audio:
                 buf.extend(resp.audio)
+        if buf:
+            _log.info("tts.synthesize_pcm: %d bytes @ %dHz for %r", len(buf), TTS_SAMPLE_RATE, text[:40])
+        else:
+            _log.warning("tts.synthesize_pcm: Riva returned 0 audio bytes (server=%s function=%s voice=%s) for %r",
+                         RIVA_SERVER_URI, RIVA_TTS_FUNCTION_ID, RIVA_TTS_VOICE, text[:40])
         return bytes(buf), TTS_SAMPLE_RATE
-    except Exception:  # noqa: BLE001 — a synth failure must not crash the call; degrade to text
+    except Exception as e:  # noqa: BLE001 — a synth failure must not crash the call; degrade to text
+        _log.warning("tts.synthesize_pcm: Riva FAILED (%s: %s) server=%s function=%s — degrading to no audio",
+                     type(e).__name__, str(e)[:200], RIVA_SERVER_URI, RIVA_TTS_FUNCTION_ID)
         _reset_service()
         return b"", TTS_SAMPLE_RATE
 
