@@ -653,7 +653,12 @@
   }
 
   function renderSession(data) {
-    const [label, cls] = STATE_LABELS[data.state] || [String(data.state).replace(/_/g, " "), ""];
+    // Answered but the WebRTC media isn't up yet — keep everything on "Connecting…"
+    // and DON'T reveal the agent's transcript text until the voice actually starts.
+    const connecting = answering && !webrtcConnected;
+    const [label, cls] = connecting
+      ? ["Connecting…", "ringing"]
+      : (STATE_LABELS[data.state] || [String(data.state).replace(/_/g, " "), ""]);
     const pill = document.getElementById("statePill");
     pill.textContent = label;
     pill.className = "state-pill " + cls;
@@ -678,7 +683,9 @@
     }
 
     const box = document.getElementById("transcript");
-    if (data.transcript.length === 0) {
+    if (connecting) {
+      box.innerHTML = `<div style="color: var(--pn-sheet-muted); font-size: 0.76rem;">Connecting… please wait for the agent.</div>`;
+    } else if (data.transcript.length === 0) {
       box.innerHTML = RINGING
         ? `<div style="color: var(--pn-sheet-muted); font-size: 0.76rem;">📞 Incoming call from the Barclays fraud team — tap <b>Answer call</b> to take it.</div>`
         : `<div style="color: var(--pn-sheet-muted); font-size: 0.76rem;">Waiting for the call to begin…</div>`;
@@ -693,6 +700,7 @@
   async function attachSession(sessionId, code) {
     currentSessionId = sessionId;
     answering = false;                    // a fresh incoming call may ring again
+    webrtcConnected = false;
     if (terminalCloseTimer) { clearTimeout(terminalCloseTimer); terminalCloseTimer = null; }
     stopWebRTC();          // close any lingering connection from a previous call
     const ab = document.getElementById("answerBtn");  // reset for this new call
@@ -729,6 +737,9 @@
   // through the whole WebRTC handshake ("connecting"), so without this flag the
   // 900ms poll would keep re-starting the ringtone while the call is connecting.
   let answering = false;
+  // True once the WebRTC media connection is established (agent voice can flow).
+  // Until then we show "Connecting…" instead of the agent's transcript text.
+  let webrtcConnected = false;
   async function startWebRTC(sessionId) {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
       throw new Error("microphone needs HTTPS or localhost — open via http://localhost:8000");
@@ -740,6 +751,10 @@
     try { iceServers = (await (await fetch(`/ice-servers`)).json()).iceServers || []; } catch (e) {}
     const pc = new RTCPeerConnection(iceServers.length ? { iceServers } : undefined);
     webrtcPc = pc;
+    pc.onconnectionstatechange = () => {
+      if (pc.connectionState === "connected") webrtcConnected = true;
+      if (["failed", "disconnected", "closed"].includes(pc.connectionState)) webrtcConnected = false;
+    };
     mic.getTracks().forEach(t => pc.addTrack(t, mic));
     // addTrack already makes a sendrecv transceiver: we send the mic and receive the agent's voice.
     pc.ontrack = ev => {
@@ -803,6 +818,7 @@
       // Graceful fallback so a mic/permission issue never dead-ends the demo:
       // answer in text mode (the voice_loop.py handset or transcript still work).
       try { await postJSON(`/answer/${currentSessionId}`); } catch (_) {}
+      answering = false;                  // text mode: no voice to wait for, so show the transcript
       btn.textContent = "📞 On call (text mode)";
       console.warn("WebRTC voice failed, answered in text mode:", e);
       alert("Voice call couldn't start: " + e.message +

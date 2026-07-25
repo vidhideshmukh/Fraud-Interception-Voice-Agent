@@ -97,12 +97,19 @@ def transcribe(utterance_or_audio) -> str:
         yield utterance_or_audio
 
     transcript = ""
-    for response in asr_service.streaming_response_generator(
-        audio_chunks=_one_chunk(), streaming_config=streaming_config
-    ):
-        for result in response.results:
-            if result.is_final and result.alternatives:
-                transcript = result.alternatives[0].transcript.strip()
+    try:
+        for response in asr_service.streaming_response_generator(
+            audio_chunks=_one_chunk(), streaming_config=streaming_config
+        ):
+            for result in response.results:
+                if result.is_final and result.alternatives:
+                    transcript = result.alternatives[0].transcript.strip()
+    except Exception as e:  # noqa: BLE001 — an ASR failure (auth/network/Riva outage) must
+        # NEVER crash the audio loop and silence the whole call. Log and return
+        # empty; the caller then skips this utterance and keeps the call alive.
+        import logging
+        logging.getLogger("asr").warning("Riva ASR failed (%s) — skipping this utterance", e)
+        return ""
     return transcript
 
 
