@@ -28,7 +28,7 @@ CONF_THRESHOLD = float(os.getenv("CONFIDENCE_ESCALATION_THRESHOLD", "0.7"))
 HIGH_VALUE_GBP = float(os.getenv("HIGH_VALUE_ESCALATION_GBP", "750"))
 # Safety cap on LLM-driven investigation questions before we hand to a human —
 # mirrors phase-1's max_turns, so the model can't loop forever asking questions.
-MAX_DIALOG_TURNS = int(os.getenv("MAX_DIALOG_TURNS", "6"))
+MAX_DIALOG_TURNS = int(os.getenv("MAX_DIALOG_TURNS", "8"))
 MAX_VERIFICATION_ATTEMPTS = int(os.getenv("MAX_VERIFICATION_ATTEMPTS", "3"))
 # Latency fast-path: an exact "yes"/"no" skips the dialog + output-rail LLM
 # calls (see fraud_agent.fast_path_turn). On by default; set FAST_PATH_ENABLED=
