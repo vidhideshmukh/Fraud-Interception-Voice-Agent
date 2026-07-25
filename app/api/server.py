@@ -95,6 +95,16 @@ def _warm_live_connections():
         log.warning("startup: warm-up call failed (%s) — first real call pays the cold-start cost", e)
 
 
+@app.on_event("shutdown")
+def _shutdown_nat():
+    """Tear down the in-process NAT workflow sessions + their event loop."""
+    try:
+        from app.agents import nat_runner
+        nat_runner.shutdown()
+    except Exception:  # noqa: BLE001 — best-effort teardown
+        pass
+
+
 @app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse(url="/app/")
@@ -373,6 +383,35 @@ def no_answer(session_id: str):
     if not session:
         raise HTTPException(404, "unknown session")
     return {"result": orchestrator.no_answer(session)}
+
+
+@app.post("/investigate/{case_id}")
+def investigate_case(case_id: str):
+    """Run the NeMo Agent Toolkit ReWOO investigation agent on an ambiguous case
+    (config/investigation_workflow.yaml): it PLANS the four evidence steps,
+    EXECUTES the evidence tools, and SOLVES a verdict. This is the real NAT
+    agent, run in-process. Falls back to the deterministic investigation_agent
+    when NAT is unavailable (mock/offline) so the endpoint always answers."""
+    import dataclasses
+    from nemo_agent_toolkit import functions as nat_fns
+    case = nat_fns._cases().get(case_id)
+    if case is None:
+        raise HTTPException(404, f"unknown ambiguous case '{case_id}'")
+
+    live = os.getenv("MOCK_MODE", "true").lower() != "true" \
+        and os.getenv("NAT_AGENTS_ENABLED", "true").lower() == "true"
+    if live:
+        try:
+            from app.agents import nat_runner
+            cfg = os.getenv("NAT_INVESTIGATION_CONFIG", "config/investigation_workflow.yaml")
+            verdict = nat_runner.run_workflow(cfg, case_id)
+            return {"case_id": case_id, "engine": "nat_rewoo_agent", "verdict": verdict}
+        except Exception as e:  # noqa: BLE001 — fall back so the endpoint still answers
+            log.warning("NAT investigation failed (%s) — deterministic fallback", e)
+    from app.agents import investigation_agent
+    res = investigation_agent.investigate(case, case.get("_p95_gbp"))
+    return {"case_id": case_id, "engine": "deterministic",
+            "verdict": dataclasses.asdict(res) if dataclasses.is_dataclass(res) else str(res)}
 
 
 @app.get("/audit")

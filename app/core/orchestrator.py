@@ -35,6 +35,16 @@ MAX_VERIFICATION_ATTEMPTS = int(os.getenv("MAX_VERIFICATION_ATTEMPTS", "3"))
 # false to force every turn through the full LLM path (e.g. to A/B the latency).
 FAST_PATH_ENABLED = os.getenv("FAST_PATH_ENABLED", "true").lower() == "true"
 
+# The remediation (block/chargeback/case) is executed by the NeMo Agent Toolkit
+# `tool_calling_agent` (config/workflow.yaml) — the real NAT agent, run in-process
+# via app/agents/nat_runner.py. The deterministic resolution_agent stays as a
+# FAILSAFE only: if the agent's LLM is unavailable/errors, a fraud card must
+# still be blocked. Bank actions are idempotency-keyed, so a NAT partial + the
+# failsafe can never double-execute. Off in mock mode (no LLM) and toggleable.
+MOCK_MODE = os.getenv("MOCK_MODE", "true").lower() == "true"
+NAT_AGENTS_ENABLED = os.getenv("NAT_AGENTS_ENABLED", "true").lower() == "true"
+RESOLUTION_WORKFLOW = os.getenv("NAT_RESOLUTION_CONFIG", "config/workflow.yaml")
+
 SESSIONS: dict[str, CallSession] = {}
 
 
@@ -335,6 +345,35 @@ _ACTION_TO_INTENT = {"approve": Intent.CONFIRM_LEGIT, "block": Intent.DENY,
                      "escalate": Intent.UNSURE, "ask": Intent.UNSURE}
 
 
+def _execute_resolution(session: CallSession, outcome: str) -> None:
+    """Run the remediation through the NAT `tool_calling_agent` (the real agent),
+    falling back to the deterministic resolution_agent if NAT is unavailable or
+    errors. A fraud outcome MUST block the card, so the failsafe is not optional;
+    bank actions are idempotency-keyed, so NAT + failsafe can't double-execute."""
+    txn = session.event.txn
+    if not MOCK_MODE and NAT_AGENTS_ENABLED:
+        try:
+            from app.agents import nat_runner
+            msg = (f"A verified Barclays fraud-prevention call has concluded. "
+                   f"Outcome: {outcome}. session_id={session.session_id}, "
+                   f"txn_id={txn.txn_id}, customer_id={session.customer.customer_id}. "
+                   f"Execute the correct remediation by calling the tools now.")
+            result = nat_runner.run_workflow(RESOLUTION_WORKFLOW, msg)
+            audit.log_turn(session.session_id, "state",
+                           {"resolution_engine": "nat_tool_calling_agent",
+                            "outcome": outcome, "agent_result": str(result)[:200]})
+            return
+        except Exception as e:  # noqa: BLE001 — agent/LLM failure must not leave a card unblocked
+            audit.log_turn(session.session_id, "state",
+                           {"resolution_engine": "deterministic_failsafe",
+                            "outcome": outcome, "nat_error": str(e)[:160]})
+    # Mock mode, NAT disabled, or NAT failed -> deterministic guarantee.
+    if outcome == "fraud_confirmed":
+        resolution_agent.resolve_fraud(session)
+    else:
+        resolution_agent.resolve_legit(session)
+
+
 def _handle_dialog_turn(session: CallSession, text: str) -> str:
     """Phase-1 style LLM-DRIVEN investigation loop. The model reads the flagged
     transaction + full transcript and returns ONE decision — ask another
@@ -390,14 +429,14 @@ def _handle_dialog_turn(session: CallSession, text: str) -> str:
     if action == "approve":
         session.state = CallState.RESOLVED_LEGIT
         session.outcome = "false_positive_recovered"
-        resolution_agent.resolve_legit(session)          # async in prod; inline in demo
+        _execute_resolution(session, "false_positive_recovered")
         audit.close_session(session.session_id, session.outcome)
         return _say(session, message)
 
     if action == "block":
         session.state = CallState.RESOLVED_FRAUD
         session.outcome = "fraud_confirmed"
-        resolution_agent.resolve_fraud(session)          # async in prod; inline in demo
+        _execute_resolution(session, "fraud_confirmed")
         audit.close_session(session.session_id, session.outcome)
         return _say(session, message)
 
