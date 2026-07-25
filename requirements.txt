@@ -39,7 +39,11 @@ nemoguardrails>=0.23                  # REAL NeMo Guardrails (LLMRails); reads c
 # against the NVIDIA Build API with the nvapi key. Backs `--engine datadesigner`
 # in data/generate_datasets.py. Note: it pins opentelemetry-sdk<1.44 (vs NAT's
 # 1.44); the resulting downgrade is benign — NAT validate + run still work.
-data-designer>=0.8                    # REAL NeMo Data Designer (Dataset 1 LLM-generated backend)
+# data-designer>=0.8   # DISABLED: only needed to GENERATE Dataset 1; the data already
+#                      # exists in data/generated/, so runtime doesn't need it. It also
+#                      # pins cryptography>=48 which conflicts with nvidia-nat-core (<47),
+#                      # making a one-shot `pip install -r` fail with resolution-too-deep.
+#                      # To regenerate datasets: install it in a SEPARATE venv.
 
 # NeMo Agent Toolkit + the langchain plugin that provides the agent workflows.
 # NOTE: `pip install nvidia-nat[langchain]` pulls langchain-litellm, which
