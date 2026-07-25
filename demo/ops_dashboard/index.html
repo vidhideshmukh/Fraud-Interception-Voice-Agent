@@ -520,10 +520,15 @@
       const v = r.payload.rail_verdicts || {};
       return String(v.input || "").startsWith("blocked") || String(v.output || "").startsWith("blocked");
     }).length;
-    const llmLatencies = agentTurns
-      .filter(r => r.payload.model_id && r.payload.model_id.includes("nemotron"))
-      .map(r => r.payload.latency_ms).filter(x => x > 0);
-    const avgLat = llmLatencies.length ? Math.round(llmLatencies.reduce((a,b)=>a+b,0)/llmLatencies.length) : null;
+    // AVG LLM TURN: average of the DIALOG-stage model calls from the per-LLM-call
+    // metrics pipeline (metrics.py) — the SAME real samples the perf table + chart
+    // use. Previously this averaged only `agent` AUDIT turns tagged 'nemotron',
+    // which is a tiny, sparse sample (often n=1) that sat on one stale value and
+    // looked hardcoded. This reflects real, current latency and moves per call.
+    const dialogLat = (latency.samples || [])
+      .filter(s => s.stage === "dialog" && s.latency_ms > 0)
+      .map(s => s.latency_ms);
+    const avgLat = dialogLat.length ? Math.round(dialogLat.reduce((a,b)=>a+b,0)/dialogLat.length) : null;
 
     // KPIs — all-time from durable history; live queues from the current run
     $("kCalls").textContent = history.length;
