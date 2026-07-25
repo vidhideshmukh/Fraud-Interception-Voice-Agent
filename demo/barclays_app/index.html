@@ -686,12 +686,36 @@
       box.innerHTML = data.transcript.map(t =>
         `<div class="bubble ${t.role === "user" ? "user" : "assistant"}">${escapeHtml(t.text)}</div>`
       ).join("");
+      maybeSpeakAgent(data.transcript);   // browser Web-Speech fallback (see BROWSER_TTS)
     }
     box.scrollTop = box.scrollHeight;
   }
 
+  // --- Browser Web-Speech fallback -----------------------------------------
+  // When BROWSER_TTS is on (served by /ice-servers, from the BROWSER_TTS env),
+  // the agent's lines are spoken locally via the browser's Web Speech API — the
+  // escape hatch for when the hosted Riva/NVCF TTS function is degraded. Robotic
+  // vs Riva Aria, but the agent still talks with zero external dependency. Each
+  // line is spoken once; the set resets per call in attachSession().
+  let BROWSER_TTS = false;
+  const _spokenLines = new Set();
+  function maybeSpeakAgent(transcript) {
+    if (!BROWSER_TTS || !("speechSynthesis" in window)) return;
+    for (const t of transcript) {
+      if (t.role === "user" || !t.text) continue;
+      if (_spokenLines.has(t.text)) continue;
+      _spokenLines.add(t.text);
+      try {
+        const u = new SpeechSynthesisUtterance(t.text);
+        u.lang = "en-GB"; u.rate = 1.0;
+        window.speechSynthesis.speak(u);
+      } catch (e) { /* browser TTS unavailable — degrade to on-screen text */ }
+    }
+  }
+
   async function attachSession(sessionId, code) {
     currentSessionId = sessionId;
+    _spokenLines.clear();                 // fresh call: allow its lines to be spoken
     answering = false;                    // a fresh incoming call may ring again
     if (terminalCloseTimer) { clearTimeout(terminalCloseTimer); terminalCloseTimer = null; }
     stopWebRTC();          // close any lingering connection from a previous call
@@ -737,7 +761,7 @@
     // relay candidate — required when the server is behind a firewall (e.g. cluster).
     // Falls back to host-only if the endpoint is unavailable or TURN isn't configured.
     let iceServers = [];
-    try { iceServers = (await (await fetch(`/ice-servers`)).json()).iceServers || []; } catch (e) {}
+    try { const _cfg = await (await fetch(`/ice-servers`)).json(); iceServers = _cfg.iceServers || []; BROWSER_TTS = !!_cfg.browserTts; } catch (e) {}
     // When TURN is configured (server on a cluster/behind a firewall), force
     // iceTransportPolicy:"relay". The cluster node advertises ~18 unreachable
     // Docker/bridge host candidates (192.168.x.x); relay-only makes the browser

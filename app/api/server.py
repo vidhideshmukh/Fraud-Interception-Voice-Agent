@@ -297,7 +297,13 @@ def ice_servers():
     only the server side has TURN and the connection can't complete across a
     firewall. Returns {"iceServers": []} when TURN isn't configured."""
     from app.media import webrtc
-    return {"iceServers": webrtc.ice_servers_json()}
+    # browserTts: when set, the browser speaks the agent's lines via the Web
+    # Speech API instead of relying on server-side Riva audio. Escape hatch for
+    # when the hosted Riva/NVCF TTS function is degraded ("failed to establish
+    # link to worker") — robotic voice, but the agent still talks. Pair with
+    # RIVA_TTS_DISABLED=true so the server doesn't waste time on the dead function.
+    return {"iceServers": webrtc.ice_servers_json(),
+            "browserTts": os.getenv("BROWSER_TTS", "false").lower() == "true"}
 
 
 @app.post("/offer")
