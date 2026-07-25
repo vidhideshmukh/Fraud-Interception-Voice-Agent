@@ -197,16 +197,30 @@ def read_session_file(session_id: str) -> list[dict]:
     path = SESSIONS_DIR / f"{session_id}.jsonl"
     if not path.exists():
         return []
+    text = path.read_text(encoding="utf-8")
     out = []
-    # The file is the human-readable format (header box + '=' rules + indented
-    # JSON blocks), so split on the rule and parse each block that is JSON.
-    for block in path.read_text(encoding="utf-8").split(_SEP):
-        block = block.strip()
-        if block.startswith("{"):
-            try:
-                out.append(json.loads(block))
-            except Exception:  # noqa: BLE001
-                pass
+    if _SEP in text:
+        # Current human-readable format: header box + '=' rules + indented JSON
+        # blocks — split on the rule and parse each block that is JSON.
+        for block in text.split(_SEP):
+            block = block.strip()
+            if block.startswith("{"):
+                try:
+                    out.append(json.loads(block))
+                except Exception:  # noqa: BLE001
+                    pass
+    else:
+        # Older/compact format: one JSON object per line (plain JSONL). Without
+        # this branch these files parsed to 0 records and the ops console showed
+        # "No records" when a reviewer clicked the call, even though the data is
+        # all there. Parse line-by-line, skipping any non-JSON (e.g. a header).
+        for line in text.splitlines():
+            line = line.strip()
+            if line.startswith("{"):
+                try:
+                    out.append(json.loads(line))
+                except Exception:  # noqa: BLE001
+                    pass
     return out
 
 
