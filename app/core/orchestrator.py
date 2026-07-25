@@ -15,6 +15,7 @@ shouldn't.
 from __future__ import annotations
 
 import os
+import threading
 
 from app.speech import asr, tts
 from app.security import guardrails
@@ -374,6 +375,23 @@ def _execute_resolution(session: CallSession, outcome: str) -> None:
         resolution_agent.resolve_legit(session)
 
 
+def _finalize(session: CallSession, outcome: str) -> None:
+    """Execute the remediation + close the audit session — WITHOUT delaying the
+    agent's warm closing line. The NAT resolution agent can take several seconds;
+    running it inline left the call silent (or dropped) before the "have a good
+    day" was heard. So in live mode it runs in a BACKGROUND thread while the
+    closing line is spoken right away. Safe to background: bank actions are
+    idempotency-keyed and the deterministic failsafe guarantees completion. Mock
+    mode stays synchronous so tests observe the result immediately."""
+    def _run():
+        _execute_resolution(session, outcome)
+        audit.close_session(session.session_id, outcome)
+    if MOCK_MODE:
+        _run()
+    else:
+        threading.Thread(target=_run, name=f"resolve-{session.session_id[:12]}", daemon=True).start()
+
+
 def _handle_dialog_turn(session: CallSession, text: str) -> str:
     """Phase-1 style LLM-DRIVEN investigation loop. The model reads the flagged
     transaction + full transcript and returns ONE decision — ask another
@@ -429,15 +447,13 @@ def _handle_dialog_turn(session: CallSession, text: str) -> str:
     if action == "approve":
         session.state = CallState.RESOLVED_LEGIT
         session.outcome = "false_positive_recovered"
-        _execute_resolution(session, "false_positive_recovered")
-        audit.close_session(session.session_id, session.outcome)
+        _finalize(session, "false_positive_recovered")
         return _say(session, message)
 
     if action == "block":
         session.state = CallState.RESOLVED_FRAUD
         session.outcome = "fraud_confirmed"
-        _execute_resolution(session, "fraud_confirmed")
-        audit.close_session(session.session_id, session.outcome)
+        _finalize(session, "fraud_confirmed")
         return _say(session, message)
 
     return _escalate(session, turn, "unknown_action")     # defensive: never fall through
