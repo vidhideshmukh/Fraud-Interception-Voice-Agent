@@ -11,7 +11,7 @@
 models:
   - type: main
     engine: nim
-    model: nvidia/nemotron-3-nano-30b-a3b   # matches NIM_MODEL_GUARDRAILS in app/adapters/guardrails.py
+    model: nvidia/nemotron-3-nano   # gpu009 serves this id; the cloud fallback uses -30b-a3b (see app/security/guardrails.py)
     parameters:
       # nemoguardrails does NOT interpolate ${VAR} here (verified 2026-07-24) —
       # it passes the raw string to httpx, which then rejects "${NIM_BASE_URL:-...}"

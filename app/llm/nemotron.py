@@ -38,6 +38,16 @@ MOCK_MODE = os.getenv("MOCK_MODE", "true").lower() == "true"
 NIM_MODEL_REALTIME = os.getenv("NIM_MODEL_REALTIME", "nvidia/nemotron-3-nano-30b-a3b")
 NIM_BASE_URL = os.getenv("NIM_BASE_URL", "https://integrate.api.nvidia.com/v1")
 LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS_REALTIME", "150"))
+
+# Cloud fallback: if the primary endpoint (NIM_BASE_URL, e.g. a self-hosted
+# gpu009 NIM) is unreachable or errors, retry against the NVIDIA cloud using
+# NVIDIA_API_KEY. The cloud serves the model under a different id than the local
+# NIM, so the fallback carries its own model name. Enabled only when a real
+# NVIDIA_API_KEY is present AND the fallback URL differs from the primary.
+NIM_FALLBACK_BASE_URL = os.getenv("NIM_FALLBACK_BASE_URL", "https://integrate.api.nvidia.com/v1")
+NIM_FALLBACK_MODEL = os.getenv("NIM_FALLBACK_MODEL", "nvidia/nemotron-3-nano-30b-a3b")
+_NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
+FALLBACK_ENABLED = bool(_NVIDIA_API_KEY) and NIM_FALLBACK_BASE_URL.rstrip("/") != NIM_BASE_URL.rstrip("/")
 # Optional — only meaningful for the eval harness replaying Dataset 3's
 # scripted calls, where a fixed seed makes a run reproducible enough to
 # attribute a regression to a specific prompt/model change rather than
@@ -65,8 +75,40 @@ def _openai_client():
     global _client
     if _client is None:
         from openai import OpenAI  # deferred import: not needed in mock mode
-        _client = OpenAI(base_url=NIM_BASE_URL, api_key=os.environ["NVIDIA_API_KEY"])
+        # A self-hosted NIM doesn't validate the key, so allow a placeholder when
+        # NVIDIA_API_KEY isn't set (the cloud fallback uses the real key instead).
+        _client = OpenAI(base_url=NIM_BASE_URL,
+                         api_key=os.environ.get("NVIDIA_API_KEY") or "local-not-validated")
     return _client
+
+
+_fallback_client = None
+
+
+def _fallback_openai_client():
+    """Lazy client for the NVIDIA cloud fallback (real NVIDIA_API_KEY)."""
+    global _fallback_client
+    if _fallback_client is None:
+        from openai import OpenAI
+        _fallback_client = OpenAI(base_url=NIM_FALLBACK_BASE_URL, api_key=_NVIDIA_API_KEY)
+    return _fallback_client
+
+
+def _chat_create(create_kwargs: dict, *, timeout: float):
+    """Call the primary LLM endpoint; if it errors and a cloud fallback is
+    configured, retry against the NVIDIA cloud (its own base_url + model id +
+    NVIDIA_API_KEY). Re-raises if the primary fails and no fallback is set."""
+    try:
+        return _openai_client().chat.completions.create(**create_kwargs, timeout=timeout)
+    except Exception as e:  # noqa: BLE001 — primary endpoint failed; try the cloud
+        if not FALLBACK_ENABLED:
+            raise
+        import logging
+        logging.getLogger("nemotron").warning(
+            "primary LLM (%s) failed (%s) — falling back to NVIDIA cloud model %s",
+            NIM_BASE_URL, e, NIM_FALLBACK_MODEL)
+        return _fallback_openai_client().chat.completions.create(
+            **{**create_kwargs, "model": NIM_FALLBACK_MODEL}, timeout=timeout)
 
 
 @dataclass
@@ -96,12 +138,12 @@ def complete_json(system: str, user: str, *, stage: str = "investigation",
                                 session_id=session_id)
         return {}
     try:
-        resp = _openai_client().chat.completions.create(
+        resp = _chat_create(dict(
             model=NIM_MODEL_REALTIME,
             messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-            temperature=0.1, max_tokens=max_tokens, timeout=8.0,
+            temperature=0.1, max_tokens=max_tokens,
             response_format={"type": "json_object"},
-            extra_body={"chat_template_kwargs": {"enable_thinking": False}})
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}}), timeout=8.0)
         raw = resp.choices[0].message.content.strip()
         data = json.loads(raw[raw.index("{"): raw.rindex("}") + 1])
         usage = getattr(resp, "usage", None)
@@ -255,7 +297,7 @@ def complete_turn(system: str, history: list[dict], user_text: str, context: dic
     for attempt in range(2):
         try:
             _c0 = time.perf_counter()
-            resp = client.chat.completions.create(**create_kwargs, timeout=3.0)
+            resp = _chat_create(create_kwargs, timeout=3.0)
             call_ms = (time.perf_counter() - _c0) * 1000   # THIS single inference's latency
             raw = resp.choices[0].message.content.strip()
             data = json.loads(raw[raw.index("{"): raw.rindex("}") + 1])

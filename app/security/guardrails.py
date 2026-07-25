@@ -39,6 +39,12 @@ MOCK_MODE = os.getenv("MOCK_MODE", "true").lower() == "true"
 GUARDRAILS_MODEL = os.getenv("NIM_MODEL_GUARDRAILS", "nvidia/nemotron-3-nano-30b-a3b")
 NIM_BASE_URL = os.getenv("NIM_BASE_URL", "https://integrate.api.nvidia.com/v1")
 GUARDRAILS_CONFIG_PATH = os.getenv("GUARDRAILS_CONFIG_PATH", "config/guardrails")
+# Cloud fallback for the guardrails LLM (mirrors nemotron.py): if the primary
+# guardrails endpoint (base_url in config/guardrails/config.yml) errors, retry a
+# rails pointed at the NVIDIA cloud with NVIDIA_API_KEY + the cloud model id.
+_FALLBACK_BASE_URL = os.getenv("NIM_FALLBACK_BASE_URL", "https://integrate.api.nvidia.com/v1")
+_FALLBACK_MODEL = os.getenv("NIM_FALLBACK_MODEL", "nvidia/nemotron-3-nano-30b-a3b")
+_NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
 
 # The actual self-check prompts live in config/guardrails/config.yml — that's
 # what real NeMo Guardrails reads and runs, so it's the single source of
@@ -94,6 +100,32 @@ _TOXIC_WORDS = ("idiot", "stupid", "shut up", "moron", "screw you", "you people"
 _MONEY_RE = re.compile(r"£\s?([\d,]+(?:\.\d+)?)")
 
 _rails = None
+_rails_fb = None
+_rails_fb_tried = False
+
+
+def _nemo_rails_fallback():
+    """Cloud-fallback rails (NVIDIA_API_KEY) built by loading the same config but
+    repointing the model at the NVIDIA cloud. Returns None if no real key is set,
+    the fallback URL equals the primary, or the build fails (then _nemo_check
+    fails open). Built at most once per process."""
+    global _rails_fb, _rails_fb_tried
+    if _rails_fb_tried:
+        return _rails_fb
+    _rails_fb_tried = True
+    if not _NVIDIA_API_KEY or _FALLBACK_BASE_URL.rstrip("/") == NIM_BASE_URL.rstrip("/"):
+        return None
+    try:
+        import nest_asyncio
+        nest_asyncio.apply()
+        from nemoguardrails import LLMRails, RailsConfig
+        cfg = RailsConfig.from_path(GUARDRAILS_CONFIG_PATH)
+        cfg.models[0].model = _FALLBACK_MODEL
+        cfg.models[0].parameters["base_url"] = _FALLBACK_BASE_URL
+        _rails_fb = LLMRails(cfg)
+    except Exception:  # noqa: BLE001 — if the fallback can't build, degrade to fail-open
+        _rails_fb = None
+    return _rails_fb
 
 
 def _nemo_rails():
@@ -143,7 +175,24 @@ def _nemo_check(text: str, *, is_input: bool) -> bool:
                     {"role": "assistant", "content": text}]
 
     opts = GenerationOptions(rails=rails_opt, log=GenerationLogOptions(activated_rails=True))
-    resp = _nemo_rails().generate(messages=messages, options=opts)
+    # Try the primary guardrails endpoint; on error fall back to the NVIDIA cloud;
+    # if BOTH fail, fail OPEN (return not-blocked) so a guardrail outage can never
+    # crash the turn and silence the call.
+    resp = None
+    try:
+        resp = _nemo_rails().generate(messages=messages, options=opts)
+    except Exception as e_primary:  # noqa: BLE001
+        fb = _nemo_rails_fallback()
+        if fb is not None:
+            try:
+                resp = fb.generate(messages=messages, options=opts)
+            except Exception:  # noqa: BLE001
+                resp = None
+        if resp is None:
+            import logging
+            logging.getLogger("guardrails").warning(
+                "guardrails LLM failed (primary + fallback): %s — allowing this turn", e_primary)
+            return False
     for r in (resp.log.activated_rails if resp.log else []):
         if any("refuse" in str(d).lower() for d in (r.decisions or [])):
             return True
